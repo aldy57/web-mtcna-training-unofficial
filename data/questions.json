@@ -1,0 +1,1807 @@
+{
+  "version": 1,
+  "extractedAt": "2026-11-04T00:00:00.000Z",
+  "questionCount": 50,
+  "tryoutOrderIds": [
+    "A01",
+    "B01",
+    "A05",
+    "B05",
+    "A08",
+    "B08",
+    "A10",
+    "B10",
+    "A13",
+    "B13",
+    "A16",
+    "B16",
+    "A20",
+    "B20",
+    "A22",
+    "B22",
+    "A24",
+    "B24",
+    "A02",
+    "B02",
+    "A06",
+    "B06",
+    "A09",
+    "B09",
+    "A11",
+    "B11",
+    "A14",
+    "B14",
+    "A17",
+    "B17",
+    "A21",
+    "B21",
+    "A23",
+    "B23",
+    "A25",
+    "B25",
+    "A03",
+    "B03",
+    "A07",
+    "B07",
+    "A12",
+    "B12",
+    "A15",
+    "B15",
+    "A18",
+    "B18",
+    "A04",
+    "B04",
+    "A19",
+    "B19"
+  ],
+  "references": {
+    "S01": {
+      "id": "S01",
+      "title": "MikroTik Training — FAQ ujian",
+      "url": "https://mikrotik.com/training/about"
+    },
+    "S02": {
+      "id": "S02",
+      "title": "MTCNA Training Outline — tautan resmi pada halaman training",
+      "url": "https://i.mt.lv/cdn/training_pdf/mtcna_outline_2019181161836.pdf"
+    },
+    "S03": {
+      "id": "S03",
+      "title": "First Time Configuration",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/328151/First+Time+Configuration"
+    },
+    "S04": {
+      "id": "S04",
+      "title": "IP Addressing",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/328247/IP+Addressing"
+    },
+    "S05": {
+      "id": "S05",
+      "title": "Configuration Management",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/328155/Configuration+Management"
+    },
+    "S06": {
+      "id": "S06",
+      "title": "DHCP Client",
+      "url": "https://manual.mikrotik.com/docs/network-management/dhcp/client/"
+    },
+    "S07": {
+      "id": "S07",
+      "title": "DHCP",
+      "url": "https://manual.mikrotik.com/docs/network-management/dhcp/"
+    },
+    "S08": {
+      "id": "S08",
+      "title": "DNS",
+      "url": "https://manual.mikrotik.com/docs/network-management/dns/"
+    },
+    "S09": {
+      "id": "S09",
+      "title": "Bridging and Switching",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/328068/Bridging+and+Switching"
+    },
+    "S10": {
+      "id": "S10",
+      "title": "Spanning Tree Protocol",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/21725254/Spanning+Tree+Protocol"
+    },
+    "S11": {
+      "id": "S11",
+      "title": "IP Routing",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/328084/IP+Routing"
+    },
+    "S12": {
+      "id": "S12",
+      "title": "Wireless Interface — legacy wireless",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/8978446/Wireless+Interface"
+    },
+    "S13": {
+      "id": "S13",
+      "title": "Wireless Station Modes",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/122388518/Wireless+Station+Modes"
+    },
+    "S14": {
+      "id": "S14",
+      "title": "Filter — chain input/forward/output",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/48660574/Filter"
+    },
+    "S15": {
+      "id": "S15",
+      "title": "NAT",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/3211299/NAT"
+    },
+    "S16": {
+      "id": "S16",
+      "title": "Common Firewall Matchers and Actions",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/250708064/Common+Firewall+Matchers+and+Actions"
+    },
+    "S17": {
+      "id": "S17",
+      "title": "Queues",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/328088/Queues"
+    },
+    "S18": {
+      "id": "S18",
+      "title": "Connection tracking",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/130220087/Connection+tracking"
+    },
+    "S19": {
+      "id": "S19",
+      "title": "PPPoE",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/2031625/PPPoE"
+    },
+    "S20": {
+      "id": "S20",
+      "title": "EoIP",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/24805521/EoIP"
+    },
+    "S21": {
+      "id": "S21",
+      "title": "Torch",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/8323150/Torch"
+    },
+    "S22": {
+      "id": "S22",
+      "title": "Traceroute",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/130220138/Traceroute"
+    },
+    "S23": {
+      "id": "S23",
+      "title": "ARP",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/100892687/ARP"
+    },
+    "S24": {
+      "id": "S24",
+      "title": "RouterOS license keys",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/328149/RouterOS+license+keys"
+    },
+    "S25": {
+      "id": "S25",
+      "title": "DHCP Server",
+      "url": "https://manual.mikrotik.com/docs/network-management/dhcp/server/"
+    },
+    "S26": {
+      "id": "S26",
+      "title": "Wireless",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/1409138/Wireless"
+    },
+    "S27": {
+      "id": "S27",
+      "title": "PPP AAA — User Database",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/132350049/PPP+AAA"
+    },
+    "S28": {
+      "id": "S28",
+      "title": "Ping",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/8323183/Ping"
+    },
+    "S29": {
+      "id": "S29",
+      "title": "Packet Sniffer",
+      "url": "https://help.mikrotik.com/docs/spaces/ROS/pages/8323088/Packet+Sniffer"
+    }
+  },
+  "questions": [
+    {
+      "id": "A01",
+      "topic": "Dasar",
+      "kind": "tunggal",
+      "sortOrder": 1,
+      "sourceIds": [
+        "S03"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "PC dan router berada pada segmen Layer 2 yang sama. IP router belum diketahui, tetapi layanan MAC-WinBox diizinkan pada port tersebut. Cara akses yang paling sesuai adalah …",
+          "options": {
+            "A": "WebFig tanpa alamat tujuan",
+            "B": "WinBox menggunakan MAC address router",
+            "C": "Telnet menggunakan SSID",
+            "D": "SSH ke sembarang IP"
+          },
+          "explanation": "MAC-WinBox memungkinkan akses melalui MAC address pada segmen Layer 2 yang sesuai. SSH dan WebFig memerlukan konektivitas IP."
+        },
+        "en": {
+          "body": "A PC and a router are on the same Layer 2 segment. The router's IP address is unknown, but the MAC-WinBox service is allowed on that port. Which access method is most appropriate?",
+          "options": {
+            "A": "WebFig without a destination address",
+            "B": "WinBox using the router's MAC address",
+            "C": "Telnet using an SSID",
+            "D": "SSH to any arbitrary IP address"
+          },
+          "explanation": "MAC-WinBox allows access by MAC address on an appropriate Layer 2 segment. SSH and WebFig require IP connectivity."
+        }
+      }
+    },
+    {
+      "id": "A02",
+      "topic": "Dasar",
+      "kind": "tunggal",
+      "sortOrder": 19,
+      "sourceIds": [
+        "S04"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "Berapa jumlah alamat host yang dapat digunakan pada subnet IPv4 /27 konvensional, setelah alamat network dan broadcast dikecualikan?",
+          "options": {
+            "A": "28",
+            "B": "32",
+            "C": "30",
+            "D": "16"
+          },
+          "explanation": "Tersisa 5 bit host: 2^5 = 32 alamat. Setelah dikurangi network dan broadcast, tersedia 30 alamat host."
+        },
+        "en": {
+          "body": "How many usable host addresses are available in a conventional IPv4 /27 subnet after excluding the network and broadcast addresses?",
+          "options": {
+            "A": "28",
+            "B": "32",
+            "C": "30",
+            "D": "16"
+          },
+          "explanation": "Five host bits remain: 2^5 = 32 addresses. After excluding the network and broadcast addresses, 30 usable host addresses remain."
+        }
+      }
+    },
+    {
+      "id": "A03",
+      "topic": "Dasar",
+      "kind": "tunggal",
+      "sortOrder": 37,
+      "sourceIds": [
+        "S05"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Anda ingin memeriksa dan menyunting konfigurasi RouterOS sebagai teks sebelum mengadaptasinya ke router lain. Keluaran yang paling sesuai adalah …",
+          "options": {
+            "A": "File backup biner saja",
+            "B": "Tangkapan layar penggunaan CPU",
+            "C": "File paket .npk",
+            "D": "File hasil export .rsc"
+          },
+          "explanation": "Export menghasilkan skrip konfigurasi yang dapat diperiksa. Skrip tetap perlu disesuaikan dengan versi dan antarmuka tujuan; export bukan salinan lengkap seluruh data router."
+        },
+        "en": {
+          "body": "You want to inspect and edit a RouterOS configuration as text before adapting it to another router. Which output is most suitable?",
+          "options": {
+            "A": "A binary backup file only",
+            "B": "A screenshot of CPU usage",
+            "C": "An .npk package file",
+            "D": "An exported .rsc file"
+          },
+          "explanation": "Export creates a configuration script that can be inspected. The script still needs adjustments for the target version and interfaces; an export is not a complete copy of all router data."
+        }
+      }
+    },
+    {
+      "id": "A04",
+      "topic": "Dasar",
+      "kind": "tunggal",
+      "sortOrder": 47,
+      "sourceIds": [
+        "S05"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "Apa tujuan Safe Mode saat administrator mengubah konfigurasi melalui sesi jarak jauh?",
+          "options": {
+            "A": "Membantu membatalkan perubahan ketika sesi Safe Mode terputus tidak normal",
+            "B": "Mengaktifkan seluruh layanan manajemen",
+            "C": "Membuat backup permanen setiap detik",
+            "D": "Menghilangkan kebutuhan autentikasi"
+          },
+          "explanation": "Safe Mode membantu pemulihan perubahan saat sesi berakhir tidak normal, selama masih dalam batas pencatatan Safe Mode. Ini tidak menggantikan backup."
+        },
+        "en": {
+          "body": "What is the purpose of Safe Mode when an administrator changes configuration through a remote session?",
+          "options": {
+            "A": "To help undo changes if the Safe Mode session disconnects abnormally",
+            "B": "To enable all management services",
+            "C": "To create a permanent backup every second",
+            "D": "To remove the need for authentication"
+          },
+          "explanation": "Safe Mode helps roll back changes if the session ends abnormally, subject to its change-history limits. It does not replace backups."
+        }
+      }
+    },
+    {
+      "id": "A05",
+      "topic": "DHCP",
+      "kind": "tunggal",
+      "sortOrder": 3,
+      "sourceIds": [
+        "S06"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "ISP menyediakan alamat WAN melalui DHCP. Router pelanggan harus menerima konfigurasi itu pada ether1. Fitur yang dipakai adalah …",
+          "options": {
+            "A": "DHCP Server pada ether1",
+            "B": "DNS static pada ether1",
+            "C": "Bridge filter pada ether1",
+            "D": "DHCP Client pada ether1"
+          },
+          "explanation": "DHCP Client menerima konfigurasi dari server ISP. DHCP Server justru membagikan konfigurasi kepada klien."
+        },
+        "en": {
+          "body": "An ISP provides the WAN address using DHCP. The customer's router must obtain this configuration on ether1. Which feature should be used?",
+          "options": {
+            "A": "DHCP Server on ether1",
+            "B": "Static DNS on ether1",
+            "C": "Bridge filter on ether1",
+            "D": "DHCP Client on ether1"
+          },
+          "explanation": "A DHCP Client receives configuration from the ISP's server. A DHCP Server instead distributes configuration to clients."
+        }
+      }
+    },
+    {
+      "id": "A06",
+      "topic": "DHCP",
+      "kind": "jamak",
+      "sortOrder": 21,
+      "sourceIds": [
+        "S07"
+      ],
+      "answerKey": "ABD",
+      "translations": {
+        "id": {
+          "body": "Pilih semua parameter yang lazim dapat diberikan DHCP IPv4 kepada klien.",
+          "options": {
+            "A": "Default gateway",
+            "B": "DNS server",
+            "C": "Password administrator RouterOS",
+            "D": "Subnet mask"
+          },
+          "explanation": "DHCP dapat menyediakan subnet mask, gateway, dan DNS. Password login administrator router bukan parameter konfigurasi jaringan klien tersebut."
+        },
+        "en": {
+          "body": "Select all parameters that IPv4 DHCP commonly provides to clients.",
+          "options": {
+            "A": "Default gateway",
+            "B": "DNS server",
+            "C": "RouterOS administrator password",
+            "D": "Subnet mask"
+          },
+          "explanation": "DHCP can provide a subnet mask, default gateway, and DNS servers. The router administrator password is not one of these client network settings."
+        }
+      }
+    },
+    {
+      "id": "A07",
+      "topic": "DHCP",
+      "kind": "tunggal",
+      "sortOrder": 39,
+      "sourceIds": [
+        "S08"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Klien dapat menjangkau IP server uji, tetapi permintaan resolusi nama gagal. Pemeriksaan awal paling sesuai adalah …",
+          "options": {
+            "A": "Menonaktifkan seluruh antarmuka router",
+            "B": "Menghapus bridge LAN",
+            "C": "Mengganti semua kabel secara bersamaan",
+            "D": "Memeriksa alamat DNS klien dan keterjangkauan resolver"
+          },
+          "explanation": "Gejala ini mengarahkan pemeriksaan awal pada DNS. Keberhasilan akses IP belum membuktikan bahwa nama domain dapat diterjemahkan menjadi alamat IP."
+        },
+        "en": {
+          "body": "A client can reach a test server by IP address, but name resolution requests fail. What is the most appropriate initial check?",
+          "options": {
+            "A": "Disable all router interfaces",
+            "B": "Remove the LAN bridge",
+            "C": "Replace all cables at once",
+            "D": "Check the client's DNS server address and reachability of the resolver"
+          },
+          "explanation": "This symptom points to DNS as an initial area to investigate. Successful IP connectivity does not prove that domain names can be resolved to IP addresses."
+        }
+      }
+    },
+    {
+      "id": "A08",
+      "topic": "Bridge",
+      "kind": "tunggal",
+      "sortOrder": 5,
+      "sourceIds": [
+        "S09"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "ether2 dan ether3 akan menjadi bagian LAN Layer 2 yang sama tanpa segmentasi VLAN. Konfigurasi yang paling sesuai adalah …",
+          "options": {
+            "A": "Memasang DHCP Client pada setiap port saja",
+            "B": "Membuat NAT di antara kedua port",
+            "C": "Menambahkan keduanya sebagai port pada bridge yang sama",
+            "D": "Membuat default route ke setiap port"
+          },
+          "explanation": "Bridge menggabungkan port dalam jaringan Layer 2. NAT dan route tidak menggantikan fungsi switching ini."
+        },
+        "en": {
+          "body": "ether2 and ether3 need to belong to the same Layer 2 LAN without VLAN segmentation. Which configuration is most appropriate?",
+          "options": {
+            "A": "Configure a DHCP Client on each port only",
+            "B": "Create NAT between the two ports",
+            "C": "Add both ports to the same bridge",
+            "D": "Create a default route through each port"
+          },
+          "explanation": "A bridge combines ports within a Layer 2 network. NAT and routing do not replace this switching function."
+        }
+      }
+    },
+    {
+      "id": "A09",
+      "topic": "Bridge",
+      "kind": "tunggal",
+      "sortOrder": 23,
+      "sourceIds": [
+        "S10"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "Dua switch memiliki sambungan redundan. Apa fungsi RSTP pada bridge yang mendukungnya?",
+          "options": {
+            "A": "Mengenkripsi semua frame",
+            "B": "Mengganti DNS server",
+            "C": "Membentuk topologi forwarding bebas loop Layer 2",
+            "D": "Membagikan alamat IP"
+          },
+          "explanation": "RSTP mengatur peran dan status port untuk mencegah loop sambil mempertahankan kemungkinan jalur cadangan."
+        },
+        "en": {
+          "body": "Two switches have redundant connections. What does RSTP do on bridges that support it?",
+          "options": {
+            "A": "Encrypt all frames",
+            "B": "Replace the DNS server",
+            "C": "Establish a loop-free Layer 2 forwarding topology",
+            "D": "Assign IP addresses"
+          },
+          "explanation": "RSTP manages port roles and states to prevent loops while retaining the possibility of a backup path."
+        }
+      }
+    },
+    {
+      "id": "A10",
+      "topic": "Routing",
+      "kind": "tunggal",
+      "sortOrder": 7,
+      "sourceIds": [
+        "S11"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "Prefix (rentang alamat) tujuan yang menyatakan default route IPv4 adalah …",
+          "options": {
+            "A": "0.0.0.0/0",
+            "B": "192.168.0.0/16",
+            "C": "127.0.0.1/32",
+            "D": "255.255.255.255/32"
+          },
+          "explanation": "Prefix /0 mencakup semua alamat IPv4. Default route digunakan ketika tidak ada rute aktif dengan rentang alamat lebih khusus yang sesuai."
+        },
+        "en": {
+          "body": "Which destination prefix represents the IPv4 default route?",
+          "options": {
+            "A": "0.0.0.0/0",
+            "B": "192.168.0.0/16",
+            "C": "127.0.0.1/32",
+            "D": "255.255.255.255/32"
+          },
+          "explanation": "The /0 prefix covers all IPv4 addresses. The default route is used when no more-specific active matching route is available."
+        }
+      }
+    },
+    {
+      "id": "A11",
+      "topic": "Routing",
+      "kind": "tunggal",
+      "sortOrder": 25,
+      "sourceIds": [
+        "S11"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Dalam tabel routing yang sama terdapat rute aktif 10.40.0.0/16 melalui R1 dan 10.40.8.0/24 melalui R2. Tidak ada policy routing. Paket ke 10.40.8.25 mengikuti …",
+          "options": {
+            "A": "Keduanya selalu bergantian",
+            "B": "R1 karena prefix lebih pendek",
+            "C": "Rute yang dibuat terakhir",
+            "D": "R2 karena /24 lebih spesifik"
+          },
+          "explanation": "Pencarian rute memilih prefix yang paling spesifik dan cocok dengan alamat tujuan. Alamat tujuan termasuk 10.40.8.0/24."
+        },
+        "en": {
+          "body": "The same routing table contains an active route to 10.40.0.0/16 via R1 and another to 10.40.8.0/24 via R2. There is no policy routing. A packet destined for 10.40.8.25 uses ...",
+          "options": {
+            "A": "Both routes alternately in every case",
+            "B": "R1 because its prefix is shorter",
+            "C": "The route created most recently",
+            "D": "R2 because /24 is more specific"
+          },
+          "explanation": "Route lookup selects the most-specific matching prefix. The destination belongs to 10.40.8.0/24."
+        }
+      }
+    },
+    {
+      "id": "A12",
+      "topic": "Routing",
+      "kind": "tunggal",
+      "sortOrder": 41,
+      "sourceIds": [
+        "S11"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "R1 terhubung ke R2 melalui 172.20.0.1/30 dan 172.20.0.2/30. LAN 192.168.50.0/24 berada di belakang R2. Entri static route pada R1 yang tepat untuk LAN itu adalah …",
+          "options": {
+            "A": "dst-address=192.168.50.0/24 gateway=172.20.0.1",
+            "B": "dst-address=127.0.0.0/8 gateway=172.20.0.2",
+            "C": "dst-address=192.168.50.0/24 gateway=172.20.0.2",
+            "D": "dst-address=172.20.0.0/30 gateway=192.168.50.0"
+          },
+          "explanation": "Next hop (router berikutnya) adalah alamat R2 yang dapat dijangkau R1. Komunikasi dua arah juga memerlukan jalur balik dan izin firewall."
+        },
+        "en": {
+          "body": "R1 connects to R2 using 172.20.0.1/30 and 172.20.0.2/30. The 192.168.50.0/24 LAN is behind R2. Which static route on R1 correctly reaches that LAN?",
+          "options": {
+            "A": "dst-address=192.168.50.0/24 gateway=172.20.0.1",
+            "B": "dst-address=127.0.0.0/8 gateway=172.20.0.2",
+            "C": "dst-address=192.168.50.0/24 gateway=172.20.0.2",
+            "D": "dst-address=172.20.0.0/30 gateway=192.168.50.0"
+          },
+          "explanation": "The next hop is R2's address, which R1 can reach. Two-way communication also requires a return path and appropriate firewall permissions."
+        }
+      }
+    },
+    {
+      "id": "A13",
+      "topic": "Wireless",
+      "kind": "tunggal",
+      "sortOrder": 9,
+      "sourceIds": [
+        "S12"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "Pada paket wireless lama (legacy wireless), perangkat dengan lisensi yang mendukung akan melayani beberapa station sebagai access point. Mode yang sesuai adalah …",
+          "options": {
+            "A": "ap-bridge",
+            "B": "station",
+            "C": "station-pseudobridge",
+            "D": "alignment-only"
+          },
+          "explanation": "Pada legacy wireless, ap-bridge melayani beberapa station. Jangan menyamakan nama mode ini dengan menu pada paket wifi baru."
+        },
+        "en": {
+          "body": "With the legacy wireless package, a device with a suitable license will serve multiple stations as an access point. Which mode is appropriate?",
+          "options": {
+            "A": "ap-bridge",
+            "B": "station",
+            "C": "station-pseudobridge",
+            "D": "alignment-only"
+          },
+          "explanation": "In legacy wireless, ap-bridge serves multiple stations. Do not confuse this mode name with options in the newer wifi package."
+        }
+      }
+    },
+    {
+      "id": "A14",
+      "topic": "Wireless",
+      "kind": "tunggal",
+      "sortOrder": 27,
+      "sourceIds": [
+        "S13"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "Pada paket wireless lama (legacy wireless), apa fungsi utama mode station?",
+          "options": {
+            "A": "Membuat NAT otomatis",
+            "B": "Menjadi server DHCP",
+            "C": "Menghubungkan radio sebagai klien ke access point",
+            "D": "Menjadi AP untuk banyak klien"
+          },
+          "explanation": "Mode station berperan sebagai klien wireless. Koneksi radio tidak otomatis menyediakan NAT atau layanan DHCP."
+        },
+        "en": {
+          "body": "In the legacy wireless package, what is the primary function of station mode?",
+          "options": {
+            "A": "Automatically create NAT",
+            "B": "Act as a DHCP server",
+            "C": "Connect the radio as a client to an access point",
+            "D": "Act as an AP for multiple clients"
+          },
+          "explanation": "Station mode makes the wireless radio act as a client. A wireless link does not automatically provide NAT or DHCP services."
+        }
+      }
+    },
+    {
+      "id": "A15",
+      "topic": "Wireless",
+      "kind": "tunggal",
+      "sortOrder": 43,
+      "sourceIds": [
+        "S12"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "AP dan klien yang menggunakan paket wireless lama (legacy wireless) mendukung WPA2-PSK. Pilihan konfigurasi keamanan link yang tepat adalah …",
+          "options": {
+            "A": "Menggunakan nama SSID sebagai satu-satunya pengaman",
+            "B": "WPA2-PSK dengan AES/CCMP dan passphrase kuat",
+            "C": "Menggunakan WEP karena setara dengan WPA2",
+            "D": "Menonaktifkan autentikasi karena SSID disembunyikan"
+          },
+          "explanation": "WPA2-PSK dengan AES/CCMP menyediakan autentikasi dan enkripsi sesuai kemampuan perangkat pada soal. Menyembunyikan SSID tidak menggantikan perlindungan koneksi wireless."
+        },
+        "en": {
+          "body": "An AP and its clients use the legacy wireless package and support WPA2-PSK. Which link security configuration is appropriate?",
+          "options": {
+            "A": "Use the SSID name as the only protection",
+            "B": "WPA2-PSK with AES/CCMP and a strong passphrase",
+            "C": "Use WEP because it is equivalent to WPA2",
+            "D": "Disable authentication because the SSID is hidden"
+          },
+          "explanation": "WPA2-PSK with AES/CCMP provides authentication and encryption supported by the devices in this scenario. Hiding the SSID does not replace wireless security."
+        }
+      }
+    },
+    {
+      "id": "A16",
+      "topic": "Firewall",
+      "kind": "tunggal",
+      "sortOrder": 11,
+      "sourceIds": [
+        "S14"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "Paket dari PC menuju layanan WinBox pada IP router itu sendiri. Chain (jalur pemeriksaan) IPv4 firewall filter yang relevan adalah …",
+          "options": {
+            "A": "input",
+            "B": "output",
+            "C": "srcnat",
+            "D": "forward"
+          },
+          "explanation": "Input memproses paket yang ditujukan ke router. Forward memproses paket transit, sedangkan output untuk paket buatan router."
+        },
+        "en": {
+          "body": "A packet travels from a PC to the WinBox service on the router's own IP address. Which IPv4 firewall filter chain applies?",
+          "options": {
+            "A": "input",
+            "B": "output",
+            "C": "srcnat",
+            "D": "forward"
+          },
+          "explanation": "The input chain processes packets destined for the router itself. Forward handles transit packets, while output applies to packets generated by the router."
+        }
+      }
+    },
+    {
+      "id": "A17",
+      "topic": "Firewall",
+      "kind": "tunggal",
+      "sortOrder": 29,
+      "sourceIds": [
+        "S14"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "Paket IPv4 diteruskan dari PC LAN melalui router menuju server Internet. Chain (jalur pemeriksaan) firewall filter untuk paket transit tersebut adalah …",
+          "options": {
+            "A": "input",
+            "B": "dstnat",
+            "C": "forward",
+            "D": "output"
+          },
+          "explanation": "Forward menangani paket yang melintas melalui router. Dstnat merupakan chain NAT, bukan chain filter untuk pertanyaan ini."
+        },
+        "en": {
+          "body": "An IPv4 packet is forwarded from a LAN PC through a router to an Internet server. Which firewall filter chain handles this transit packet?",
+          "options": {
+            "A": "input",
+            "B": "dstnat",
+            "C": "forward",
+            "D": "output"
+          },
+          "explanation": "Forward handles packets passing through a router. Dstnat is a NAT chain, not the filter chain asked about here."
+        }
+      }
+    },
+    {
+      "id": "A18",
+      "topic": "Firewall",
+      "kind": "tunggal",
+      "sortOrder": 45,
+      "sourceIds": [
+        "S15"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "LAN memakai IPv4 privat dan ISP tidak memiliki rute balik ke LAN tersebut. IP WAN dinamis. Setelah routing benar, aksi source NAT yang lazim dipilih adalah …",
+          "options": {
+            "A": "dst-nat",
+            "B": "mark-packet",
+            "C": "masquerade",
+            "D": "redirect"
+          },
+          "explanation": "Masquerade menyesuaikan source NAT dengan alamat antarmuka keluar, sehingga sesuai untuk WAN dinamis. Routing dan firewall tetap harus benar."
+        },
+        "en": {
+          "body": "A LAN uses private IPv4 addresses, and the ISP has no return route to that LAN. The WAN IP is dynamic. Once routing works, which source NAT action is commonly used?",
+          "options": {
+            "A": "dst-nat",
+            "B": "mark-packet",
+            "C": "masquerade",
+            "D": "redirect"
+          },
+          "explanation": "Masquerade adapts source NAT to the outgoing interface address, making it suitable for a dynamic WAN IP. Routing and firewall rules must still be correct."
+        }
+      }
+    },
+    {
+      "id": "A19",
+      "topic": "Firewall",
+      "kind": "tunggal",
+      "sortOrder": 49,
+      "sourceIds": [
+        "S16"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "Dalam chain forward, rule pertama menerima semua paket dari 192.168.10.0/24. Rule kedua menjatuhkan TCP port 80 dari subnet itu. Untuk koneksi baru dari subnet tersebut ke TCP port 80, tanpa rule lain sebelumnya, hasilnya …",
+          "options": {
+            "A": "Diterima oleh rule pertama",
+            "B": "Dijatuhkan oleh rule kedua",
+            "C": "Kedua aksi selalu dijalankan",
+            "D": "Router otomatis mengurutkan ulang rule"
+          },
+          "explanation": "Aksi accept mengakhiri pemeriksaan paket pada chain itu. Rule drop yang terletak setelah accept yang sudah cocok tidak tercapai."
+        },
+        "en": {
+          "body": "In the forward chain, the first rule accepts all packets from 192.168.10.0/24. The second rule drops TCP port 80 traffic from that subnet. For a new connection from that subnet to TCP port 80, with no earlier rules, what happens?",
+          "options": {
+            "A": "It is accepted by the first rule",
+            "B": "It is dropped by the second rule",
+            "C": "Both actions are always executed",
+            "D": "The router automatically reorders the rules"
+          },
+          "explanation": "The accept action ends packet processing in that chain. A later drop rule is not reached if the earlier accept rule already matches."
+        }
+      }
+    },
+    {
+      "id": "A20",
+      "topic": "QoS",
+      "kind": "tunggal",
+      "sortOrder": 13,
+      "sourceIds": [
+        "S17"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Simple Queue memiliki target 192.168.10.25/32 dan max-limit=2M/8M. Burst tidak aktif dan trafik melewati queue. Batas dari sudut pandang target adalah …",
+          "options": {
+            "A": "Upload 8 Mbps dan download 2 Mbps",
+            "B": "Upload dan download masing-masing 8 Mbps",
+            "C": "Total gabungan selalu 10 Mbps",
+            "D": "Upload 2 Mbps dan download 8 Mbps"
+          },
+          "explanation": "Urutan max-limit Simple Queue adalah upload/download terhadap target. Nilai batas tidak menjamin kecepatan selalu tercapai."
+        },
+        "en": {
+          "body": "A Simple Queue targets 192.168.10.25/32 with max-limit=2M/8M. Burst is disabled and the traffic passes through the queue. What limits apply from the target's perspective?",
+          "options": {
+            "A": "8 Mbps upload and 2 Mbps download",
+            "B": "8 Mbps for both upload and download",
+            "C": "Always a combined total of 10 Mbps",
+            "D": "2 Mbps upload and 8 Mbps download"
+          },
+          "explanation": "Simple Queue max-limit values are ordered upload/download relative to the target. These limits do not guarantee that the specified speeds will be achieved."
+        }
+      }
+    },
+    {
+      "id": "A21",
+      "topic": "QoS",
+      "kind": "tunggal",
+      "sortOrder": 31,
+      "sourceIds": [
+        "S18"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "Simple Queue sudah benar, tetapi koneksi klien terkena FastTrack dan pembatasan tidak berjalan sesuai harapan. Penyebab yang perlu diperiksa adalah …",
+          "options": {
+            "A": "DNS mengubah nilai max-limit",
+            "B": "Trafik FastTrack dapat melewati Simple Queue",
+            "C": "Nama queue harus sama dengan SSID",
+            "D": "Lease DHCP selalu menonaktifkan queue"
+          },
+          "explanation": "FastTrack dapat melewati Simple Queue. Periksa pengecualian FastTrack bagi trafik yang perlu dibatasi."
+        },
+        "en": {
+          "body": "A Simple Queue is configured correctly, but a client's connection uses FastTrack and bandwidth limiting does not work as expected. Which cause should be checked?",
+          "options": {
+            "A": "DNS changes the max-limit value",
+            "B": "FastTrack traffic can bypass Simple Queues",
+            "C": "The queue name must match the SSID",
+            "D": "A DHCP lease always disables queues"
+          },
+          "explanation": "FastTrack traffic may bypass Simple Queues. Check FastTrack exclusions for traffic that must be limited."
+        }
+      }
+    },
+    {
+      "id": "A22",
+      "topic": "Tunnel",
+      "kind": "tunggal",
+      "sortOrder": 15,
+      "sourceIds": [
+        "S19"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "ISP mewajibkan username dan password PPPoE pada link Ethernet pelanggan. Fitur di router pelanggan yang digunakan adalah …",
+          "options": {
+            "A": "PPPoE Server",
+            "B": "DHCP Relay",
+            "C": "EoIP Server",
+            "D": "PPPoE Client"
+          },
+          "explanation": "PPPoE Client membangun sesi ke access concentrator ISP menggunakan kredensial yang diberikan."
+        },
+        "en": {
+          "body": "An ISP requires a PPPoE username and password on the customer's Ethernet link. Which feature should be used on the customer's router?",
+          "options": {
+            "A": "PPPoE Server",
+            "B": "DHCP Relay",
+            "C": "EoIP Server",
+            "D": "PPPoE Client"
+          },
+          "explanation": "A PPPoE Client establishes a session with the ISP's access concentrator using the supplied credentials."
+        }
+      }
+    },
+    {
+      "id": "A23",
+      "topic": "Tunnel",
+      "kind": "jamak",
+      "sortOrder": 33,
+      "sourceIds": [
+        "S20"
+      ],
+      "answerKey": "BC",
+      "translations": {
+        "id": {
+          "body": "Dua router memiliki konektivitas IP dan ingin membawa frame Ethernet melalui tunnel EoIP. Pilih semua pernyataan yang benar.",
+          "options": {
+            "A": "EoIP menggantikan kebutuhan konektivitas IP antarkedua ujung",
+            "B": "Tunnel ID kedua ujung untuk pasangan tunnel harus sesuai",
+            "C": "EoIP membawa frame Ethernet melalui jaringan IP",
+            "D": "EoIP saja selalu mengenkripsi seluruh trafik"
+          },
+          "explanation": "EoIP menyediakan tunnel Ethernet di atas IP dan pasangan ujung menggunakan tunnel ID yang cocok. Enkripsi memerlukan mekanisme tambahan; konektivitas IP tetap diperlukan."
+        },
+        "en": {
+          "body": "Two routers have IP connectivity and want to carry Ethernet frames over an EoIP tunnel. Select all correct statements.",
+          "options": {
+            "A": "EoIP eliminates the need for IP connectivity between the endpoints",
+            "B": "Both endpoints of a tunnel pair must use matching tunnel IDs",
+            "C": "EoIP carries Ethernet frames over an IP network",
+            "D": "EoIP alone always encrypts all traffic"
+          },
+          "explanation": "EoIP provides an Ethernet tunnel over IP, and its endpoints use matching tunnel IDs. Encryption requires an additional mechanism, and IP connectivity is still necessary."
+        }
+      }
+    },
+    {
+      "id": "A24",
+      "topic": "Tools",
+      "kind": "tunggal",
+      "sortOrder": 17,
+      "sourceIds": [
+        "S21"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "Anda ingin melihat alamat sumber/tujuan dan laju trafik yang teramati pada sebuah interface secara langsung. Tool yang sesuai adalah …",
+          "options": {
+            "A": "Netinstall",
+            "B": "System Identity",
+            "C": "Torch",
+            "D": "IP Pool"
+          },
+          "explanation": "Torch menampilkan trafik yang teramati pada interface secara real time. Sebagian trafik mungkin tidak terlihat jika diproses langsung oleh perangkat keras (hardware offload)."
+        },
+        "en": {
+          "body": "You want to see observed source/destination addresses and live traffic rates on an interface. Which tool is appropriate?",
+          "options": {
+            "A": "Netinstall",
+            "B": "System Identity",
+            "C": "Torch",
+            "D": "IP Pool"
+          },
+          "explanation": "Torch shows observed traffic on an interface in real time. Some traffic may not be visible if it is processed by hardware offloading."
+        }
+      }
+    },
+    {
+      "id": "A25",
+      "topic": "Tools",
+      "kind": "tunggal",
+      "sortOrder": 35,
+      "sourceIds": [
+        "S22"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "Traceroute dipakai untuk …",
+          "options": {
+            "A": "Menyelidiki hop Layer 3 menuju tujuan dan respons waktunya",
+            "B": "Mengubah seluruh MAC address",
+            "C": "Membagikan DNS kepada klien",
+            "D": "Membuat backup biner"
+          },
+          "explanation": "Traceroute membantu menelusuri jalur Layer 3. Hop yang tidak menjawab tidak selalu berarti hop tersebut gagal meneruskan trafik."
+        },
+        "en": {
+          "body": "What is traceroute used for?",
+          "options": {
+            "A": "Investigating Layer 3 hops toward a destination and their response times",
+            "B": "Changing all MAC addresses",
+            "C": "Distributing DNS settings to clients",
+            "D": "Creating a binary backup"
+          },
+          "explanation": "Traceroute helps trace the Layer 3 path. A hop that does not reply does not necessarily mean it failed to forward traffic."
+        }
+      }
+    },
+    {
+      "id": "B01",
+      "topic": "Dasar",
+      "kind": "tunggal",
+      "sortOrder": 2,
+      "sourceIds": [
+        "S04"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "Host memiliki IPv4 192.168.70.130/26. Network address subnet host tersebut adalah …",
+          "options": {
+            "A": "192.168.70.64",
+            "B": "192.168.70.128",
+            "C": "192.168.70.0",
+            "D": "192.168.70.192"
+          },
+          "explanation": "Ukuran blok /26 adalah 64 alamat. Alamat .130 berada pada blok .128 sampai .191, sehingga network-nya .128."
+        },
+        "en": {
+          "body": "A host has IPv4 address 192.168.70.130/26. What is the network address of its subnet?",
+          "options": {
+            "A": "192.168.70.64",
+            "B": "192.168.70.128",
+            "C": "192.168.70.0",
+            "D": "192.168.70.192"
+          },
+          "explanation": "A /26 subnet has blocks of 64 addresses. Address .130 falls in the .128 through .191 block, so the network address ends in .128."
+        }
+      }
+    },
+    {
+      "id": "B02",
+      "topic": "Dasar",
+      "kind": "tunggal",
+      "sortOrder": 20,
+      "sourceIds": [
+        "S23"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Dalam LAN IPv4 Ethernet, fungsi utama ARP adalah …",
+          "options": {
+            "A": "Menerjemahkan nama domain menjadi IP",
+            "B": "Memilih default route Internet",
+            "C": "Mengalokasikan subnet mask melalui lease",
+            "D": "Memetakan alamat IPv4 tetangga ke MAC address"
+          },
+          "explanation": "ARP menyelesaikan alamat IPv4 tetangga menjadi MAC address untuk pengiriman pada link lokal. Resolusi nama adalah fungsi DNS."
+        },
+        "en": {
+          "body": "In an IPv4 Ethernet LAN, what is the main function of ARP?",
+          "options": {
+            "A": "Translate domain names into IP addresses",
+            "B": "Select the Internet default route",
+            "C": "Assign subnet masks through leases",
+            "D": "Map a neighboring IPv4 address to a MAC address"
+          },
+          "explanation": "ARP resolves a neighboring IPv4 address to a MAC address for delivery on the local link. Domain name resolution is handled by DNS."
+        }
+      }
+    },
+    {
+      "id": "B03",
+      "topic": "Dasar",
+      "kind": "jamak",
+      "sortOrder": 38,
+      "sourceIds": [
+        "S05"
+      ],
+      "answerKey": "CD",
+      "translations": {
+        "id": {
+          "body": "Pilih semua pernyataan yang benar mengenai pengelolaan konfigurasi RouterOS.",
+          "options": {
+            "A": "Hasil export selalu memuat seluruh data dan rahasia tanpa pengecualian",
+            "B": "File .npk adalah format export konfigurasi yang dapat diedit",
+            "C": "Export .rsc dapat diperiksa sebagai teks",
+            "D": "Backup biner dan export teks memiliki tujuan serta cakupan yang berbeda"
+          },
+          "explanation": "Export adalah skrip teks; backup biner memiliki cakupan dan karakteristik berbeda. Jangan berasumsi export memuat seluruh data atau informasi sensitif."
+        },
+        "en": {
+          "body": "Select all correct statements about managing RouterOS configurations.",
+          "options": {
+            "A": "An export always contains all data and secrets without exception",
+            "B": "An .npk file is an editable configuration export",
+            "C": "An .rsc export can be inspected as text",
+            "D": "Binary backups and text exports have different purposes and coverage"
+          },
+          "explanation": "An export is a text script, while a binary backup has different characteristics and scope. Do not assume that exports contain all data or sensitive information."
+        }
+      }
+    },
+    {
+      "id": "B04",
+      "topic": "Dasar",
+      "kind": "tunggal",
+      "sortOrder": 48,
+      "sourceIds": [
+        "S24"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Untuk lisensi RouterOS klasik, bukan skema CHR, level minimum berbayar dari pilihan berikut yang mendukung legacy wireless AP point-to-multipoint adalah …",
+          "options": {
+            "A": "Level 1",
+            "B": "Semua level memiliki kemampuan sama",
+            "C": "Level 3",
+            "D": "Level 4"
+          },
+          "explanation": "Level 4 mendukung mode AP PtMP pada skema lisensi klasik. Level 3 ditujukan untuk station/CPE. Hardware dan paket wireless juga harus mendukung."
+        },
+        "en": {
+          "body": "For classic RouterOS licensing, not the CHR scheme, what is the lowest paid license level listed here that supports legacy wireless point-to-multipoint AP mode?",
+          "options": {
+            "A": "Level 1",
+            "B": "All levels have identical capabilities",
+            "C": "Level 3",
+            "D": "Level 4"
+          },
+          "explanation": "Level 4 supports point-to-multipoint AP mode under classic licensing. Level 3 is intended for stations/CPEs. The hardware and wireless package must also support it."
+        }
+      }
+    },
+    {
+      "id": "B05",
+      "topic": "DHCP",
+      "kind": "tunggal",
+      "sortOrder": 4,
+      "sourceIds": [
+        "S25"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "LAN 192.168.30.0/24 memakai gateway 192.168.30.1 dan server statis 192.168.30.10. Pool DHCP yang menghindari kedua alamat tersebut, network, dan broadcast adalah …",
+          "options": {
+            "A": "192.168.30.1-192.168.30.100",
+            "B": "192.168.30.10-192.168.30.255",
+            "C": "192.168.30.0-192.168.30.254",
+            "D": "192.168.30.100-192.168.30.200"
+          },
+          "explanation": "Rentang .100 sampai .200 berada dalam subnet dan tidak mencakup alamat yang sudah dicadangkan maupun network/broadcast."
+        },
+        "en": {
+          "body": "A 192.168.30.0/24 LAN uses gateway 192.168.30.1 and a static server at 192.168.30.10. Which DHCP pool avoids both reserved addresses and the network and broadcast addresses?",
+          "options": {
+            "A": "192.168.30.1-192.168.30.100",
+            "B": "192.168.30.10-192.168.30.255",
+            "C": "192.168.30.0-192.168.30.254",
+            "D": "192.168.30.100-192.168.30.200"
+          },
+          "explanation": "The .100 through .200 range lies inside the subnet and excludes both reserved addresses as well as the network and broadcast addresses."
+        }
+      }
+    },
+    {
+      "id": "B06",
+      "topic": "DHCP",
+      "kind": "tunggal",
+      "sortOrder": 22,
+      "sourceIds": [
+        "S08"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "Klien memakai IP router sebagai DNS. Upstream DNS router sudah bekerja dan firewall mengizinkan DNS dari LAN. Pengaturan RouterOS yang diperlukan agar router menjawab permintaan DNS klien adalah …",
+          "options": {
+            "A": "allow-remote-requests=yes",
+            "B": "add-default-route=no",
+            "C": "arp=disabled",
+            "D": "use-peer-dns=no pada semua interface"
+          },
+          "explanation": "Allow-remote-requests memungkinkan router melayani kueri DNS klien. Akses resolver perlu dibatasi ke jaringan yang diizinkan."
+        },
+        "en": {
+          "body": "Clients use the router's IP address as their DNS server. The router's upstream DNS works, and the firewall permits DNS requests from the LAN. Which RouterOS setting allows the router to answer client DNS queries?",
+          "options": {
+            "A": "allow-remote-requests=yes",
+            "B": "add-default-route=no",
+            "C": "arp=disabled",
+            "D": "use-peer-dns=no on all interfaces"
+          },
+          "explanation": "Allow-remote-requests lets the router answer client DNS queries. Resolver access should be restricted to authorized networks."
+        }
+      }
+    },
+    {
+      "id": "B07",
+      "topic": "DHCP",
+      "kind": "tunggal",
+      "sortOrder": 40,
+      "sourceIds": [
+        "S06"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Pada DHCP Client RouterOS, use-peer-dns=yes berarti …",
+          "options": {
+            "A": "Router menjadi authoritative DNS untuk semua domain",
+            "B": "Router menonaktifkan resolusi nama",
+            "C": "Router menghapus seluruh static route",
+            "D": "Router menerima informasi DNS yang diberikan DHCP server"
+          },
+          "explanation": "Use-peer-dns mengizinkan penggunaan informasi DNS dari DHCP server. Ini berbeda dari izin menjawab kueri DNS klien LAN."
+        },
+        "en": {
+          "body": "On a RouterOS DHCP Client, what does use-peer-dns=yes mean?",
+          "options": {
+            "A": "The router becomes an authoritative DNS server for every domain",
+            "B": "The router disables domain name resolution",
+            "C": "The router removes all static routes",
+            "D": "The router accepts DNS information supplied by the DHCP server"
+          },
+          "explanation": "Use-peer-dns permits the router to use DNS information supplied by the DHCP server. It is different from permitting the router to answer LAN client DNS queries."
+        }
+      }
+    },
+    {
+      "id": "B08",
+      "topic": "Bridge",
+      "kind": "tunggal",
+      "sortOrder": 6,
+      "sourceIds": [
+        "S09"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "ether2 dan ether3 merupakan port bridge-LAN tanpa VLAN. Alamat gateway LAN yang melayani kedua port sebaiknya ditempatkan pada …",
+          "options": {
+            "A": "bridge-LAN",
+            "B": "ether2 dan ether3 dengan IP identik terpisah",
+            "C": "Setiap MAC address klien",
+            "D": "Interface WAN saja"
+          },
+          "explanation": "Alamat Layer 3 untuk LAN ditempatkan pada interface bridge. Port anggota menyediakan jalur Layer 2 ke bridge itu."
+        },
+        "en": {
+          "body": "ether2 and ether3 are members of bridge-LAN without VLANs. Where should the LAN gateway IP address serving both ports be assigned?",
+          "options": {
+            "A": "bridge-LAN",
+            "B": "ether2 and ether3 separately with identical IP addresses",
+            "C": "Each client's MAC address",
+            "D": "Only the WAN interface"
+          },
+          "explanation": "The Layer 3 address for the LAN belongs on the bridge interface. Member ports provide Layer 2 connectivity to that bridge."
+        }
+      }
+    },
+    {
+      "id": "B09",
+      "topic": "Bridge",
+      "kind": "tunggal",
+      "sortOrder": 24,
+      "sourceIds": [
+        "S09"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "Bridge tanpa VLAN menerima frame unicast (data untuk satu tujuan). MAC tujuan telah dipelajari pada ether3. Frame datang dari ether2 dan ether3 berada dalam status forwarding. Perilaku normalnya adalah …",
+          "options": {
+            "A": "Mengirim frame ke semua port tanpa pengecualian",
+            "B": "Menjatuhkan frame karena bukan broadcast",
+            "C": "Meneruskan frame ke ether3",
+            "D": "Mengubah frame menjadi paket DNS"
+          },
+          "explanation": "Bridge memakai tabel MAC untuk meneruskan known unicast ke port tujuan yang sesuai. Flooding terutama berkaitan dengan tujuan yang belum dikenal atau trafik broadcast tertentu."
+        },
+        "en": {
+          "body": "A bridge without VLANs receives a unicast frame. The destination MAC address has been learned on ether3. The frame arrives on ether2, and ether3 is in the forwarding state. What is the normal behavior?",
+          "options": {
+            "A": "Send the frame to every port without exception",
+            "B": "Drop the frame because it is not broadcast",
+            "C": "Forward the frame to ether3",
+            "D": "Convert the frame into a DNS packet"
+          },
+          "explanation": "The bridge uses its MAC table to forward known unicast frames to the appropriate destination port. Flooding mainly applies to unknown destinations and certain broadcast traffic."
+        }
+      }
+    },
+    {
+      "id": "B10",
+      "topic": "Routing",
+      "kind": "tunggal",
+      "sortOrder": 8,
+      "sourceIds": [
+        "S11"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "Dua static route unicast memiliki prefix tujuan yang sama dalam tabel yang sama. Keduanya memiliki next hop (router berikutnya) yang dapat dijangkau; distance masing-masing 1 dan 5. Tanpa kebijakan lain, rute yang diutamakan adalah …",
+          "options": {
+            "A": "Distance 5",
+            "B": "Distance 1",
+            "C": "Yang komentarnya paling panjang",
+            "D": "Yang ditambahkan terakhir"
+          },
+          "explanation": "Untuk kandidat dengan rentang alamat tujuan yang sama, distance lebih rendah lebih diutamakan. Ini berbeda dari pemilihan prefix paling spesifik saat lookup tujuan."
+        },
+        "en": {
+          "body": "Two unicast static routes have the same destination prefix in the same routing table. Both next hops are reachable, and their distances are 1 and 5. With no other policies, which route is preferred?",
+          "options": {
+            "A": "Distance 5",
+            "B": "Distance 1",
+            "C": "The one with the longest comment",
+            "D": "The one added most recently"
+          },
+          "explanation": "For route candidates with the same destination prefix, the lower distance is preferred. This differs from selecting the most-specific prefix during destination lookup."
+        }
+      }
+    },
+    {
+      "id": "B11",
+      "topic": "Routing",
+      "kind": "tunggal",
+      "sortOrder": 26,
+      "sourceIds": [
+        "S11"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "Router diberi IP 192.168.45.1/24 pada interface aktif dan running. Rute jaringan lokal yang biasanya terbentuk otomatis adalah …",
+          "options": {
+            "A": "Rute DNS ke 192.168.45.255",
+            "B": "Connected route 192.168.45.0/24",
+            "C": "Rute BGP ke seluruh Internet",
+            "D": "Static default route ke Internet"
+          },
+          "explanation": "Alamat pada interface aktif menghasilkan connected route (rute jaringan yang terhubung langsung) ke subnet tersebut. Akses Internet tetap memerlukan konfigurasi lain."
+        },
+        "en": {
+          "body": "A router has 192.168.45.1/24 assigned to an active, running interface. Which local network route is normally created automatically?",
+          "options": {
+            "A": "A DNS route to 192.168.45.255",
+            "B": "Connected route 192.168.45.0/24",
+            "C": "A BGP route to the entire Internet",
+            "D": "A static default route to the Internet"
+          },
+          "explanation": "An address on an active interface creates a connected route to that subnet. Internet access still requires other configuration."
+        }
+      }
+    },
+    {
+      "id": "B12",
+      "topic": "Routing",
+      "kind": "tunggal",
+      "sortOrder": 42,
+      "sourceIds": [
+        "S11"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "R1 sudah memiliki route ke LAN di belakang R2. Tanpa NAT, paket permintaan sampai ke host tujuan, tetapi host memakai gateway R2 dan R2 tidak punya rute ke jaringan asal. Perbaikan yang paling relevan adalah …",
+          "options": {
+            "A": "Menghapus seluruh route di R1",
+            "B": "Mengubah SSID R1",
+            "C": "Menghapus alamat IP host tujuan",
+            "D": "Menambahkan jalur balik yang benar pada R2"
+          },
+          "explanation": "Komunikasi dua arah memerlukan jalur kembali. Rute satu arah saja tidak cukup."
+        },
+        "en": {
+          "body": "R1 already has a route to a LAN behind R2. Without NAT, request packets reach the destination host, but the host uses R2 as its gateway and R2 has no route back to the source network. What is the most relevant fix?",
+          "options": {
+            "A": "Delete all routes on R1",
+            "B": "Change R1's SSID",
+            "C": "Remove the destination host's IP address",
+            "D": "Add a correct return route on R2"
+          },
+          "explanation": "Two-way communication requires a return path. A one-way route is not enough."
+        }
+      }
+    },
+    {
+      "id": "B13",
+      "topic": "Wireless",
+      "kind": "tunggal",
+      "sortOrder": 10,
+      "sourceIds": [
+        "S12"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Dua pengukuran sinyal diterima adalah -55 dBm dan -75 dBm. Pengukuran yang menunjukkan daya sinyal lebih kuat adalah …",
+          "options": {
+            "A": "Sama kuat karena keduanya negatif",
+            "B": "-75 dBm",
+            "C": "Tidak bisa dibandingkan dalam dBm",
+            "D": "-55 dBm"
+          },
+          "explanation": "Nilai -55 dBm lebih besar daripada -75 dBm, sehingga dayanya lebih kuat. Kualitas link tetap dipengaruhi noise dan faktor lain."
+        },
+        "en": {
+          "body": "Two received signal measurements are -55 dBm and -75 dBm. Which represents the stronger signal power?",
+          "options": {
+            "A": "They are equally strong because both values are negative",
+            "B": "-75 dBm",
+            "C": "They cannot be compared in dBm",
+            "D": "-55 dBm"
+          },
+          "explanation": "-55 dBm is greater than -75 dBm, so it represents stronger signal power. Link quality also depends on noise and other factors."
+        }
+      }
+    },
+    {
+      "id": "B14",
+      "topic": "Wireless",
+      "kind": "tunggal",
+      "sortOrder": 28,
+      "sourceIds": [
+        "S26"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "AP berada pada 5 GHz, sedangkan radio klien hanya mendukung 2,4 GHz. Walaupun SSID dan password sama, klien …",
+          "options": {
+            "A": "Dapat terhubung jika IP dibuat statis",
+            "B": "Tidak dapat terhubung langsung ke radio 5 GHz tersebut",
+            "C": "Dapat terhubung jika DHCP dimatikan",
+            "D": "Otomatis berubah menjadi radio 5 GHz"
+          },
+          "explanation": "Radio harus mendukung band yang dipakai AP. Konfigurasi IP tidak mengubah kemampuan frekuensi perangkat."
+        },
+        "en": {
+          "body": "An AP operates at 5 GHz, while a client radio supports only 2.4 GHz. Even if the SSID and password match, the client ...",
+          "options": {
+            "A": "Can connect if configured with a static IP",
+            "B": "Cannot connect directly to that 5 GHz radio",
+            "C": "Can connect if DHCP is disabled",
+            "D": "Automatically becomes a 5 GHz radio"
+          },
+          "explanation": "The radio must support the frequency band used by the AP. IP configuration does not change the radio's frequency capabilities."
+        }
+      }
+    },
+    {
+      "id": "B15",
+      "topic": "Wireless",
+      "kind": "tunggal",
+      "sortOrder": 44,
+      "sourceIds": [
+        "S12"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "Pada paket wireless lama (legacy wireless), administrator ingin melihat station yang sedang terdaftar beserta informasi link pada AP. Menu yang sesuai adalah …",
+          "options": {
+            "A": "System Packages",
+            "B": "IP Routes",
+            "C": "Wireless Registration Table",
+            "D": "IP Pool"
+          },
+          "explanation": "Registration Table menampilkan peer wireless yang terdaftar beserta statistik link."
+        },
+        "en": {
+          "body": "In the legacy wireless package, an administrator wants to see currently registered stations and their link information on an AP. Which menu is appropriate?",
+          "options": {
+            "A": "System Packages",
+            "B": "IP Routes",
+            "C": "Wireless Registration Table",
+            "D": "IP Pool"
+          },
+          "explanation": "The Registration Table shows registered wireless peers and their link statistics."
+        }
+      }
+    },
+    {
+      "id": "B16",
+      "topic": "Firewall",
+      "kind": "tunggal",
+      "sortOrder": 12,
+      "sourceIds": [
+        "S14"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "Router sendiri membuat paket ICMP echo-request menuju server di jaringan lain. Chain (jalur pemeriksaan) IPv4 firewall filter yang relevan untuk paket keluar itu adalah …",
+          "options": {
+            "A": "dstnat",
+            "B": "input",
+            "C": "output",
+            "D": "forward"
+          },
+          "explanation": "Paket berasal dari proses pada router, sehingga melalui output. Paket dari host yang sekadar melewati router menggunakan forward."
+        },
+        "en": {
+          "body": "A router itself generates an ICMP echo-request packet toward a server on another network. Which IPv4 firewall filter chain applies to that outgoing packet?",
+          "options": {
+            "A": "dstnat",
+            "B": "input",
+            "C": "output",
+            "D": "forward"
+          },
+          "explanation": "Packets originating from the router's own processes use output. Packets merely passing through the router use forward."
+        }
+      }
+    },
+    {
+      "id": "B17",
+      "topic": "Firewall",
+      "kind": "tunggal",
+      "sortOrder": 30,
+      "sourceIds": [
+        "S15"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Sebuah koneksi baru tiba pada IP publik router TCP 8443 dan akan diteruskan ke server LAN 192.168.20.10 TCP 443. Jenis translasi yang diperlukan adalah …",
+          "options": {
+            "A": "Masquerade sumber saja",
+            "B": "Mengubah TTL saja",
+            "C": "DHCP relay",
+            "D": "Destination NAT dengan perubahan port tujuan"
+          },
+          "explanation": "Destination NAT mengubah tujuan ke server LAN, termasuk port bila ditentukan. Route, jalur balik, dan filter forward juga harus sesuai."
+        },
+        "en": {
+          "body": "A new connection arrives at the router's public IP on TCP port 8443 and must be forwarded to LAN server 192.168.20.10 on TCP port 443. What type of translation is required?",
+          "options": {
+            "A": "Source masquerade only",
+            "B": "Change only the TTL",
+            "C": "DHCP relay",
+            "D": "Destination NAT with destination port translation"
+          },
+          "explanation": "Destination NAT changes the destination to the LAN server, including its port when specified. Routing, the return path, and forward filtering must also be appropriate."
+        }
+      }
+    },
+    {
+      "id": "B18",
+      "topic": "Firewall",
+      "kind": "jamak",
+      "sortOrder": 46,
+      "sourceIds": [
+        "S16",
+        "S18"
+      ],
+      "answerKey": "AB",
+      "translations": {
+        "id": {
+          "body": "Pilih semua pernyataan benar tentang firewall IPv4 RouterOS.",
+          "options": {
+            "A": "connection-state=established digunakan untuk paket pada koneksi yang sudah terbentuk",
+            "B": "Urutan rule dapat memengaruhi hasil pemrosesan",
+            "C": "action=drop selalu mengirim pesan penolakan ke pengirim",
+            "D": "NAT otomatis menggantikan seluruh kebijakan firewall filter"
+          },
+          "explanation": "Connection tracking mengenali status koneksi. Urutan rule berpengaruh; drop tidak memberi respons penolakan seperti reject, dan NAT bukan pengganti kebijakan filter."
+        },
+        "en": {
+          "body": "Select all correct statements about the RouterOS IPv4 firewall.",
+          "options": {
+            "A": "connection-state=established matches packets belonging to established connections",
+            "B": "Rule order can affect processing results",
+            "C": "action=drop always sends a rejection message to the sender",
+            "D": "NAT automatically replaces every firewall filter policy"
+          },
+          "explanation": "Connection tracking identifies connection states. Rule order matters; drop does not send a rejection response like reject, and NAT does not replace filtering policies."
+        }
+      }
+    },
+    {
+      "id": "B19",
+      "topic": "Firewall",
+      "kind": "tunggal",
+      "sortOrder": 50,
+      "sourceIds": [
+        "S15"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "Administrator mengubah rule NAT, tetapi pengujian memakai koneksi lama yang masih tercatat. Apa penjelasan yang paling sesuai jika translasi lama tetap terlihat?",
+          "options": {
+            "A": "Connection tracking dapat mempertahankan pemetaan NAT koneksi lama",
+            "B": "Router tidak mendukung NAT",
+            "C": "NAT hanya bekerja pada hari pertama",
+            "D": "DNS selalu membatalkan rule NAT baru"
+          },
+          "explanation": "Keputusan NAT disimpan dalam connection tracking. Uji koneksi baru atau kelola entri koneksi terkait secara terkontrol; jangan menyimpulkan rule baru gagal dari koneksi lama saja."
+        },
+        "en": {
+          "body": "An administrator changes a NAT rule but tests using an existing connection still tracked by the router. Why might the old translation still appear?",
+          "options": {
+            "A": "Connection tracking can preserve NAT mappings for existing connections",
+            "B": "The router does not support NAT",
+            "C": "NAT only works on the first day",
+            "D": "DNS always cancels new NAT rules"
+          },
+          "explanation": "NAT decisions are stored in connection tracking. Test a new connection or carefully manage the relevant connection entries; do not assume the new rule failed based only on an old connection."
+        }
+      }
+    },
+    {
+      "id": "B20",
+      "topic": "QoS",
+      "kind": "tunggal",
+      "sortOrder": 14,
+      "sourceIds": [
+        "S17"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "Dalam konfigurasi queue tanpa burst, parameter max-limit terutama menunjukkan …",
+          "options": {
+            "A": "Kecepatan minimum yang selalu dijamin ISP",
+            "B": "Batas atas laju trafik queue",
+            "C": "Jumlah maksimal klien DHCP",
+            "D": "Ukuran penyimpanan router"
+          },
+          "explanation": "Max-limit adalah batas maksimum queue, bukan jaminan bandwidth selalu tersedia. Kapasitas jalur dan kondisi jaringan tetap membatasi throughput."
+        },
+        "en": {
+          "body": "In a queue configuration without burst, what does the max-limit parameter primarily specify?",
+          "options": {
+            "A": "The minimum speed always guaranteed by the ISP",
+            "B": "The upper traffic rate limit of the queue",
+            "C": "The maximum number of DHCP clients",
+            "D": "The router's storage capacity"
+          },
+          "explanation": "Max-limit defines a queue's maximum rate, not a guarantee that bandwidth is always available. Link capacity and network conditions still constrain throughput."
+        }
+      }
+    },
+    {
+      "id": "B21",
+      "topic": "QoS",
+      "kind": "tunggal",
+      "sortOrder": 32,
+      "sourceIds": [
+        "S17"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "Administrator ingin membatasi upload/download satu alamat IP klien dengan pengaturan sederhana. Fitur yang paling langsung sesuai adalah …",
+          "options": {
+            "A": "IP Neighbor Discovery",
+            "B": "Simple Queue dengan target alamat klien",
+            "C": "System Scheduler saja",
+            "D": "DHCP Relay"
+          },
+          "explanation": "Simple Queue mendukung pembatasan upload/download berdasarkan target. Trafik harus benar-benar melewati jalur queue tersebut."
+        },
+        "en": {
+          "body": "An administrator wants a simple way to limit one client's IP upload and download rates. Which feature is the most direct fit?",
+          "options": {
+            "A": "IP Neighbor Discovery",
+            "B": "Simple Queue targeting the client's IP address",
+            "C": "System Scheduler alone",
+            "D": "DHCP Relay"
+          },
+          "explanation": "Simple Queues support upload/download limiting by target. The traffic must actually traverse the relevant queue processing path."
+        }
+      }
+    },
+    {
+      "id": "B22",
+      "topic": "Tunnel",
+      "kind": "tunggal",
+      "sortOrder": 16,
+      "sourceIds": [
+        "S19"
+      ],
+      "answerKey": "D",
+      "translations": {
+        "id": {
+          "body": "Urutan fase utama PPPoE adalah …",
+          "options": {
+            "A": "NAT lalu DNS",
+            "B": "ARP lalu HTTP",
+            "C": "Session lalu Discovery",
+            "D": "Discovery lalu Session"
+          },
+          "explanation": "Pada fase Discovery, klien mencari server PPPoE dan menyiapkan sesi. Setelah itu, fase Session digunakan untuk menjalankan koneksi PPPoE."
+        },
+        "en": {
+          "body": "What is the order of the main PPPoE phases?",
+          "options": {
+            "A": "NAT then DNS",
+            "B": "ARP then HTTP",
+            "C": "Session then Discovery",
+            "D": "Discovery then Session"
+          },
+          "explanation": "In the Discovery phase, the client finds the PPPoE server and establishes the basis for a session. The Session phase then carries the PPPoE connection."
+        }
+      }
+    },
+    {
+      "id": "B23",
+      "topic": "Tunnel",
+      "kind": "tunggal",
+      "sortOrder": 34,
+      "sourceIds": [
+        "S27"
+      ],
+      "answerKey": "B",
+      "translations": {
+        "id": {
+          "body": "Pada router yang memakai basis pengguna PPP lokal, tempat mendefinisikan username dan password akun PPP untuk autentikasi adalah …",
+          "options": {
+            "A": "System Identity",
+            "B": "PPP Secret",
+            "C": "Wireless Registration Table",
+            "D": "IP Routes"
+          },
+          "explanation": "PPP Secret menyimpan akun PPP lokal, termasuk username dan password. PPP Profile mengatur pengaturan layanan yang dapat digunakan akun tersebut."
+        },
+        "en": {
+          "body": "On a router using the local PPP user database, where do you define a PPP account's username and password for authentication?",
+          "options": {
+            "A": "System Identity",
+            "B": "PPP Secret",
+            "C": "Wireless Registration Table",
+            "D": "IP Routes"
+          },
+          "explanation": "PPP Secret stores local PPP accounts, including usernames and passwords. PPP Profile defines service settings that an account can use."
+        }
+      }
+    },
+    {
+      "id": "B24",
+      "topic": "Tools",
+      "kind": "tunggal",
+      "sortOrder": 18,
+      "sourceIds": [
+        "S28"
+      ],
+      "answerKey": "A",
+      "translations": {
+        "id": {
+          "body": "Perintah ping ke sebuah IP mendapatkan balasan. Kesimpulan yang dapat diambil dari pengujian itu adalah …",
+          "options": {
+            "A": "Tujuan merespons ICMP pada saat pengujian",
+            "B": "DNS pasti benar",
+            "C": "Tidak ada kehilangan paket pada semua jalur Internet",
+            "D": "Semua aplikasi pada tujuan pasti bekerja"
+          },
+          "explanation": "Balasan ping menunjukkan respons ICMP dalam pengujian tersebut. Ini tidak membuktikan layanan aplikasi maupun DNS berfungsi."
+        },
+        "en": {
+          "body": "A ping command to an IP address receives a reply. What conclusion is supported by this test?",
+          "options": {
+            "A": "The destination responded to ICMP at the time of the test",
+            "B": "DNS must be configured correctly",
+            "C": "There is no packet loss on any Internet path",
+            "D": "Every application on the destination must be working"
+          },
+          "explanation": "A ping reply shows an ICMP response during that test. It does not prove that application services or DNS are working."
+        }
+      }
+    },
+    {
+      "id": "B25",
+      "topic": "Tools",
+      "kind": "tunggal",
+      "sortOrder": 36,
+      "sourceIds": [
+        "S29"
+      ],
+      "answerKey": "C",
+      "translations": {
+        "id": {
+          "body": "Anda ingin menyimpan paket yang teramati pada router untuk dianalisis lebih lanjut di Wireshark. Tool yang paling sesuai adalah …",
+          "options": {
+            "A": "System Identity",
+            "B": "DHCP Network",
+            "C": "Packet Sniffer dengan keluaran capture",
+            "D": "IP Service"
+          },
+          "explanation": "Packet Sniffer dapat menangkap paket untuk analisis lebih rinci. Pastikan interface dan filter capture sesuai serta pahami batas visibilitas trafik yang di-offload."
+        },
+        "en": {
+          "body": "You want to save packets observed on a router for further analysis in Wireshark. Which tool is most appropriate?",
+          "options": {
+            "A": "System Identity",
+            "B": "DHCP Network",
+            "C": "Packet Sniffer with capture output",
+            "D": "IP Service"
+          },
+          "explanation": "Packet Sniffer can capture packets for detailed analysis. Choose the correct interface and capture filters, and be aware of traffic visibility limits caused by hardware offloading."
+        }
+      }
+    }
+  ]
+}
