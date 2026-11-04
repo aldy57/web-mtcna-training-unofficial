@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Card } from "@/components/ui/Card";
 import { CertificationDisclaimerNotice } from "@/components/ui/Notice";
 import { getCurrentUser } from "@/lib/auth";
@@ -35,7 +36,7 @@ const GUIDE_SECTIONS = [
   },
 ] as const;
 
-export default async function GuidePage() {
+async function GuideContent() {
   const user = await getCurrentUser();
 
   return (
@@ -98,6 +99,30 @@ export default async function GuidePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function GuidePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="w-full space-y-6 sm:space-y-8 animate-pulse">
+          <div className="space-y-2">
+            <div className="h-4 w-32 rounded bg-surface-soft" />
+            <div className="h-8 w-80 rounded bg-surface-soft" />
+            <div className="h-4 w-96 max-w-full rounded bg-surface-soft" />
+          </div>
+          <div className="h-96 rounded-2xl bg-surface-soft" />
+          <div className="h-20 rounded-2xl bg-surface-soft" />
+          <div className="flex gap-3 pt-2">
+            <div className="h-10 w-32 rounded-full bg-surface-soft" />
+            <div className="h-10 w-36 rounded-full bg-surface-soft" />
+          </div>
+        </div>
+      }
+    >
+      <GuideContent />
+    </Suspense>
   );
 }
 
