@@ -303,10 +303,10 @@ export function ChatAiView({
     setInputValue("");
 
     startTransition(async () => {
-      // Siapkan riwayat percakapan untuk server
+      // Siapkan riwayat percakapan untuk server (maksimal 6 pesan terakhir, potong aman jika sangat panjang)
       const historyPayload = messages.slice(-6).map((m) => ({
         role: m.role,
-        content: m.content,
+        content: m.content.slice(0, 15000),
       }));
 
       const res = await sendChatAiMessageAction({

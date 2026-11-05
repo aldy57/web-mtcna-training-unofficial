@@ -35,6 +35,17 @@ describe("lib/ai — MIRA AI (Tutor Cerdas)", () => {
     if (defaultHistory.success) {
       assert.deepEqual(defaultHistory.data.history, []);
     }
+
+    // Riwayat dengan balasan AI panjang (>2500 karakter) harus valid
+    const longAiReply = "x".repeat(4000);
+    const validLongReply = chatAiInputSchema.safeParse({
+      message: "Lalu bagaimana langkah selanjutnya?",
+      history: [
+        { role: "user", content: "Jelaskan OSPF lengkap" },
+        { role: "assistant", content: longAiReply },
+      ],
+    });
+    assert.equal(validLongReply.success, true);
   });
 
   it("membangun prompt instruktur MTCNA dan membatasi riwayat ke 6 pesan terakhir", () => {

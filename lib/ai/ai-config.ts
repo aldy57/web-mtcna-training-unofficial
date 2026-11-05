@@ -214,7 +214,11 @@ export const chatAiMessageRoleSchema = z.enum(["user", "assistant"]);
 
 export const chatAiMessageItemSchema = z.object({
   role: chatAiMessageRoleSchema,
-  content: z.string().trim().min(1).max(2500),
+  content: z
+    .string()
+    .trim()
+    .min(1, { error: "Pesan riwayat tidak boleh kosong." })
+    .max(15000, { error: "Pesan riwayat melebihi batas 15.000 karakter." }),
 });
 
 export const chatAiInputSchema = z.object({
