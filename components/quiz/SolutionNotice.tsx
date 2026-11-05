@@ -1,6 +1,8 @@
+import { AiExplanationPanel } from "@/components/ai/AiExplanationPanel";
 import { Badge } from "@/components/ui/Badge";
 import { isAnswerCorrect } from "@/lib/scoring";
 import type {
+  Language,
   OptionKey,
   QuestionOptions,
   QuestionWithSolution,
@@ -24,11 +26,17 @@ function formatAnswerText(
 export interface SolutionNoticeProps {
   solution: QuestionWithSolution;
   selectedOptions: readonly OptionKey[];
+  attemptId?: string;
+  language?: Language;
+  canUseAi?: boolean;
 }
 
 export function SolutionNotice({
   solution,
   selectedOptions,
+  attemptId,
+  language = "id",
+  canUseAi = true,
 }: SolutionNoticeProps) {
   const hasAnswered = selectedOptions.length > 0;
   const isCorrect = isAnswerCorrect(selectedOptions, solution.answerKey);
@@ -90,7 +98,16 @@ export function SolutionNotice({
           ))}
         </div>
       )}
+
+      {canUseAi && attemptId && (
+        <AiExplanationPanel
+          attemptId={attemptId}
+          questionId={solution.id}
+          language={language}
+        />
+      )}
     </div>
   );
 }
+
 

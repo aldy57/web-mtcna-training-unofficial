@@ -58,7 +58,7 @@ export function LogoutButton({
 
       <ConfirmDialog
         isOpen={isConfirmOpen}
-        title="Konfirmasi Keluar Akun"
+        title="Logout?"
         description="Apakah Anda yakin ingin keluar dari sesi akun Anda saat ini?"
         confirmLabel="Ya, Keluar"
         cancelLabel="Batal"

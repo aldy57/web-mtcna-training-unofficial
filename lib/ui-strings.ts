@@ -30,5 +30,30 @@ export const UI_STRINGS = {
     "Satu jawaban benar bernilai 2%. Untuk soal dengan beberapa jawaban benar, pilih semua jawaban benar tanpa opsi yang salah. Jawaban salah atau kosong bernilai 0.",
   tryoutRulesBody2:
     "Waktu berjalan setelah menekan Mulai Tryout. Jika waktu habis, jawaban tersimpan dikumpulkan otomatis. Pembahasan tersedia setelah selesai.",
+  ai: {
+    generalButton: "Penjelasan AI",
+    generalLoading: "Menyiapkan penjelasan AI...",
+    generalTitle: "Penjelasan Mendalam AI (RouterOS)",
+    freeBadge: "Gratis · Cache",
+    quotaBadge: "Memakai Kuota",
+    personalButton: "Jelaskan Jawaban Saya",
+    personalLoading: "Menganalisis jawaban Anda...",
+    personalTitle: "Analisis Jawaban Anda",
+    askButton: "Tanya AI",
+    askPlaceholder:
+      "Tanyakan konsep RouterOS atau MTCNA terkait soal ini...",
+    askSubmit: "Kirim Pertanyaan",
+    askLoading: "AI sedang menjawab...",
+    recommendationTitle: "Rekomendasi Belajar AI",
+    recommendationButton: "Buat Rekomendasi Belajar AI",
+    recommendationLoading: "Menyusun rencana belajar...",
+    disabledNotice:
+      "Fitur bantuan AI sedang dinonaktifkan sementara oleh administrator.",
+    globalExhaustedNotice:
+      "Kuota layanan AI global sedang habis. Silakan coba kembali nanti.",
+    userExhaustedNotice:
+      "Kuota AI Anda telah mencapai 0% dan akan direset otomatis ke 100%.",
+  },
 } as const;
+
 

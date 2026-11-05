@@ -45,7 +45,7 @@ async function DashboardContent() {
       <section className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Dashboard Peserta
+            Dashboard Akun
           </p>
           <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
             Halo, {user.fullName || user.email}
@@ -123,7 +123,7 @@ async function DashboardContent() {
               Grafik Progres Penguasaan per Topik
             </h2>
             <p className="text-xs text-muted">
-              Akumulasi jawaban benar dari seluruh sesi belajar dan tryout yang
+              Akumulasi jawaban benar dari seluruh sesi belajar yang
               telah selesai.
             </p>
           </div>

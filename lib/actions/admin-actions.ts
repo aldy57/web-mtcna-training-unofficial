@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { deleteCachedAiExplanationsForQuestion } from "@/lib/ai/explanation-cache";
 import { requireAdminForAction } from "@/lib/auth";
 import { serializeSelectedOptions } from "@/lib/scoring";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -100,6 +101,7 @@ export async function createAccountByAdminAction(
   });
 
   revalidatePath("/admin");
+  revalidatePath("/admin/pengguna");
   const roleLabel = parsed.data.role === "admin" ? "Admin" : "Peserta";
   return {
     ok: true,
@@ -173,6 +175,7 @@ export async function resetParticipantPasswordAction(
   });
 
   revalidatePath("/admin");
+  revalidatePath("/admin/pengguna");
   return {
     ok: true,
     data: `Password peserta ${targetProfile.email} berhasil diperbarui.`,
@@ -244,6 +247,7 @@ export async function deleteParticipantAccountAction(
   });
 
   revalidatePath("/admin");
+  revalidatePath("/admin/pengguna");
   return {
     ok: true,
     data: `Akun peserta ${targetProfile.email} beserta seluruh riwayat tryout berhasil dihapus.`,
@@ -363,6 +367,8 @@ export async function upsertQuestionAction(
     };
   }
 
+  await deleteCachedAiExplanationsForQuestion(data.id);
+
   await adminClient.from("admin_audit_log").insert({
     admin_id: auth.admin.id,
     action: "UPSERT_QUESTION",
@@ -371,6 +377,7 @@ export async function upsertQuestionAction(
   });
 
   revalidatePath("/admin");
+  revalidatePath("/admin/soal");
   return {
     ok: true,
     data: `Soal ${data.id} (${data.topic}) berhasil disimpan.`,
@@ -402,6 +409,8 @@ export async function deleteQuestionAction(
     return { ok: false, error: `Gagal menghapus soal: ${error.message}` };
   }
 
+  await deleteCachedAiExplanationsForQuestion(questionId);
+
   await adminClient.from("admin_audit_log").insert({
     admin_id: auth.admin.id,
     action: "DELETE_QUESTION",
@@ -410,6 +419,7 @@ export async function deleteQuestionAction(
   });
 
   revalidatePath("/admin");
+  revalidatePath("/admin/soal");
   return { ok: true, data: `Soal ${questionId} berhasil dihapus.` };
 }
 

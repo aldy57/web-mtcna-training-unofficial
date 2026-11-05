@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ResultSummary } from "@/components/quiz/ResultSummary";
+import { getUserAiQuotaStatus } from "@/lib/ai/quota";
+import { getSavedAiRecommendation } from "@/lib/ai/recommendation-service";
 import { getCompletedAttemptReport } from "@/lib/attempts-repo";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -35,6 +37,14 @@ async function AttemptResultContent({
     notFound();
   }
 
+  const [savedRecommendation, userQuota] =
+    user.role === "user"
+      ? await Promise.all([
+          getSavedAiRecommendation(attemptId),
+          getUserAiQuotaStatus(user.id),
+        ])
+      : [null, null];
+
   return (
     <ResultSummary
       attempt={report.attempt}
@@ -42,9 +52,12 @@ async function AttemptResultContent({
       questionsWithSolutions={report.questionsWithSolutions}
       answersByQuestionId={report.answersByQuestionId}
       viewerRole={user.role}
+      initialRecommendation={savedRecommendation?.content ?? null}
+      initialQuota={userQuota}
     />
   );
 }
+
 
 export default function AttemptResultPage({
   params,

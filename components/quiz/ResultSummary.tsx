@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { AiRecommendationCard } from "@/components/ai/AiRecommendationCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -18,6 +19,7 @@ import {
 import { formatScorePercent } from "@/lib/scoring";
 import { TOPICS } from "@/lib/topics";
 import type {
+  AiQuotaStatus,
   Attempt,
   AttemptAnswer,
   QuestionWithSolution,
@@ -32,6 +34,8 @@ export interface ResultSummaryProps {
   questionsWithSolutions: readonly QuestionWithSolution[];
   answersByQuestionId: Readonly<Record<string, AttemptAnswer>>;
   viewerRole?: Role;
+  initialRecommendation?: string | null;
+  initialQuota?: AiQuotaStatus | null;
 }
 
 function buildResultLabel(attempt: Attempt): string {
@@ -52,6 +56,8 @@ export function ResultSummary({
   questionsWithSolutions,
   answersByQuestionId,
   viewerRole = "user",
+  initialRecommendation = null,
+  initialQuota = null,
 }: ResultSummaryProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"summary" | "solutions">(
@@ -138,6 +144,9 @@ export function ResultSummary({
                 <SolutionNotice
                   solution={question}
                   selectedOptions={userSelected}
+                  attemptId={attempt.id}
+                  language={attempt.language}
+                  canUseAi={viewerRole === "user"}
                 />
               </Card>
             );
@@ -316,6 +325,14 @@ export function ResultSummary({
           </p>
         )}
       </Notice>
+
+      {viewerRole === "user" && (
+        <AiRecommendationCard
+          attemptId={attempt.id}
+          initialRecommendation={initialRecommendation}
+          initialQuota={initialQuota}
+        />
+      )}
 
       {errorMessage && (
         <Notice variant="danger">

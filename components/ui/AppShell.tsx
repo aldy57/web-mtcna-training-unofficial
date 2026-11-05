@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { HeaderNavigation } from "@/components/ui/HeaderNavigation";
+import { AppSidebar } from "@/components/ui/AppSidebar";
+import {
+  HeaderNavigation,
+  MobileMenuButton,
+} from "@/components/ui/HeaderNavigation";
+import { SidebarProvider } from "@/components/ui/SidebarContext";
 import { getOptionalUser } from "@/lib/auth";
 import { UI_STRINGS } from "@/lib/ui-strings";
 
@@ -9,15 +14,27 @@ async function UserNavigationItems() {
   return <HeaderNavigation user={user} />;
 }
 
+async function UserMobileToggle() {
+  const user = await getOptionalUser();
+  if (!user) {
+    return null;
+  }
+  return <MobileMenuButton />;
+}
+
+async function UserSidebarWrapper() {
+  const user = await getOptionalUser();
+  if (!user) {
+    return null;
+  }
+  return <AppSidebar user={user} />;
+}
+
 function NavigationFallback() {
   return (
     <div className="flex items-center gap-2">
-      <div className="md:hidden h-10 w-10 animate-pulse rounded-xl bg-surface-soft" />
-      <div className="hidden md:flex items-center gap-2">
-        <div className="h-8 w-20 animate-pulse rounded-full bg-surface-soft" />
-        <div className="h-8 w-24 animate-pulse rounded-full bg-surface-soft" />
-        <div className="h-8 w-24 animate-pulse rounded-full bg-surface-soft" />
-      </div>
+      <div className="h-9 w-9 animate-pulse rounded-full bg-surface-soft" />
+      <div className="h-8 w-20 animate-pulse rounded-full bg-surface-soft" />
     </div>
   );
 }
@@ -25,14 +42,23 @@ function NavigationFallback() {
 export function AppHeader() {
   return (
     <header className="fixed top-0 left-0 right-0 z-30 w-full border-b border-border bg-surface/95 backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5">
-        <Link href="/" className="group flex flex-col shrink-0">
-          <span className="text-base font-bold tracking-wider text-foreground group-hover:text-accent transition-colors">
-            {UI_STRINGS.brand}
-          </span>
-          <span className="text-xs text-muted">{UI_STRINGS.edition}</span>
-        </Link>
-        <nav aria-label="Navigasi utama">
+      <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6">
+        {/* Sisi Kiri: Tombol Hamburger Mobile (khusus user login) + Logo */}
+        <div className="flex items-center gap-3">
+          <Suspense fallback={null}>
+            <UserMobileToggle />
+          </Suspense>
+
+          <Link href="/" className="group flex flex-col shrink-0">
+            <span className="text-base font-bold tracking-wider text-foreground group-hover:text-accent transition-colors">
+              {UI_STRINGS.brand}
+            </span>
+            <span className="text-xs text-muted">{UI_STRINGS.edition}</span>
+          </Link>
+        </div>
+
+        {/* Sisi Kanan: Ikon Profil & Tombol Logout (atau Masuk/Daftar) */}
+        <nav aria-label="Aksi akun">
           <Suspense fallback={<NavigationFallback />}>
             <UserNavigationItems />
           </Suspense>
@@ -54,15 +80,27 @@ export function AppFooter() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <AppHeader />
-      {/* Spacer pembatas agar konten tidak tertutup fixed header */}
-      <div className="h-[65px] sm:h-[70px] shrink-0" aria-hidden="true" />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
-        {children}
-      </main>
-      <AppFooter />
-    </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen flex-col bg-background text-foreground">
+        <AppHeader />
+        {/* Spacer pembatas agar konten tidak tertutup fixed header */}
+        <div className="h-16 shrink-0" aria-hidden="true" />
+
+        <div className="flex flex-1 w-full">
+          {/* Sidebar Desktop & Drawer Mobile (Hanya untuk pengguna login) */}
+          <Suspense fallback={null}>
+            <UserSidebarWrapper />
+          </Suspense>
+
+          {/* Area Konten Utama dan Footer */}
+          <div className="flex flex-1 flex-col min-w-0">
+            <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
+              {children}
+            </main>
+            <AppFooter />
+          </div>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
-

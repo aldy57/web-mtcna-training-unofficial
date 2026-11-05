@@ -1,4 +1,5 @@
 import type {
+  AI_FEATURES,
   APP_ROLES,
   ATTEMPT_STATUSES,
   OPTION_KEYS,
@@ -15,6 +16,8 @@ export type QuestionKind = (typeof QUESTION_KINDS)[number];
 export type OptionKey = (typeof OPTION_KEYS)[number];
 export type QuizMode = (typeof QUIZ_MODES)[number];
 export type AttemptStatus = (typeof ATTEMPT_STATUSES)[number];
+export type AiFeature = (typeof AI_FEATURES)[number];
+
 
 export type QuestionOptions = Record<OptionKey, string>;
 
@@ -129,4 +132,57 @@ export interface QuizResultSummary {
 export type ActionResult<T = undefined> =
   | { ok: true; data: T }
   | { ok: false; error: string; fieldErrors?: Record<string, string[]> };
+
+export interface AiQuotaStatus {
+  userId: string;
+  tokensUsed: number;
+  tokenBudget: number;
+  usedPercent: number;
+  remainingPercent: number;
+  isExhausted: boolean;
+  periodStartedAt: string;
+  resetAt: string | null;
+}
+
+export interface AiUsageLogEntry {
+  id: string;
+  userId: string;
+  feature: AiFeature;
+  questionId: string | null;
+  attemptId: string | null;
+  percentUsed: number;
+  createdAt: string;
+}
+
+export interface AiGlobalQuotaStatus {
+  isEnabled: boolean;
+  isAvailable: boolean;
+  remainingPercent: number | null;
+  usedPercent: number | null;
+  totalTokens?: number | null;
+  usedTokens?: number | null;
+  remainingTokens?: number | null;
+  isLowWarning: boolean;
+  isExhausted: boolean;
+  source: "remote" | "fallback";
+  responseNote?: string | null;
+  endpointUrl?: string | null;
+  checkedAt: string;
+}
+
+export interface AiExplanationRecord {
+  questionId: string;
+  language: Language;
+  content: string;
+  createdAt: string;
+}
+
+export interface AiRecommendationRecord {
+  attemptId: string;
+  userId: string;
+  language: Language;
+  content: string;
+  createdAt: string;
+}
+
 

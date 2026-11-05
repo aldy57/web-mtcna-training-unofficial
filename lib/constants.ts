@@ -12,9 +12,21 @@ export const QUESTION_KINDS = ["tunggal", "jamak"] as const;
 export const QUIZ_MODES = ["belajar", "tryout", "remedial"] as const;
 export const APP_ROLES = ["user", "admin"] as const;
 export const ATTEMPT_STATUSES = ["in_progress", "completed", "expired"] as const;
+export const AI_FEATURES = [
+  "personal_explanation",
+  "ask_ai",
+  "recommendation",
+] as const;
+
+export const AI_FEATURE_LABELS = {
+  personal_explanation: "Penjelasan Jawaban Saya",
+  ask_ai: "Tanya AI",
+  recommendation: "Rekomendasi Belajar",
+} as const;
 
 export const LANGUAGE_NAMES = {
   id: "Bahasa Indonesia",
   en: "English",
 } as const;
+
 

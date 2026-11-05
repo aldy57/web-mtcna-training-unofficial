@@ -400,6 +400,9 @@ export function QuestionCard({
               selectedOptions={
                 answersByQuestionId[currentQuestion.id]?.selectedOptions ?? []
               }
+              attemptId={attempt.id}
+              language={attempt.language}
+              canUseAi={true}
             />
           )}
 

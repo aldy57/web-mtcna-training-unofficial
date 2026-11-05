@@ -6,6 +6,12 @@ const rootDir = process.cwd();
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
+    if (specifier === "server-only") {
+      const emptyFileUrl = pathToFileURL(
+        resolvePath(rootDir, "node_modules/server-only/empty.js"),
+      ).href;
+      return nextResolve(emptyFileUrl, context);
+    }
     if (specifier.startsWith("@/")) {
       const relativeTarget = specifier.slice(2);
       const targetWithExt = relativeTarget.endsWith(".ts")
@@ -17,4 +23,5 @@ registerHooks({
     return nextResolve(specifier, context);
   },
 });
+
 

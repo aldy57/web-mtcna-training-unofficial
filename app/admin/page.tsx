@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { AccountManagementPanel } from "@/components/admin/AccountManagementPanel";
-import { QuestionManagementPanel } from "@/components/admin/QuestionManagementPanel";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { getAdminDashboardData } from "@/lib/admin-repo";
@@ -11,28 +9,30 @@ import { LANGUAGE_NAMES } from "@/lib/constants";
 import { formatScorePercent } from "@/lib/scoring";
 
 export const metadata: Metadata = {
-  title: "Panel Administrator",
+  title: "Ringkasan Panel Admin",
 };
 
-async function AdminDashboardContent() {
+async function AdminOverviewContent() {
   await requireRole("admin");
   const data = await getAdminDashboardData();
 
   return (
     <div className="w-full space-y-8">
+      {/* Header Halaman */}
       <section className="space-y-1.5">
         <p className="text-xs font-semibold uppercase tracking-widest text-accent">
           Panel Administrator
         </p>
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
-          Manajemen Akun, Bank Soal &amp; Statistik Tryout
+          Ringkasan &amp; Pusat Kendali
         </h1>
         <p className="text-sm text-muted">
-          Kelola akun peserta dan admin, sunting soal dwibahasa beserta kunci
-          jawaban, serta pantau hasil latihan seluruh peserta.
+          Pantau statistik utama platform latihan MTCNA dan navigasi langsung ke
+          setiap modul pengelolaan.
         </p>
       </section>
 
+      {/* 4 Kartu Metrik Utama */}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="space-y-1">
           <span className="text-xs text-muted">Total Peserta</span>
@@ -62,17 +62,167 @@ async function AdminDashboardContent() {
         </Card>
       </section>
 
+      {/* 5 Modul Pengelolaan Utama (Quick Access Cards) */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground">
-          1. Kelola Akun Peserta &amp; Admin
+          Modul Pengelolaan
         </h2>
-        <AccountManagementPanel users={data.users} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* 1. Pengguna */}
+          <Link
+            href="/admin/pengguna"
+            className="group block rounded-2xl border border-border bg-surface p-5 hover:border-accent/40 hover:shadow-xs transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-accent">
+                Modul 1
+              </span>
+              <Badge variant="neutral">
+                {data.metrics.totalParticipants} Peserta
+              </Badge>
+            </div>
+            <h3 className="mt-2 text-base font-semibold text-foreground group-hover:text-accent transition-colors">
+              Kelola Pengguna
+            </h3>
+            <p className="mt-1 text-xs text-muted leading-relaxed">
+              Buat akun peserta/admin baru, reset kata sandi, dan hapus akun
+              dengan proteksi role server.
+            </p>
+            <span className="mt-3.5 inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:underline">
+              Buka Halaman Pengguna →
+            </span>
+          </Link>
+
+          {/* 2. Bank Soal */}
+          <Link
+            href="/admin/soal"
+            className="group block rounded-2xl border border-border bg-surface p-5 hover:border-accent/40 hover:shadow-xs transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-accent">
+                Modul 2
+              </span>
+              <Badge variant="neutral">
+                {data.metrics.totalQuestions} Soal
+              </Badge>
+            </div>
+            <h3 className="mt-2 text-base font-semibold text-foreground group-hover:text-accent transition-colors">
+              Bank Soal &amp; Kunci
+            </h3>
+            <p className="mt-1 text-xs text-muted leading-relaxed">
+              Sunting 50 soal kurasi dwibahasa (ID/EN), kunci jawaban
+              tunggal/jamak, dan pembahasan.
+            </p>
+            <span className="mt-3.5 inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:underline">
+              Buka Halaman Bank Soal →
+            </span>
+          </Link>
+
+          {/* 3. Layanan AI */}
+          <Link
+            href="/admin/ai"
+            className="group block rounded-2xl border border-border bg-surface p-5 hover:border-accent/40 hover:shadow-xs transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-accent">
+                Modul 3
+              </span>
+              <Badge
+                variant={
+                  !data.aiGlobalStatus.isEnabled
+                    ? "neutral"
+                    : data.aiGlobalStatus.isExhausted ||
+                        data.aiGlobalStatus.isLowWarning
+                      ? "caution"
+                      : "success"
+                }
+              >
+                {!data.aiGlobalStatus.isEnabled
+                  ? "Nonaktif"
+                  : data.aiGlobalStatus.isExhausted
+                    ? "Kuota Habis"
+                    : `Sisa ${
+                        data.aiGlobalStatus.remainingPercent !== null
+                          ? `${formatScorePercent(data.aiGlobalStatus.remainingPercent)}%`
+                          : "Aktif"
+                      }`}
+              </Badge>
+            </div>
+            <h3 className="mt-2 text-base font-semibold text-foreground group-hover:text-accent transition-colors">
+              Layanan &amp; Kuota AI
+            </h3>
+            <p className="mt-1 text-xs text-muted leading-relaxed">
+              Pantau kuota API global (GET /v1/quota), sakelar AI, penyesuaian
+              kuota peserta, dan pembersih cache.
+            </p>
+            <span className="mt-3.5 inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:underline">
+              Buka Layanan AI →
+            </span>
+          </Link>
+
+          {/* 4. Aktivitas Tryout */}
+          <Link
+            href="/admin/aktivitas"
+            className="group block rounded-2xl border border-border bg-surface p-5 hover:border-accent/40 hover:shadow-xs transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-accent">
+                Modul 4
+              </span>
+              <Badge variant="neutral">
+                {data.recentAttempts.length} Aktivitas
+              </Badge>
+            </div>
+            <h3 className="mt-2 text-base font-semibold text-foreground group-hover:text-accent transition-colors">
+              Aktivitas Tryout
+            </h3>
+            <p className="mt-1 text-xs text-muted leading-relaxed">
+              Pantau hasil latihan peserta, status tryout berjalan, dan riwayat
+              pengerjaan soal lengkap.
+            </p>
+            <span className="mt-3.5 inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:underline">
+              Buka Aktivitas Tryout →
+            </span>
+          </Link>
+
+          {/* 5. Log Audit */}
+          <Link
+            href="/admin/audit"
+            className="group block rounded-2xl border border-border bg-surface p-5 hover:border-accent/40 hover:shadow-xs transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-accent">
+                Modul 5
+              </span>
+              <Badge variant="neutral">Keamanan &amp; Audit</Badge>
+            </div>
+            <h3 className="mt-2 text-base font-semibold text-foreground group-hover:text-accent transition-colors">
+              Log Audit Aktivitas
+            </h3>
+            <p className="mt-1 text-xs text-muted leading-relaxed">
+              Rekam jejak seluruh aksi admin, pembuatan akun, perubahan kunci,
+              dan penyesuaian kuota.
+            </p>
+            <span className="mt-3.5 inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:underline">
+              Buka Log Audit →
+            </span>
+          </Link>
+        </div>
       </section>
 
+      {/* Ringkasan Singkat Aktivitas Terbaru */}
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-foreground">
-          2. Hasil &amp; Aktivitas Latihan Peserta Terbaru
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground">
+            Aktivitas Peserta Terbaru
+          </h2>
+          <Link
+            href="/admin/aktivitas"
+            className="text-xs font-semibold text-accent hover:underline"
+          >
+            Lihat Semua Aktivitas →
+          </Link>
+        </div>
         <Card>
           {data.recentAttempts.length === 0 ? (
             <p className="text-sm text-muted py-3">
@@ -93,7 +243,7 @@ async function AdminDashboardContent() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {data.recentAttempts.slice(0, 15).map((item) => (
+                  {data.recentAttempts.slice(0, 5).map((item) => (
                     <tr key={item.id}>
                       <td className="py-3 pr-4">
                         <span className="font-medium text-foreground block">
@@ -138,49 +288,6 @@ async function AdminDashboardContent() {
           )}
         </Card>
       </section>
-
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-foreground">
-          3. Kelola Bank Soal &amp; Kunci Jawaban
-        </h2>
-        <QuestionManagementPanel questions={data.questions} />
-      </section>
-
-      {data.auditLogs.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">
-            4. Log Audit Aktivitas Admin
-          </h2>
-          <Card>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-xs">
-                <thead>
-                  <tr className="border-b border-border text-left text-muted">
-                    <th className="py-2 pr-3 font-semibold">Aksi</th>
-                    <th className="py-2 px-3 font-semibold">Target ID</th>
-                    <th className="py-2 pl-3 font-semibold">Waktu</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {data.auditLogs.map((log) => (
-                    <tr key={log.id}>
-                      <td className="py-2.5 pr-3 font-mono font-semibold text-foreground">
-                        {log.action}
-                      </td>
-                      <td className="py-2.5 px-3 font-mono text-muted">
-                        {log.targetId}
-                      </td>
-                      <td className="py-2.5 pl-3 text-muted">
-                        {log.createdAt}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        </section>
-      )}
     </div>
   );
 }
@@ -195,8 +302,7 @@ export default function AdminPage() {
         </div>
       }
     >
-      <AdminDashboardContent />
+      <AdminOverviewContent />
     </Suspense>
   );
 }
-

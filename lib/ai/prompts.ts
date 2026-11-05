@@ -1,0 +1,149 @@
+import type { AiChatMessage } from "@/lib/ai/client";
+import { OPTION_KEYS } from "@/lib/constants";
+import { TOPICS } from "@/lib/topics";
+import type {
+  Language,
+  OptionKey,
+  QuestionWithSolution,
+  QuizResultSummary,
+} from "@/lib/types";
+
+const SYSTEM_TUTOR_PROMPT = [
+  "Anda adalah instruktur MikroTik Certified Network Associate (MTCNA) yang berpengalaman.",
+  "Tugas Anda adalah membantu peserta memahami konsep jaringan dan konfigurasi MikroTik RouterOS v7/v6 secara ringkas, akurat, dan mudah dipahami.",
+  "Aturan ketat:",
+  "1. Hanya bahas topik jaringan komputer, MikroTik RouterOS, WinBox, dan silabus MTCNA.",
+  "2. Tolak dengan sopan pertanyaan yang berada di luar topik jaringan/MikroTik/MTCNA.",
+  "3. Gunakan teks biasa yang rapi (poin-poin singkat dan contoh perintah CLI RouterOS bila relevan). Jangan gunakan tag HTML.",
+  "4. Buat jawaban padat dan langsung ke inti konsep (maksimal sekitar 160 kata) agar mudah dipelajari.",
+].join("\n");
+
+function formatQuestionContext(question: QuestionWithSolution): string {
+  const optionsText = OPTION_KEYS.map(
+    (key) => `${key}. ${question.options[key]}`,
+  ).join("\n");
+
+  return [
+    `ID Soal: ${question.id} (${TOPICS[question.topic]})`,
+    `Jenis: ${question.kind === "jamak" ? "Pilihan Jamak" : "Pilihan Tunggal"}`,
+    `Pertanyaan: ${question.body}`,
+    `Opsi:\n${optionsText}`,
+    `Kunci Jawaban Benar: ${question.answerKey}`,
+    `Pembahasan Dasar: ${question.explanation}`,
+  ].join("\n");
+}
+
+export function buildGeneralExplanationMessages(
+  question: QuestionWithSolution,
+  language: Language,
+): AiChatMessage[] {
+  const langInstruction =
+    language === "en"
+      ? "Jawab dalam bahasa Inggris yang jelas (sesuai bahasa soal ujian MTCNA), dengan istilah teknis RouterOS yang tepat."
+      : "Jawab dalam bahasa Indonesia yang jelas, dengan tetap menyertakan istilah/perintah teknis RouterOS yang tepat.";
+
+  const userPrompt = [
+    formatQuestionContext(question),
+    "",
+    "Berikan penjelasan mendalam yang mencakup:",
+    "1. Alasan teknis mengapa kunci jawaban tersebut benar.",
+    "2. Mengapa opsi pengecoh lainnya kurang tepat.",
+    "3. Contoh singkat perintah CLI RouterOS atau menu WinBox yang relevan.",
+    langInstruction,
+  ].join("\n");
+
+  return [
+    { role: "system", content: SYSTEM_TUTOR_PROMPT },
+    { role: "user", content: userPrompt },
+  ];
+}
+
+export function buildPersonalExplanationMessages(
+  question: QuestionWithSolution,
+  selectedOptions: readonly OptionKey[],
+  language: Language,
+): AiChatMessage[] {
+  const selectedLabel =
+    selectedOptions.length > 0
+      ? selectedOptions
+          .map((key) => `${key} (${question.options[key]})`)
+          .join(", ")
+      : "Kosong / Belum dijawab";
+
+  const langInstruction =
+    language === "en"
+      ? "Berikan penjelasan dalam bahasa Indonesia dengan mengutip istilah soal bahasa Inggris bila perlu."
+      : "Berikan penjelasan dalam bahasa Indonesia.";
+
+  const userPrompt = [
+    formatQuestionContext(question),
+    `Jawaban Peserta: ${selectedLabel}`,
+    "",
+    "Analisis secara spesifik:",
+    "1. Letak kekeliruan atau kekurangan pada pilihan peserta (atau konfirmasi konsep jika jawaban peserta sudah benar).",
+    "2. Langkah berpikir dan konsep RouterOS yang tepat untuk menjawab soal ini.",
+    langInstruction,
+  ].join("\n");
+
+  return [
+    { role: "system", content: SYSTEM_TUTOR_PROMPT },
+    { role: "user", content: userPrompt },
+  ];
+}
+
+export function buildAskAiMessages(
+  question: QuestionWithSolution,
+  participantQuestion: string,
+): AiChatMessage[] {
+  const userPrompt = [
+    "Konteks Soal yang Sedang Dibahas:",
+    formatQuestionContext(question),
+    "",
+    `Pertanyaan Peserta: "${participantQuestion.trim()}"`,
+    "",
+    "Jawab pertanyaan peserta dalam bahasa Indonesia secara ringkas dan akurat berdasarkan konteks soal MTCNA/RouterOS di atas. Jika pertanyaan tidak berkaitan dengan jaringan komputer, MikroTik RouterOS, atau MTCNA, tolak dengan sopan.",
+  ].join("\n");
+
+  return [
+    { role: "system", content: SYSTEM_TUTOR_PROMPT },
+    { role: "user", content: userPrompt },
+  ];
+}
+
+export function buildRecommendationMessages(
+  summary: QuizResultSummary,
+): AiChatMessage[] {
+  const topicLines = summary.topicBreakdown
+    .map(
+      (row) =>
+        `- ${row.topicLabel}: ${row.correctCount}/${row.totalCount} (${row.scorePercent}%)`,
+    )
+    .join("\n");
+
+  const weakestLines =
+    summary.weakestTopics.length > 0
+      ? summary.weakestTopics
+          .map((row) => `${row.topicLabel} (${row.scorePercent}%)`)
+          .join(", ")
+      : "Tidak ada topik di bawah ambang kelulusan";
+
+  const userPrompt = [
+    `Hasil Tryout MTCNA (${summary.totalQuestions} soal):`,
+    `- Skor Akhir: ${summary.scorePercent}% (${summary.hasPassed ? "Lulus Latihan" : "Belum Lulus"})`,
+    `- Benar: ${summary.correctCount}, Salah: ${summary.wrongCount}, Kosong: ${summary.blankCount}`,
+    `- Topik Terlemah: ${weakestLines}`,
+    "Rincian Skor per Topik:",
+    topicLines,
+    "",
+    "Susun rekomendasi belajar singkat dalam bahasa Indonesia yang berisi:",
+    "1. Evaluasi singkat performa peserta.",
+    "2. 3 prioritas materi/praktik RouterOS yang wajib dipelajari ulang berdasarkan topik terlemah.",
+    "3. Saran latihan praktis di WinBox/CLI sebelum mencoba tryout berikutnya.",
+  ].join("\n");
+
+  return [
+    { role: "system", content: SYSTEM_TUTOR_PROMPT },
+    { role: "user", content: userPrompt },
+  ];
+}
+
