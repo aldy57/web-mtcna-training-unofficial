@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { AskAiBox } from "@/components/ai/AskAiBox";
-import { FormattedAiText } from "@/components/ai/FormattedAiText";
+import { TypewriterAiText } from "@/components/ai/TypewriterAiText";
 import { Button } from "@/components/ui/Button";
 import {
   getGeneralAiExplanationAction,
@@ -25,7 +25,9 @@ export function AiExplanationPanel({
 }: AiExplanationPanelProps) {
   const [prevQuestionId, setPrevQuestionId] = useState(questionId);
   const [explanationText, setExplanationText] = useState<string | null>(null);
+  const [isGeneralNew, setIsGeneralNew] = useState<boolean>(false);
   const [personalText, setPersonalText] = useState<string | null>(null);
+  const [isPersonalNew, setIsPersonalNew] = useState<boolean>(false);
   const [isAskOpen, setIsAskOpen] = useState<boolean>(false);
   const [quota, setQuota] = useState<AiQuotaStatus | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -35,7 +37,9 @@ export function AiExplanationPanel({
   if (prevQuestionId !== questionId) {
     setPrevQuestionId(questionId);
     setExplanationText(null);
+    setIsGeneralNew(false);
     setPersonalText(null);
+    setIsPersonalNew(false);
     setIsAskOpen(false);
     setErrorMessage("");
   }
@@ -54,6 +58,7 @@ export function AiExplanationPanel({
         return;
       }
 
+      setIsGeneralNew(true);
       setExplanationText(result.data.content);
     });
   }
@@ -72,6 +77,7 @@ export function AiExplanationPanel({
         return;
       }
 
+      setIsPersonalNew(true);
       setPersonalText(result.data.content);
       setQuota(result.data.quota);
     });
@@ -145,8 +151,10 @@ export function AiExplanationPanel({
           <span className="block text-xs font-semibold uppercase tracking-wider text-accent">
             {UI_STRINGS.ai.generalTitle}
           </span>
-          <FormattedAiText
+          <TypewriterAiText
             content={explanationText}
+            isNew={isGeneralNew}
+            onComplete={() => setIsGeneralNew(false)}
             className="text-xs sm:text-sm text-foreground"
           />
         </div>
@@ -157,8 +165,10 @@ export function AiExplanationPanel({
           <span className="block text-xs font-semibold uppercase tracking-wider text-accent">
             {UI_STRINGS.ai.personalTitle}
           </span>
-          <FormattedAiText
+          <TypewriterAiText
             content={personalText}
+            isNew={isPersonalNew}
+            onComplete={() => setIsPersonalNew(false)}
             className="text-xs sm:text-sm text-foreground"
           />
         </div>

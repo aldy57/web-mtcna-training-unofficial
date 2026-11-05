@@ -17,6 +17,7 @@ export type OptionKey = (typeof OPTION_KEYS)[number];
 export type QuizMode = (typeof QUIZ_MODES)[number];
 export type AttemptStatus = (typeof ATTEMPT_STATUSES)[number];
 export type AiFeature = (typeof AI_FEATURES)[number];
+export type ChatComplexity = "low" | "medium" | "high";
 
 
 export type QuestionOptions = Record<OptionKey, string>;

@@ -490,6 +490,7 @@ export async function sendChatAiMessageAction(
     const messages = buildTutorChatMessages({
       history: parsed.data.history,
       userMessage: parsed.data.message,
+      complexity: parsed.data.complexity,
     });
 
     const completion = await callAiChatCompletion({ messages });

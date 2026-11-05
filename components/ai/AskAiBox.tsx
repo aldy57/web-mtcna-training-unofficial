@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { FormattedAiText } from "@/components/ai/FormattedAiText";
+import { TypewriterAiText } from "@/components/ai/TypewriterAiText";
 import { Button } from "@/components/ui/Button";
 import { askAiQuestionAction } from "@/lib/actions/ai-actions";
 import type { AiQuotaStatus, Language } from "@/lib/types";
@@ -26,6 +26,7 @@ export function AskAiBox({
   const [prompt, setPrompt] = useState<string>("");
   const [submittedQuestion, setSubmittedQuestion] = useState<string>("");
   const [answerText, setAnswerText] = useState<string | null>(null);
+  const [isAnswerNew, setIsAnswerNew] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isPending, startTransition] = useTransition();
 
@@ -34,6 +35,7 @@ export function AskAiBox({
     setPrompt("");
     setSubmittedQuestion("");
     setAnswerText(null);
+    setIsAnswerNew(false);
     setErrorMessage("");
   }
 
@@ -59,6 +61,7 @@ export function AskAiBox({
       }
 
       setSubmittedQuestion(trimmed);
+      setIsAnswerNew(true);
       setAnswerText(result.data.answer);
       onQuotaUpdated?.(result.data.quota);
     });
@@ -117,8 +120,10 @@ export function AskAiBox({
               Pertanyaan: <span className="text-foreground">{submittedQuestion}</span>
             </p>
           )}
-          <FormattedAiText
+          <TypewriterAiText
             content={answerText}
+            isNew={isAnswerNew}
+            onComplete={() => setIsAnswerNew(false)}
             className="text-xs sm:text-sm text-foreground"
           />
         </div>

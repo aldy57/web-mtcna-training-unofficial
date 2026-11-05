@@ -1,7 +1,13 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 import { AiResetCountdown } from "@/components/ai/AiResetCountdown";
 import { ChatHistoryDrawer } from "@/components/ai/ChatHistoryDrawer";
 import { TypewriterAiText } from "@/components/ai/TypewriterAiText";
@@ -14,7 +20,12 @@ import {
   renameConversationAction,
 } from "@/lib/actions/chat-history-actions";
 import { formatScorePercent } from "@/lib/scoring";
-import type { AiConversation, AiQuotaStatus, Role } from "@/lib/types";
+import type {
+  AiConversation,
+  AiQuotaStatus,
+  ChatComplexity,
+  Role,
+} from "@/lib/types";
 
 export interface ChatAiViewProps {
   initialQuota: AiQuotaStatus | null;
@@ -52,6 +63,30 @@ const STARTER_PROMPTS = [
     prompt: "Bantu saya menghitung netmask, network address, dan broadcast address untuk IP 192.168.10.75/27!",
   },
 ] as const;
+
+interface ModeOption {
+  key: ChatComplexity;
+  label: string;
+  description: string;
+}
+
+const MODE_OPTIONS: ModeOption[] = [
+  {
+    key: "low",
+    label: "Rendah",
+    description: "Ringkas, cepat, dan hemat",
+  },
+  {
+    key: "medium",
+    label: "Menengah",
+    description: "Seimbang, standar, dan lengkap",
+  },
+  {
+    key: "high",
+    label: "Tinggi",
+    description: "Analisis mendalam, detail, dan komprehensif",
+  },
+];
 
 function CopyIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
@@ -174,6 +209,203 @@ function generateMessageId(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+// Mode Dropdown selector mandiri bergaya Google Gemini
+interface ModeDropdownProps {
+  complexity: ChatComplexity;
+  onSelectComplexity: (mode: ChatComplexity) => void;
+  disabled?: boolean;
+  dropDirection?: "up" | "down";
+  align?: "left" | "right";
+  buttonClassName?: string;
+}
+
+function ModeDropdown({
+  complexity,
+  onSelectComplexity,
+  disabled = false,
+  dropDirection = "up",
+  align = "right",
+  buttonClassName,
+}: ModeDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const currentLabel =
+    MODE_OPTIONS.find((o) => o.key === complexity)?.label ?? "Rendah";
+
+  const positionClasses =
+    dropDirection === "up" ? "bottom-full mb-2" : "top-full mt-2";
+
+  const alignClasses = align === "right" ? "right-0" : "left-0";
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        className={
+          buttonClassName ??
+          "inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-neutral-100/90 hover:bg-neutral-200/80 px-3 py-1.5 text-xs font-semibold text-foreground transition-all cursor-pointer disabled:opacity-50"
+        }
+      >
+        <span>{currentLabel}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`h-3 w-3 text-muted transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+          aria-hidden="true"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div
+          role="listbox"
+          aria-label="Pilih mode kedalaman AI"
+          className={`absolute ${positionClasses} ${alignClasses} z-50 w-[270px] sm:w-80 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-border bg-surface p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-150`}
+        >
+          {MODE_OPTIONS.map((opt) => {
+            const isSelected = opt.key === complexity;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => {
+                  onSelectComplexity(opt.key);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${
+                  isSelected
+                    ? "bg-surface-selected/60"
+                    : "hover:bg-neutral-100/90"
+                }`}
+              >
+                <div className="w-4 pt-0.5 text-accent font-bold shrink-0">
+                  {isSelected && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4 text-accent"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p
+                    className={`text-xs font-semibold ${
+                      isSelected ? "text-accent" : "text-foreground"
+                    }`}
+                  >
+                    {opt.label}
+                  </p>
+                  <p className="text-[11px] text-muted leading-relaxed mt-0.5">
+                    {opt.description}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const CHAT_COMPLEXITY_STORAGE_KEY = "mira_chat_complexity";
+
+function isValidComplexity(val: string | null): val is ChatComplexity {
+  return val === "low" || val === "medium" || val === "high";
+}
+
+let complexityListeners: Array<() => void> = [];
+
+function emitComplexityChange() {
+  for (const listener of complexityListeners) {
+    listener();
+  }
+}
+
+const chatComplexityStore = {
+  subscribe(listener: () => void) {
+    complexityListeners = [...complexityListeners, listener];
+    return () => {
+      complexityListeners = complexityListeners.filter((l) => l !== listener);
+    };
+  },
+  getSnapshot(): ChatComplexity {
+    if (typeof window === "undefined") {
+      return "low";
+    }
+    try {
+      const saved = localStorage.getItem(CHAT_COMPLEXITY_STORAGE_KEY);
+      if (isValidComplexity(saved)) {
+        return saved;
+      }
+    } catch {
+      // Abaikan jika akses localStorage dibatasi lingkungan browser
+    }
+    return "low";
+  },
+  getServerSnapshot(): ChatComplexity {
+    return "low";
+  },
+  setComplexity(newMode: ChatComplexity) {
+    try {
+      localStorage.setItem(CHAT_COMPLEXITY_STORAGE_KEY, newMode);
+    } catch {
+      // Abaikan jika akses localStorage dibatasi lingkungan browser
+    }
+    emitComplexityChange();
+  },
+};
+
 export function ChatAiView({
   initialQuota,
   userRole,
@@ -189,11 +421,20 @@ export function ChatAiView({
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
   >(null);
+  const complexity = useSyncExternalStore(
+    chatComplexityStore.subscribe,
+    chatComplexityStore.getSnapshot,
+    chatComplexityStore.getServerSnapshot,
+  );
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  function handleComplexityChange(newMode: ChatComplexity) {
+    chatComplexityStore.setComplexity(newMode);
+  }
 
   const isParticipant = userRole === "user";
   const isExhausted = isParticipant && Boolean(quota?.isExhausted);
@@ -314,6 +555,7 @@ export function ChatAiView({
         message: trimmed,
         history: historyPayload,
         conversationId: activeConversationId ?? undefined,
+        complexity,
       });
 
       if (!res.ok) {
@@ -384,15 +626,16 @@ export function ChatAiView({
       data-chat-view
       className="flex flex-col h-full max-w-4xl w-full mx-auto px-2 sm:px-4 pt-2 pb-2 min-h-0"
     >
-      {/* Bar Atas: Tombol Riwayat Obrolan & Obrolan Baru */}
-      <div className="flex items-center justify-between pb-2 shrink-0">
+      {/* Bar Atas: Tombol Riwayat, Obrolan Baru, & Mode (mobile) */}
+      <div className="flex items-center justify-between gap-1 sm:gap-2 pb-2 shrink-0">
         <button
           type="button"
           onClick={() => setIsHistoryOpen(true)}
-          className="group flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer"
+          className="group flex items-center gap-1.5 rounded-xl border border-border bg-surface px-2.5 sm:px-3 py-1.5 text-xs font-medium text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer shrink-0"
         >
           <HistoryIcon className="h-3.5 w-3.5 text-accent" />
-          <span>Riwayat Obrolan</span>
+          <span className="hidden sm:inline">Riwayat Obrolan</span>
+          <span className="sm:hidden">Riwayat</span>
           {conversations.length > 0 && (
             <span className="rounded-full bg-surface-soft px-1.5 py-0.2 text-[10px] text-muted">
               {conversations.length}
@@ -400,17 +643,32 @@ export function ChatAiView({
           )}
         </button>
 
-        {messages.length > 0 && (
-          <button
-            type="button"
-            onClick={handleNewChat}
-            disabled={isPending}
-            className="flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
-          >
-            <PlusIcon className="h-3.5 w-3.5 text-accent" />
-            <span>Obrolan Baru</span>
-          </button>
-        )}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {messages.length > 0 && (
+            <button
+              type="button"
+              onClick={handleNewChat}
+              disabled={isPending}
+              className="flex items-center gap-1 sm:gap-1.5 rounded-xl border border-border bg-surface px-2.5 sm:px-3 py-1.5 text-xs font-medium text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer disabled:opacity-50 shrink-0"
+            >
+              <PlusIcon className="h-3.5 w-3.5 text-accent" />
+              <span className="hidden sm:inline">Obrolan Baru</span>
+              <span className="sm:hidden">Baru</span>
+            </button>
+          )}
+
+          {/* Mode Dropdown khusus mobile di bar atas sejajar dengan riwayat & obrolan baru */}
+          <div className="sm:hidden shrink-0">
+            <ModeDropdown
+              complexity={complexity}
+              onSelectComplexity={handleComplexityChange}
+              disabled={isPending}
+              dropDirection="down"
+              align="right"
+              buttonClassName="inline-flex items-center gap-1 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Popup Riwayat Obrolan */}
@@ -624,6 +882,18 @@ export function ChatAiView({
             style={{ outline: "none", boxShadow: "none" }}
           />
 
+          {/* Mode Dropdown bergaya Gemini di sebelah kiri tombol kirim (Desktop / Layar >= sm) */}
+          <div className="hidden sm:block shrink-0">
+            <ModeDropdown
+              complexity={complexity}
+              onSelectComplexity={handleComplexityChange}
+              disabled={isPending}
+              dropDirection="up"
+              align="right"
+              buttonClassName="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-neutral-100/90 hover:bg-neutral-200/80 px-3 py-1.5 text-xs font-semibold text-foreground transition-all cursor-pointer disabled:opacity-50"
+            />
+          </div>
+
           <Button
             type="submit"
             size="sm"
@@ -652,14 +922,14 @@ export function ChatAiView({
                 quota.isExhausted ? (
                   <span className="flex items-center gap-1.5 text-amber-900">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
-                    <span>Kuota Habis (0%)</span>{" "}
+                    <span>Token Habis (0%)</span>{" "}
                     <span className="text-[10px] text-muted tabular-nums">
                       ({quota.tokensUsed.toLocaleString("id-ID")} /{" "}
                       {quota.tokenBudget.toLocaleString("id-ID")} token)
                     </span>
                     {quota.resetAt && (
                       <span className="text-amber-800 font-medium">
-                        · Reset: <AiResetCountdown resetAt={quota.resetAt} />
+                        {/* · Reset: <AiResetCountdown resetAt={quota.resetAt} /> */}
                       </span>
                     )}
                   </span>

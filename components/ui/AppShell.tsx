@@ -34,7 +34,7 @@ async function UserSidebarWrapper() {
 
 function NavigationFallback() {
   return (
-    <div className="flex items-center gap-2">
+    <div className="hidden md:flex items-center gap-2">
       <div className="h-9 w-9 animate-pulse rounded-full bg-surface-soft" />
       <div className="h-8 w-20 animate-pulse rounded-full bg-surface-soft" />
     </div>

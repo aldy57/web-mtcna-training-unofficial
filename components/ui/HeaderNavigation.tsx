@@ -101,8 +101,8 @@ export function HeaderNavigation({ user }: HeaderNavigationProps) {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      {/* Tombol Icon Profil Akun */}
+    <div className="hidden md:flex items-center gap-2">
+      {/* Tombol Icon Profil Akun (Hanya tampil di Desktop; pada mobile sudah ada di burger menu) */}
       <Link
         href="/akun"
         title={`Pengaturan Akun: ${user.fullName || user.email}`}
@@ -116,7 +116,7 @@ export function HeaderNavigation({ user }: HeaderNavigationProps) {
         <UserIcon className="h-4 w-4" />
       </Link>
 
-      {/* Tombol Logout */}
+      {/* Tombol Logout (Hanya tampil di Desktop; pada mobile sudah ada di burger menu) */}
       <LogoutButton variant="header" />
     </div>
   );

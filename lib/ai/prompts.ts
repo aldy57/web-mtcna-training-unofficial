@@ -2,6 +2,7 @@ import type { AiChatMessage } from "@/lib/ai/client";
 import { OPTION_KEYS } from "@/lib/constants";
 import { TOPICS } from "@/lib/topics";
 import type {
+  ChatComplexity,
   Language,
   OptionKey,
   QuestionWithSolution,
@@ -150,7 +151,30 @@ export function buildRecommendationMessages(
 export interface TutorChatMessageInput {
   history: readonly { role: "user" | "assistant"; content: string }[];
   userMessage: string;
+  complexity?: ChatComplexity;
 }
+
+const COMPLEXITY_DIRECTIVES: Record<ChatComplexity, string> = {
+  low: [
+    "MODE KEDALAMAN: LOW (RINGKAS & PADAT / QUICK FIX)",
+    "- Berikan jawaban yang SANGAT SINGKAT, PADAT, dan LANGSUNG KE INTI SOLUSI.",
+    "- Jangan berikan pengantar panjang atau pendahuluan teori yang bertele-tele.",
+    "- Langsung utamakan baris perintah CLI RouterOS (`/...`) atau jalur menu WinBox inti.",
+    "- Batasi penjelasan hanya pada parameter yang paling esensial (hemat token).",
+  ].join("\n"),
+  medium: [
+    "MODE KEDALAMAN: MEDIUM (STANDAR)",
+    "- Berikan penjelasan yang seimbang antara konsep dasar, fungsi parameter, dan langkah konfigurasi praktis.",
+    "- Jelaskan alasan singkat di balik langkah yang disarankan.",
+  ].join("\n"),
+  high: [
+    "MODE KEDALAMAN: HIGH (MENDALAM & KOMPREHENSIF / DEEP DIVE)",
+    "- Berikan analisis tuntas, mendalam, dan komprehensif.",
+    "- Bedah fundamental jaringan yang mendasari (misal: alur packet flow RouterOS, interaksi layer OSI/TCP-IP, state koneksi).",
+    "- Sertakan detail parameter konfigurasi CLI lengkap, skenario troubleshooting/studi kasus, dan potensi kesalahan umum (*pitfalls*).",
+    "- Berikan tips praktis menghadapi variasi soal ujian sertifikasi MTCNA terkait topik ini.",
+  ].join("\n"),
+};
 
 const SYSTEM_CHAT_TUTOR_PROMPT = [
   "Anda adalah MIRA AI, asisten tutor cerdas MikroTik Certified Network Associate (MTCNA) pada platform MIRA (MikroTik Intelligence Review & Assessment).",
@@ -177,8 +201,14 @@ const SYSTEM_CHAT_TUTOR_PROMPT = [
 export function buildTutorChatMessages(
   input: TutorChatMessageInput,
 ): AiChatMessage[] {
+  const complexity = input.complexity ?? "medium";
+  const directive =
+    COMPLEXITY_DIRECTIVES[complexity] ?? COMPLEXITY_DIRECTIVES.medium;
+
+  const systemPrompt = `${SYSTEM_CHAT_TUTOR_PROMPT}\n\n${directive}`;
+
   const messages: AiChatMessage[] = [
-    { role: "system", content: SYSTEM_CHAT_TUTOR_PROMPT },
+    { role: "system", content: systemPrompt },
   ];
 
   // Batasi riwayat maksimal 6 pesan terakhir untuk efisiensi token

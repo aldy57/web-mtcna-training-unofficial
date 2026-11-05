@@ -234,6 +234,7 @@ export const chatAiInputSchema = z.object({
     .max(10, { error: "Riwayat percakapan melebihi batas." })
     .default([]),
   conversationId: z.string().uuid().optional(),
+  complexity: z.enum(["low", "medium", "high"]).default("low"),
 });
 
 export const renameConversationInputSchema = z.object({

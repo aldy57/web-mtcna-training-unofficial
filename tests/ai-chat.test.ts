@@ -46,6 +46,30 @@ describe("lib/ai — MIRA AI (Tutor Cerdas)", () => {
       ],
     });
     assert.equal(validLongReply.success, true);
+
+    // Validasi mode complexity (low, medium, high) dan default low
+    const parsedDefault = chatAiInputSchema.parse({
+      message: "Tanya sesuatu",
+    });
+    assert.equal(parsedDefault.complexity, "low");
+
+    const parsedLow = chatAiInputSchema.parse({
+      message: "Tanya singkat",
+      complexity: "low",
+    });
+    assert.equal(parsedLow.complexity, "low");
+
+    const parsedHigh = chatAiInputSchema.parse({
+      message: "Tanya mendalam",
+      complexity: "high",
+    });
+    assert.equal(parsedHigh.complexity, "high");
+
+    const invalidComplexity = chatAiInputSchema.safeParse({
+      message: "Tanya sesuatu",
+      complexity: "ultra",
+    });
+    assert.equal(invalidComplexity.success, false);
   });
 
   it("membangun prompt instruktur MTCNA dan membatasi riwayat ke 6 pesan terakhir", () => {
@@ -77,5 +101,28 @@ describe("lib/ai — MIRA AI (Tutor Cerdas)", () => {
 
     // Pesan pertama riwayat adalah Pesan 2 (karena Pesan 1 & Balasan 1 terpotong)
     assert.equal(messages[1]?.content, "Pesan 2");
+  });
+
+  it("menyisipkan direktif mode low, medium, dan high ke dalam system prompt", () => {
+    const lowMsg = buildTutorChatMessages({
+      history: [],
+      userMessage: "Apa itu default route?",
+      complexity: "low",
+    });
+    assert.ok(lowMsg[0]?.content.includes("LOW (RINGKAS & PADAT"));
+
+    const mediumMsg = buildTutorChatMessages({
+      history: [],
+      userMessage: "Apa itu default route?",
+      complexity: "medium",
+    });
+    assert.ok(mediumMsg[0]?.content.includes("MEDIUM (STANDAR)"));
+
+    const highMsg = buildTutorChatMessages({
+      history: [],
+      userMessage: "Apa itu default route?",
+      complexity: "high",
+    });
+    assert.ok(highMsg[0]?.content.includes("HIGH (MENDALAM & KOMPREHENSIF"));
   });
 });

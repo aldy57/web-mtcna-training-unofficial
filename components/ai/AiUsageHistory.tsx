@@ -55,7 +55,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
 
   return (
     <div ref={containerRef} id="riwayat-pemakaian-ai" className="scroll-mt-20">
-      <Card className="space-y-4">
+      <Card className="p-4 sm:p-6 space-y-4 overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
         <div className="space-y-0.5">
           <h2 className="text-base font-semibold text-foreground">
@@ -67,7 +67,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
         </div>
 
         {logs.length > 0 && (
-          <div className="text-right space-y-0.5">
+          <div className="text-left sm:text-right space-y-0.5">
             <span className="text-xs text-muted block">
               Total {logs.length} riwayat tercatat
             </span>
@@ -90,7 +90,41 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          {/* Tampilan List Responsif Khusus Mobile */}
+          <div className="sm:hidden divide-y divide-border">
+            {currentLogs.map((entry) => (
+              <div
+                key={entry.id}
+                className="py-3 first:pt-1 last:pb-1 flex items-start justify-between gap-3"
+              >
+                <div className="space-y-1 min-w-0 flex-1">
+                  <p className="font-semibold text-foreground text-xs leading-snug">
+                    {getLogFeatureLabel(entry)}
+                  </p>
+                  <div className="flex items-center gap-1.5 text-muted text-[11px]">
+                    <span className="truncate max-w-[120px]">
+                      {getLogContextLabel(entry)}
+                    </span>
+                    <span>•</span>
+                    <span className="font-mono shrink-0">
+                      {formatAppDateTime(entry.createdAt)}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <Badge variant="neutral">
+                    {(entry.tokensUsed ?? 0).toLocaleString("id-ID")} token
+                  </Badge>
+                  <span className="text-[11px] text-muted tabular-nums block mt-0.5">
+                    -{formatScorePercent(entry.percentUsed)}%
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tampilan Tabel Khusus Layar Tablet/Desktop */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs text-muted">
@@ -132,26 +166,33 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
 
           {/* Kontrol Pagination 10 Item per Halaman */}
           {totalPages > 1 && (
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/80">
-              <span className="text-xs text-muted font-mono">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-border/80">
+              <span className="text-xs text-muted font-mono text-center sm:text-left">
                 Menampilkan {startIdx + 1}–
                 {Math.min(startIdx + PAGE_SIZE, logs.length)} dari {logs.length}{" "}
                 riwayat
               </span>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center justify-center gap-1.5 w-full sm:w-auto">
                 <Button
                   type="button"
                   size="sm"
                   variant="secondary"
                   disabled={safePage <= 1}
                   onClick={() => handlePageChange(Math.max(1, safePage - 1))}
+                  className="px-2.5 sm:px-3 py-1 text-xs shrink-0"
                 >
-                  ← Sebelumnya
+                  <span className="sm:hidden">← Prev</span>
+                  <span className="hidden sm:inline">← Sebelumnya</span>
                 </Button>
 
-                {/* Nomor Halaman */}
-                <div className="flex items-center gap-1">
+                {/* Di mobile: Label Halaman X / Y */}
+                <span className="text-xs font-semibold text-foreground px-2 tabular-nums sm:hidden">
+                  {safePage} / {totalPages}
+                </span>
+
+                {/* Di desktop: Nomor Halaman Interaktif */}
+                <div className="hidden sm:flex items-center gap-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                     (page) => (
                       <button
@@ -160,7 +201,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
                         onClick={() => handlePageChange(page)}
                         className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                           page === safePage
-                            ? "bg-accent text-white"
+                            ? "bg-accent text-white shadow-2xs"
                             : "border border-border text-foreground hover:bg-neutral-100"
                         }`}
                       >
@@ -178,8 +219,10 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
                   onClick={() =>
                     handlePageChange(Math.min(totalPages, safePage + 1))
                   }
+                  className="px-2.5 sm:px-3 py-1 text-xs shrink-0"
                 >
-                  Berikutnya →
+                  <span className="sm:hidden">Next →</span>
+                  <span className="hidden sm:inline">Berikutnya →</span>
                 </Button>
               </div>
             </div>

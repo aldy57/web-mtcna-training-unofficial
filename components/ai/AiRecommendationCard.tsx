@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { FormattedAiText } from "@/components/ai/FormattedAiText";
+import { TypewriterAiText } from "@/components/ai/TypewriterAiText";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { getOrCreateAiRecommendationAction } from "@/lib/actions/ai-actions";
@@ -22,6 +22,7 @@ export function AiRecommendationCard({
   const [recommendationText, setRecommendationText] = useState<string | null>(
     initialRecommendation,
   );
+  const [isNew, setIsNew] = useState(false);
   const [quota, setQuota] = useState<AiQuotaStatus | null>(initialQuota);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isPending, startTransition] = useTransition();
@@ -37,6 +38,7 @@ export function AiRecommendationCard({
         return;
       }
 
+      setIsNew(!result.data.fromSaved);
       setRecommendationText(result.data.content);
       setQuota(result.data.quota);
     });
@@ -65,8 +67,10 @@ export function AiRecommendationCard({
 
       {recommendationText ? (
         <div className="rounded-xl border border-accent/20 bg-surface-soft p-4">
-          <FormattedAiText
+          <TypewriterAiText
             content={recommendationText}
+            isNew={isNew}
+            onComplete={() => setIsNew(false)}
             className="text-xs sm:text-sm text-foreground"
           />
         </div>
