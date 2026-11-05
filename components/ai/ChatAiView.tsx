@@ -696,7 +696,7 @@ export function ChatAiView({
                 Halo, {userName || "Peserta MTCNA"}!
               </h2>
               <p className="text-xs sm:text-sm text-muted leading-relaxed">
-                Saya adalah MIRA AI, asisten tutor cerdas untuk materi MikroTik MTCNA. Anda dapat menanyakan konsep teori jaringan, bedah perintah CLI, atau troubleshooting konfigurasi RouterOS.
+                Saya adalah MIRA AI, asisten pintar untuk membantu anda memahami materi seputar MikroTik Router dan MTCNA. Silahkan bertanya materi seputar MikroTik Router dan MTCNA!
               </p>
             </div>
           </div>
