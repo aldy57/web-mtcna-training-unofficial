@@ -150,6 +150,7 @@ export interface AiUsageLogEntry {
   feature: AiFeature;
   questionId: string | null;
   attemptId: string | null;
+  tokensUsed: number;
   percentUsed: number;
   createdAt: string;
 }
@@ -184,5 +185,41 @@ export interface AiRecommendationRecord {
   content: string;
   createdAt: string;
 }
+
+export interface AiConversation {
+  id: string;
+  userId: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AiChatMessageRecord {
+  id: string;
+  conversationId: string;
+  userId: string;
+  role: "user" | "assistant";
+  content: string;
+  tokensUsed: number;
+  createdAt: string;
+}
+
+export interface AiDynamicSettings {
+  baseUrl: string;
+  model: string;
+  userTokenBudget: number;
+  quotaResetDays: number;
+  isCustomized: boolean;
+  updatedAt: string | null;
+  updatedBy: string | null;
+}
+
+export interface AiDynamicSettingsInput {
+  baseUrl: string;
+  model: string;
+  userTokenBudget: number;
+  quotaResetDays: number;
+}
+
 
 

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
+import { AppFooter } from "@/components/ui/AppFooter";
 import { AppSidebar } from "@/components/ui/AppSidebar";
 import {
   HeaderNavigation,
@@ -8,7 +9,6 @@ import {
 } from "@/components/ui/HeaderNavigation";
 import { SidebarProvider } from "@/components/ui/SidebarContext";
 import { getOptionalUser } from "@/lib/auth";
-import { UI_STRINGS } from "@/lib/ui-strings";
 
 async function UserNavigationItems() {
   const user = await getOptionalUser();
@@ -77,16 +77,6 @@ export function AppHeader() {
   );
 }
 
-export function AppFooter() {
-  return (
-    <footer className="mt-auto border-t border-border bg-surface">
-      <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 text-xs text-muted leading-relaxed">
-        {UI_STRINGS.footerText}
-      </div>
-    </footer>
-  );
-}
-
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
@@ -106,7 +96,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
               {children}
             </main>
-            <AppFooter />
+            <Suspense fallback={null}>
+              <AppFooter />
+            </Suspense>
           </div>
         </div>
       </div>

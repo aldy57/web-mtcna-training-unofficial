@@ -22,7 +22,7 @@ async function AccountSettingsContent() {
 
   const [quota, usageLogs] = await Promise.all([
     getUserAiQuotaStatus(user.id),
-    getUserAiUsageHistory(user.id),
+    getUserAiUsageHistory(user.id, 100),
   ]);
 
   return (
@@ -40,10 +40,10 @@ export default function AccountPage() {
     <div className="w-full space-y-6 sm:space-y-8">
       <div className="space-y-1.5">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-          Pengaturan
+          Pengaturan Akun
         </p>
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
-          Kelola Akun &amp; Keamanan
+          Kelola Akun Anda
         </h1>
       </div>
 

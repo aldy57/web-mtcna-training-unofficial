@@ -37,6 +37,7 @@ async function AiManagementContent() {
 
       <AiQuotaPanel
         initialGlobalStatus={aiData.aiGlobalStatus}
+        initialDynamicSettings={aiData.dynamicSettings}
         participants={aiData.participants}
         initialQuotas={aiData.participantQuotas}
         cachedExplanationCount={aiData.cachedExplanationCount}

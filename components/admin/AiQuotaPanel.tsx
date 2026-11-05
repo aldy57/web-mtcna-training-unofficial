@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { AiDynamicSettingsCard } from "@/components/admin/AiDynamicSettingsCard";
 import { AiResetCountdown } from "@/components/ai/AiResetCountdown";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -11,8 +12,10 @@ import {
   refreshGlobalAiQuotaAction,
   toggleGlobalAiEnabledAction,
 } from "@/lib/actions/ai-admin-actions";
+import { formatAppDateTime } from "@/lib/format-date";
 import { formatScorePercent } from "@/lib/scoring";
 import type {
+  AiDynamicSettings,
   AiGlobalQuotaStatus,
   AiQuotaStatus,
   UserProfile,
@@ -20,6 +23,7 @@ import type {
 
 interface AiQuotaPanelProps {
   initialGlobalStatus: AiGlobalQuotaStatus;
+  initialDynamicSettings: AiDynamicSettings;
   participants: UserProfile[];
   initialQuotas: Record<string, AiQuotaStatus>;
   cachedExplanationCount: number;
@@ -29,6 +33,7 @@ const QUICK_ADD_PERCENT = 50;
 
 export function AiQuotaPanel({
   initialGlobalStatus,
+  initialDynamicSettings,
   participants,
   initialQuotas,
   cachedExplanationCount,
@@ -155,7 +160,7 @@ export function AiQuotaPanel({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-base font-semibold text-foreground">
-                Status Kuota Global &amp; Sakelar Layanan AI
+                Statistik Penggunaan Token Platform &amp; Sakelar AI
               </h3>
               <Badge
                 variant={
@@ -168,11 +173,7 @@ export function AiQuotaPanel({
               </Badge>
             </div>
             <p className="text-xs text-muted mt-0.5">
-              Dipantau dari endpoint{" "}
-              <code className="rounded bg-surface-soft px-1.5 py-0.5 font-mono text-[11px] text-foreground">
-                {globalStatus.endpointUrl || "GET /v1/quota"}
-              </code>{" "}
-              (cache berkala 5 menit)
+              Konsumsi token dihitung secara presisi dari log interaksi peserta di database.
             </p>
           </div>
 
@@ -186,39 +187,16 @@ export function AiQuotaPanel({
                     : "success"
               }
             >
-              {!globalStatus.isEnabled
-                ? "Layanan Nonaktif"
-                : globalStatus.isExhausted
-                  ? "Kuota Habis"
-                  : `Sisa ${
-                      globalStatus.remainingPercent !== null
-                        ? `${formatScorePercent(globalStatus.remainingPercent)}%`
-                        : "Aktif"
-                    }`}
+              {!globalStatus.isEnabled ? "Layanan Nonaktif" : "Layanan AI Aktif"}
             </Badge>
           </div>
         </div>
 
-        {/* 3-Column Token Metrics Grid */}
+        {/* 3-Column Token Metrics Grid (Fokus ke Data Riil Platform) */}
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-border bg-surface-soft p-3.5 space-y-1">
             <span className="text-xs font-medium text-muted">
-              Total Kuota Token
-            </span>
-            <div className="text-xl font-bold tracking-tight text-foreground tabular-nums">
-              {globalStatus.totalTokens !== null &&
-              globalStatus.totalTokens !== undefined
-                ? `${globalStatus.totalTokens.toLocaleString("id-ID")} token`
-                : "50.000.000 token"}
-            </div>
-            <p className="text-[11px] text-muted">
-              Batas kapasitas akun AI yang dikonfigurasi
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-border bg-surface-soft p-3.5 space-y-1">
-            <span className="text-xs font-medium text-muted">
-              Token Terpakai
+              Total Token Dikonsumsi Platform
             </span>
             <div className="text-xl font-bold tracking-tight text-foreground tabular-nums">
               {globalStatus.usedTokens !== null &&
@@ -227,91 +205,60 @@ export function AiQuotaPanel({
                 : "0 token"}
             </div>
             <p className="text-[11px] text-muted">
-              {globalStatus.usedPercent !== null &&
-              globalStatus.usedPercent !== undefined
-                ? `${formatScorePercent(globalStatus.usedPercent)}% terpakai platform`
-                : "0% terpakai"}
+              Akumulasi token yang digunakan seluruh peserta
             </p>
           </div>
 
           <div className="rounded-xl border border-border bg-surface-soft p-3.5 space-y-1">
             <span className="text-xs font-medium text-muted">
-              Sisa Kuota Tersedia
+              Total Peserta Terdaftar
+            </span>
+            <div className="text-xl font-bold tracking-tight text-foreground tabular-nums">
+              {participants.length} peserta
+            </div>
+            <p className="text-[11px] text-muted">
+              Pengguna aktif dengan jatah kuota harian
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-border bg-surface-soft p-3.5 space-y-1">
+            <span className="text-xs font-medium text-muted">
+              Status Sakelar Operasional
             </span>
             <div
               className={`text-xl font-bold tracking-tight tabular-nums ${
-                globalStatus.isLowWarning
-                  ? "text-amber-700"
-                  : globalStatus.isExhausted
-                    ? "text-red-700"
-                    : "text-emerald-700"
+                globalStatus.isEnabled ? "text-emerald-700" : "text-neutral-500"
               }`}
             >
-              {globalStatus.remainingTokens !== null &&
-              globalStatus.remainingTokens !== undefined
-                ? `${globalStatus.remainingTokens.toLocaleString("id-ID")} token`
-                : "—"}
+              {globalStatus.isEnabled ? "Siap Digunakan" : "Dinonaktifkan"}
             </div>
             <p className="text-[11px] text-muted">
-              {globalStatus.remainingPercent !== null &&
-              globalStatus.remainingPercent !== undefined
-                ? `${formatScorePercent(globalStatus.remainingPercent)}% tersisa`
-                : "Siap digunakan"}
+              {globalStatus.isEnabled
+                ? "Tutor MIRA AI dapat diakses peserta"
+                : "Fitur AI dinonaktifkan sementara"}
             </p>
           </div>
         </div>
 
-        {/* Progress Bar Sisa Kuota */}
-        {globalStatus.remainingPercent !== null && (
-          <div className="space-y-1.5 pt-1">
-            <div className="flex items-center justify-between text-xs text-muted">
-              <span className="font-medium text-foreground">
-                Persentase Sisa Kuota Global
-              </span>
-              <span className="font-semibold tabular-nums text-foreground">
-                {formatScorePercent(globalStatus.remainingPercent)}%
-              </span>
-            </div>
-            <div className="h-2.5 w-full overflow-hidden rounded-full bg-border">
-              <div
-                className={`h-full transition-all duration-300 ${
-                  globalStatus.isLowWarning
-                    ? "bg-amber-500"
-                    : globalStatus.isExhausted
-                      ? "bg-red-500"
-                      : "bg-primary"
-                }`}
-                style={{
-                  width: `${Math.min(
-                    100,
-                    Math.max(0, globalStatus.remainingPercent),
-                  )}%`,
-                }}
-              />
-            </div>
+        {/* Info Note Provider (Jujur & Transparan) */}
+        <div className="rounded-xl border border-border bg-surface-soft px-3.5 py-3 text-xs text-foreground space-y-1.5">
+          <div className="flex items-center gap-1.5 font-semibold text-foreground">
+            <span className="inline-block h-2 w-2 rounded-full bg-accent" />
+            <span>Informasi Saldo &amp; Pemantauan Provider:</span>
           </div>
-        )}
-
-        {/* Diagnostic Response Note (Bila Provider return HTML SPA / Fallback) */}
-        {globalStatus.responseNote && (
-          <div className="rounded-xl border border-border bg-surface-soft px-3.5 py-3 text-xs text-foreground space-y-1">
-            <div className="flex items-center gap-1.5 font-semibold text-foreground">
-              <span className="inline-block h-2 w-2 rounded-full bg-accent" />
-              <span>Status Endpoint Kuota Provider:</span>
-            </div>
-            <p className="leading-relaxed text-muted">
-              {globalStatus.responseNote}
-            </p>
-            <p className="text-[11px] text-muted pt-0.5">
-              Besaran total kuota token dapat diubah kapan saja di file{" "}
-              <code>.env</code> melalui variabel{" "}
-              <code className="font-mono text-foreground">
-                AI_TOTAL_PURCHASED_TOKENS=50000000
-              </code>
-              .
-            </p>
-          </div>
-        )}
+          <p className="leading-relaxed text-muted">
+            Provider AI (<code>router.ryzumi.net</code> / Neko-Router) tidak menyediakan API publik untuk membaca sisa saldo token secara remote melalui API key konsumen. Oleh karena itu, platform menghitung konsumsi token nyata yang telah dipakai oleh peserta secara presisi dari log database. Sisa saldo total akun Anda dapat dipantau langsung melalui dashboard web{" "}
+            <a
+              href="https://router.ryzumi.net"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent font-semibold underline hover:text-accent-hover inline-flex items-center gap-0.5"
+            >
+              router.ryzumi.net ↗
+            </a>
+            .
+          </p>
+        </div>
 
         {/* Action Controls & Timestamp */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border">
@@ -338,15 +285,14 @@ export function AiQuotaPanel({
             </Button>
           </div>
 
-          <span className="text-[11px] text-muted">
-            Terakhir diperiksa:{" "}
-            {new Date(globalStatus.checkedAt).toLocaleString("id-ID", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
+          <span className="text-[11px] text-muted font-mono">
+            Terakhir diperiksa: {formatAppDateTime(globalStatus.checkedAt)}
           </span>
         </div>
       </Card>
+
+      {/* Kartu Pengaturan Konfigurasi AI Dinamis */}
+      <AiDynamicSettingsCard initialSettings={initialDynamicSettings} />
 
       {/* Kartu Cache Penjelasan Soal AI */}
       <Card className="space-y-3">
@@ -433,11 +379,8 @@ export function AiQuotaPanel({
                       <td className="py-2.5 px-3 text-muted">
                         {quota?.resetAt ? (
                           <div className="space-y-0.5">
-                            <div>
-                              {new Date(quota.resetAt).toLocaleString("id-ID", {
-                                dateStyle: "medium",
-                                timeStyle: "short",
-                              })}
+                            <div className="font-mono text-xs">
+                              {formatAppDateTime(quota.resetAt)}
                             </div>
                             <div className="text-[11px] font-mono text-amber-700">
                               (sisa <AiResetCountdown resetAt={quota.resetAt} />)

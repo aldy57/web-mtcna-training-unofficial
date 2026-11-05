@@ -1,6 +1,6 @@
 import { AiResetCountdown } from "@/components/ai/AiResetCountdown";
-import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { formatAppDateTime } from "@/lib/format-date";
 import { formatScorePercent } from "@/lib/scoring";
 import type { AiQuotaStatus } from "@/lib/types";
 import { UI_STRINGS } from "@/lib/ui-strings";
@@ -14,14 +14,7 @@ function formatResetDateTime(iso: string | null): string {
   if (!iso) {
     return "1 hari setelah mencapai 0%";
   }
-  try {
-    return new Intl.DateTimeFormat("id-ID", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
+  return formatAppDateTime(iso);
 }
 
 export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
@@ -34,16 +27,6 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
       ? "bg-amber-600"
       : "bg-accent";
 
-  const badgeVariant = quota.isExhausted
-    ? "caution"
-    : remainingPct <= 25
-      ? "caution"
-      : "success";
-
-  const statusText = quota.isExhausted
-    ? "Kuota Habis (0%)"
-    : `Tersedia ${formatScorePercent(remainingPct)}%`;
-
   if (compact) {
     return (
       <div className="rounded-xl border border-border bg-surface p-3 space-y-2">
@@ -52,6 +35,9 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
             Sisa Kuota AI Anda:{" "}
             <span className="tabular-nums text-accent">
               {formatScorePercent(remainingPct)}%
+            </span>{" "}
+            <span className="text-muted text-[11px]">
+              (Total {quota.tokenBudget.toLocaleString("id-ID")} token)
             </span>
           </span>
           <span className="text-muted tabular-nums">
@@ -91,27 +77,39 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
 
   return (
     <Card className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-2">
+      {/* Header Kartu Token AI */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <h2 className="text-base font-semibold text-foreground">
-            Kuota Bantuan AI
+            Token AI
           </h2>
           <p className="text-xs text-muted">
-            Digunakan untuk fitur Jelaskan Jawaban Saya, Tanya AI, dan
-            Rekomendasi Belajar pasca-tryout. Penjelasan AI umum (cache) gratis
-            dan tidak mengurangi kuota.
+            Digunakan untuk fitur Tanya AI (MIRA AI), Jelaskan Jawaban Saya, dan
+            Rekomendasi Belajar pasca-tryout.
           </p>
         </div>
-        <Badge variant={badgeVariant}>{statusText}</Badge>
+
+        <div className="shrink-0">
+          <span className="inline-flex items-center rounded-xl bg-surface-soft border border-border px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs">
+            Total Kuota: {quota.tokenBudget.toLocaleString("id-ID")} token
+          </span>
+        </div>
       </div>
 
+      {/* Baris Metrik Persentase & Token Terpakai */}
       <div className="space-y-2">
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-3xl font-bold tracking-tight text-accent tabular-nums">
-            {formatScorePercent(remainingPct)}%
-          </span>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold tracking-tight text-accent tabular-nums">
+              {formatScorePercent(remainingPct)}%
+            </span>
+            <span className="text-xs text-muted font-medium">
+              Sisa Kuota
+            </span>
+          </div>
+
           <span className="text-xs text-muted tabular-nums">
-            Terpakai {formatScorePercent(usedPct)}% dari 100%
+            Terpakai {formatScorePercent(usedPct)}% dari 100% ({quota.tokensUsed.toLocaleString("id-ID")} / {quota.tokenBudget.toLocaleString("id-ID")} token)
           </span>
         </div>
 
@@ -134,12 +132,10 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
         <div className="rounded-xl border border-caution-border bg-caution-bg px-4 py-3 text-xs text-caution-ink space-y-1">
           <p className="font-semibold">{UI_STRINGS.ai.userExhaustedNotice}</p>
           <p>
-            Kuota akan kembali penuh (100%) pada:{" "}
-            <strong className="font-semibold">
+            Token akan kembali penuh pada:{" "}
+            <strong className="font-semibold font-mono">
               {formatResetDateTime(quota.resetAt)}
             </strong>
-            . Selama masa tunggu, Anda tetap dapat membuka{" "}
-            <strong>Penjelasan AI (Gratis · Cache)</strong> pada setiap soal.
           </p>
         </div>
       ) : (
@@ -151,4 +147,3 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
     </Card>
   );
 }
-

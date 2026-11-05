@@ -4,6 +4,7 @@ import {
   DEFAULT_AI_USER_TOKEN_BUDGET,
   getAiBudgetSettings,
 } from "@/lib/ai/ai-config";
+import { fetchDynamicAiSettings } from "@/lib/ai/dynamic-settings";
 import { hasSupabasePublicEnv } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { AiFeature, AiQuotaStatus, AiUsageLogEntry } from "@/lib/types";
@@ -36,6 +37,7 @@ export interface CalculateQuotaStatusParams {
   periodStartedAt: string;
   resetAt: string | null;
   tokenBudget?: number;
+  resetDays?: number;
   nowIso?: string;
 }
 
@@ -98,13 +100,27 @@ export function calculateQuotaStatus(
     1,
     params.tokenBudget ?? DEFAULT_AI_USER_TOKEN_BUDGET,
   );
-  const isResetDue = shouldResetQuota(params.resetAt, nowIso);
+  const safeResetDays = Math.max(
+    1,
+    params.resetDays ?? DEFAULT_AI_QUOTA_RESET_DAYS,
+  );
+
+  let effectiveResetAt = params.resetAt;
+  if (effectiveResetAt) {
+    const maxFutureMs =
+      Date.parse(nowIso) + safeResetDays * MILLISECONDS_PER_DAY;
+    if (Date.parse(effectiveResetAt) > maxFutureMs) {
+      effectiveResetAt = new Date(maxFutureMs).toISOString();
+    }
+  }
+
+  const isResetDue = shouldResetQuota(effectiveResetAt, nowIso);
 
   const effectiveTokens = isResetDue
     ? 0
     : Math.min(safeBudget, Math.max(0, params.tokensUsed));
   const effectivePeriodStart = isResetDue ? nowIso : params.periodStartedAt;
-  const effectiveResetAt = isResetDue ? null : params.resetAt;
+  const finalResetAt = isResetDue ? null : effectiveResetAt;
 
   const usedPercent = calculatePercentUsed(effectiveTokens, safeBudget);
   const remainingPercent = Math.max(
@@ -121,7 +137,7 @@ export function calculateQuotaStatus(
     remainingPercent,
     isExhausted,
     periodStartedAt: effectivePeriodStart,
-    resetAt: isExhausted ? effectiveResetAt : null,
+    resetAt: isExhausted ? finalResetAt : null,
   };
 }
 
@@ -198,7 +214,8 @@ export function applyAdminQuotaAdjustment(params: AdminAdjustQuotaParams): {
 export async function getUserAiQuotaStatus(
   userId: string,
 ): Promise<AiQuotaStatus> {
-  const { userTokenBudget } = getAiBudgetSettings();
+  await fetchDynamicAiSettings();
+  const { userTokenBudget, quotaResetDays } = getAiBudgetSettings();
   const nowIso = new Date().toISOString();
 
   if (!hasSupabasePublicEnv()) {
@@ -208,6 +225,7 @@ export async function getUserAiQuotaStatus(
       periodStartedAt: nowIso,
       resetAt: null,
       tokenBudget: userTokenBudget,
+      resetDays: quotaResetDays,
       nowIso,
     });
   }
@@ -216,9 +234,9 @@ export async function getUserAiQuotaStatus(
     const admin = createSupabaseAdminClient();
     const { data } = await admin
       .from("ai_user_quotas")
-      .select("user_id, tokens_used, period_started_at, reset_at")
+      .select("user_id, tokens_used, period_started_at, reset_at, updated_at")
       .eq("user_id", userId)
-      .maybeSingle<QuotaRow>();
+      .maybeSingle<QuotaRow & { updated_at?: string }>();
 
     if (!data) {
       return calculateQuotaStatus({
@@ -227,11 +245,34 @@ export async function getUserAiQuotaStatus(
         periodStartedAt: nowIso,
         resetAt: null,
         tokenBudget: userTokenBudget,
+        resetDays: quotaResetDays,
         nowIso,
       });
     }
 
-    if (shouldResetQuota(data.reset_at, nowIso)) {
+    // Sesuaikan reset_at jika ada sisa data historis yang melebihi batas kebijakan baru (1 hari)
+    let effectiveResetAt = data.reset_at;
+    if (data.reset_at) {
+      const referenceStartMs = Date.parse(
+        data.updated_at || data.period_started_at || nowIso,
+      );
+      const maxAllowedResetMs =
+        referenceStartMs + quotaResetDays * MILLISECONDS_PER_DAY;
+      const currentResetMs = Date.parse(data.reset_at);
+
+      if (currentResetMs > maxAllowedResetMs) {
+        effectiveResetAt = new Date(maxAllowedResetMs).toISOString();
+        void admin
+          .from("ai_user_quotas")
+          .update({
+            reset_at: effectiveResetAt,
+            updated_at: nowIso,
+          })
+          .eq("user_id", userId);
+      }
+    }
+
+    if (shouldResetQuota(effectiveResetAt, nowIso)) {
       await admin
         .from("ai_user_quotas")
         .update({
@@ -241,14 +282,25 @@ export async function getUserAiQuotaStatus(
           updated_at: nowIso,
         })
         .eq("user_id", userId);
+
+      return calculateQuotaStatus({
+        userId,
+        tokensUsed: 0,
+        periodStartedAt: nowIso,
+        resetAt: null,
+        tokenBudget: userTokenBudget,
+        resetDays: quotaResetDays,
+        nowIso,
+      });
     }
 
     return calculateQuotaStatus({
       userId,
       tokensUsed: data.tokens_used,
       periodStartedAt: data.period_started_at,
-      resetAt: data.reset_at,
+      resetAt: effectiveResetAt,
       tokenBudget: userTokenBudget,
+      resetDays: quotaResetDays,
       nowIso,
     });
   } catch {
@@ -258,6 +310,7 @@ export async function getUserAiQuotaStatus(
       periodStartedAt: nowIso,
       resetAt: null,
       tokenBudget: userTokenBudget,
+      resetDays: quotaResetDays,
       nowIso,
     });
   }
@@ -270,6 +323,7 @@ export async function consumeUserAiQuota(params: {
   questionId?: string | null;
   attemptId?: string | null;
 }): Promise<AiQuotaStatus> {
+  await fetchDynamicAiSettings();
   const { userTokenBudget, quotaResetDays } = getAiBudgetSettings();
   const nowIso = new Date().toISOString();
   const admin = createSupabaseAdminClient();
@@ -372,6 +426,7 @@ export async function getUserAiUsageHistory(
       feature: row.feature,
       questionId: row.question_id,
       attemptId: row.attempt_id,
+      tokensUsed: Number(row.tokens_used ?? 0),
       percentUsed: Number(row.percent_used),
       createdAt: row.created_at,
     }));

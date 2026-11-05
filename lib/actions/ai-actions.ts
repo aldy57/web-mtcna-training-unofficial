@@ -5,6 +5,7 @@ import {
   aiRecommendationInputSchema,
   askAiInputSchema,
   chatAiInputSchema,
+  generateConversationTitle,
   type ChatAiInput,
 } from "@/lib/ai/ai-config";
 import { callAiChatCompletion } from "@/lib/ai/client";
@@ -36,6 +37,7 @@ import {
   requireParticipantForAction,
   requireUserForAction,
 } from "@/lib/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ActionResult, AiQuotaStatus, Language } from "@/lib/types";
 import { UI_STRINGS } from "@/lib/ui-strings";
 
@@ -437,6 +439,8 @@ export interface SendChatAiResult {
   reply: string;
   tokensUsed: number;
   quota: AiQuotaStatus | null;
+  conversationId?: string;
+  conversationTitle?: string;
 }
 
 export async function sendChatAiMessageAction(
@@ -499,12 +503,63 @@ export async function sendChatAiMessageAction(
       });
     }
 
+    let activeConversationId = parsed.data.conversationId;
+    let conversationTitle: string | undefined;
+
+    try {
+      const supabase = await createSupabaseServerClient();
+      if (!activeConversationId) {
+        const title = generateConversationTitle(parsed.data.message);
+        const { data: convData } = await supabase
+          .from("ai_conversations")
+          .insert({
+            user_id: auth.user.id,
+            title,
+          })
+          .select("id, title")
+          .maybeSingle<{ id: string; title: string }>();
+
+        if (convData) {
+          activeConversationId = convData.id;
+          conversationTitle = convData.title;
+        }
+      }
+
+      if (activeConversationId) {
+        await supabase.from("ai_chat_messages").insert([
+          {
+            conversation_id: activeConversationId,
+            user_id: auth.user.id,
+            role: "user",
+            content: parsed.data.message,
+            tokens_used: 0,
+          },
+          {
+            conversation_id: activeConversationId,
+            user_id: auth.user.id,
+            role: "assistant",
+            content: completion.content,
+            tokens_used: completion.totalTokens,
+          },
+        ]);
+
+        await supabase
+          .from("ai_conversations")
+          .update({ updated_at: new Date().toISOString() })
+          .eq("id", activeConversationId);
+      }
+    } catch {
+      // Graceful fallback bila tabel database belum tersedia
+    }
+
     return {
       ok: true,
       data: {
         reply: completion.content,
         tokensUsed: completion.totalTokens,
         quota: updatedQuota,
+        conversationId: activeConversationId,
+        conversationTitle,
       },
     };
   } catch (error) {

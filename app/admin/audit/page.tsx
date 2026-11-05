@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { getAdminAuditLogs } from "@/lib/admin-repo";
 import { requireRole } from "@/lib/auth";
+import { formatAppDateTime } from "@/lib/format-date";
 
 export const metadata: Metadata = {
   title: "Log Audit · Panel Admin",
@@ -71,11 +72,8 @@ async function AuditLogsContent() {
                         ? JSON.stringify(log.details)
                         : "—"}
                     </td>
-                    <td className="py-3 pl-3 text-right text-muted tabular-nums">
-                      {new Date(log.createdAt).toLocaleString("id-ID", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
+                    <td className="py-3 pl-3 text-right text-muted font-mono text-xs tabular-nums">
+                      {formatAppDateTime(log.createdAt)}
                     </td>
                   </tr>
                 ))}

@@ -90,6 +90,25 @@ describe("lib/ai/quota — perhitungan kuota persentase & reset 1 hari", () => {
     assert.equal(step2.resetAt, "2026-11-02T10:00:00.000Z");
   });
 
+  it("membatasi reset_at warisan 3 hari agar tidak melebihi batas 1 hari", () => {
+    const legacyResetIso = "2026-11-04T10:00:00.000Z"; // 3 hari ke depan
+    const nowIso = "2026-11-01T10:00:00.000Z";
+
+    const status = calculateQuotaStatus({
+      userId: "00000000-0000-4000-8000-000000000001",
+      tokensUsed: 3000,
+      periodStartedAt: nowIso,
+      resetAt: legacyResetIso,
+      tokenBudget: 3000,
+      resetDays: 1,
+      nowIso,
+    });
+
+    assert.equal(status.isExhausted, true);
+    // Otomatis di-clamp ke maksimal 1 hari dari now (2026-11-02T10:00:00.000Z)
+    assert.equal(status.resetAt, "2026-11-02T10:00:00.000Z");
+  });
+
   it("mereset kuota kembali ke 100% secara malas (lazy) setelah melewati 1 hari", () => {
     const resetAtIso = "2026-11-02T10:00:00.000Z";
 

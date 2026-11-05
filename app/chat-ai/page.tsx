@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 export const metadata: Metadata = {
   title: "MIRA AI · Tutor Cerdas RouterOS",
   description:
-    "Konsultasi cerdas materi sertifikasi MikroTik MTCNA, konsep jaringan, dan sintaks CLI RouterOS bersama MIRA AI.",
+    "Tanyakan seputar Mikrotik disini.",
 };
 
 async function ChatAiContent() {
@@ -30,9 +30,8 @@ export default function ChatAiPage() {
   return (
     <Suspense
       fallback={
-        <div className="max-w-4xl mx-auto space-y-4">
-          <div className="h-16 w-full animate-pulse rounded-2xl bg-surface-soft" />
-          <div className="h-[calc(100vh-14rem)] w-full animate-pulse rounded-2xl bg-surface-soft" />
+        <div className="max-w-4xl mx-auto">
+          <div className="h-[calc(100vh-6rem)] w-full animate-pulse rounded-2xl bg-surface-soft" />
         </div>
       }
     >

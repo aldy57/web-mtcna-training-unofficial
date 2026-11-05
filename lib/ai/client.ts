@@ -6,6 +6,7 @@ import {
   AI_REQUEST_TIMEOUT_MS,
   getAiServerConfig,
 } from "@/lib/ai/ai-config";
+import { fetchDynamicAiSettings } from "@/lib/ai/dynamic-settings";
 
 export interface AiChatMessage {
   role: "system" | "user" | "assistant";
@@ -87,6 +88,9 @@ export async function callAiChatCompletion(
     fetchImpl?: FetchLike;
   },
 ): Promise<AiChatCompletionResult> {
+  if (!options?.envSource || options.envSource === process.env) {
+    await fetchDynamicAiSettings();
+  }
   const config = getAiServerConfig(options?.envSource);
   const fetchFn = options?.fetchImpl ?? fetch;
   const targetModel = request.model || config.model;

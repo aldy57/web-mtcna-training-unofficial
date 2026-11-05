@@ -8,6 +8,8 @@ export interface AiResetCountdownProps {
   className?: string;
 }
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
 function calculateDiffMs(resetAtIso: string | null): number {
   if (!resetAtIso) {
     return 0;
@@ -16,7 +18,9 @@ function calculateDiffMs(resetAtIso: string | null): number {
   if (Number.isNaN(resetMs)) {
     return 0;
   }
-  return Math.max(0, resetMs - Date.now());
+  const rawDiff = resetMs - Date.now();
+  // Batasi maksimal 24 jam (1 hari) agar data lama sebelum kebijakan 1 hari tidak menampilkan durasi berlebih
+  return Math.min(ONE_DAY_MS, Math.max(0, rawDiff));
 }
 
 function formatRemainingDuration(diffMs: number): string {

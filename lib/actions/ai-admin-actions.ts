@@ -4,8 +4,13 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
   adminQuotaAdjustmentSchema,
+  aiDynamicSettingsInputSchema,
   getAiBudgetSettings,
 } from "@/lib/ai/ai-config";
+import {
+  clearDynamicAiSettingsCache,
+  fetchDynamicAiSettings,
+} from "@/lib/ai/dynamic-settings";
 import { deleteCachedAiExplanationsForQuestion } from "@/lib/ai/explanation-cache";
 import {
   clearGlobalQuotaCache,
@@ -20,6 +25,8 @@ import { requireAdminForAction } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
   ActionResult,
+  AiDynamicSettings,
+  AiDynamicSettingsInput,
   AiGlobalQuotaStatus,
   AiQuotaStatus,
   Role,
@@ -282,4 +289,124 @@ export async function clearQuestionAiCacheAction(input: {
         : `Cache penjelasan umum AI untuk soal ${targetQuestionId} berhasil dibersihkan.`,
   };
 }
+
+export async function updateAiDynamicSettingsAction(
+  input: AiDynamicSettingsInput,
+): Promise<ActionResult<AiDynamicSettings>> {
+  const auth = await requireAdminForAction();
+  if (!auth.ok) {
+    return auth;
+  }
+
+  const parsed = aiDynamicSettingsInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error:
+        parsed.error.issues[0]?.message ??
+        "Konfigurasi AI yang dimasukkan tidak valid.",
+    };
+  }
+
+  const nowIso = new Date().toISOString();
+  const adminClient = createSupabaseAdminClient();
+
+  const { error } = await adminClient.from("ai_settings").upsert(
+    {
+      id: "global",
+      base_url: parsed.data.baseUrl,
+      model: parsed.data.model,
+      user_token_budget: parsed.data.userTokenBudget,
+      quota_reset_days: parsed.data.quotaResetDays,
+      updated_by: auth.admin.id,
+      updated_at: nowIso,
+    },
+    { onConflict: "id" },
+  );
+
+  if (error) {
+    return {
+      ok: false,
+      error: `Gagal menyimpan konfigurasi AI ke database: ${error.message}`,
+    };
+  }
+
+  await adminClient.from("admin_audit_log").insert({
+    admin_id: auth.admin.id,
+    action: "UPDATE_AI_DYNAMIC_SETTINGS",
+    target_id: "global",
+    details: {
+      baseUrl: parsed.data.baseUrl,
+      model: parsed.data.model,
+      userTokenBudget: parsed.data.userTokenBudget,
+      quotaResetDays: parsed.data.quotaResetDays,
+    },
+  });
+
+  clearDynamicAiSettingsCache();
+  clearGlobalQuotaCache();
+  const updatedSettings = await fetchDynamicAiSettings(true);
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/ai");
+  revalidatePath("/chat-ai");
+
+  return {
+    ok: true,
+    data: updatedSettings,
+  };
+}
+
+export async function resetAiDynamicSettingsToEnvAction(): Promise<
+  ActionResult<AiDynamicSettings>
+> {
+  const auth = await requireAdminForAction();
+  if (!auth.ok) {
+    return auth;
+  }
+
+  const nowIso = new Date().toISOString();
+  const adminClient = createSupabaseAdminClient();
+
+  const { error } = await adminClient.from("ai_settings").upsert(
+    {
+      id: "global",
+      base_url: null,
+      model: null,
+      user_token_budget: null,
+      quota_reset_days: null,
+      updated_by: auth.admin.id,
+      updated_at: nowIso,
+    },
+    { onConflict: "id" },
+  );
+
+  if (error) {
+    return {
+      ok: false,
+      error: `Gagal mereset konfigurasi AI: ${error.message}`,
+    };
+  }
+
+  await adminClient.from("admin_audit_log").insert({
+    admin_id: auth.admin.id,
+    action: "RESET_AI_DYNAMIC_SETTINGS",
+    target_id: "global",
+    details: {},
+  });
+
+  clearDynamicAiSettingsCache();
+  clearGlobalQuotaCache();
+  const updatedSettings = await fetchDynamicAiSettings(true);
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/ai");
+  revalidatePath("/chat-ai");
+
+  return {
+    ok: true,
+    data: updatedSettings,
+  };
+}
+
 

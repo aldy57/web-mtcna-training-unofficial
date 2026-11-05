@@ -1,14 +1,20 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { AiResetCountdown } from "@/components/ai/AiResetCountdown";
+import { ChatHistoryDrawer } from "@/components/ai/ChatHistoryDrawer";
 import { FormattedAiText } from "@/components/ai/FormattedAiText";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { sendChatAiMessageAction } from "@/lib/actions/ai-actions";
+import {
+  deleteConversationAction,
+  getConversationMessagesAction,
+  listConversationsAction,
+  renameConversationAction,
+} from "@/lib/actions/chat-history-actions";
 import { formatScorePercent } from "@/lib/scoring";
-import type { AiQuotaStatus, Role } from "@/lib/types";
+import type { AiConversation, AiQuotaStatus, Role } from "@/lib/types";
 
 export interface ChatAiViewProps {
   initialQuota: AiQuotaStatus | null;
@@ -124,6 +130,45 @@ function SparklesHeaderIcon({
   );
 }
 
+function HistoryIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M12 7v5l4 2" />
+    </svg>
+  );
+}
+
+function PlusIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
+  );
+}
+
 function generateMessageId(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
@@ -133,11 +178,17 @@ export function ChatAiView({
   userRole,
   userName,
 }: ChatAiViewProps) {
+  const searchParams = useSearchParams();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [quota, setQuota] = useState<AiQuotaStatus | null>(initialQuota);
   const [errorMessage, setErrorMessage] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<AiConversation[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<
+    string | null
+  >(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -146,9 +197,91 @@ export function ChatAiView({
   const isParticipant = userRole === "user";
   const isExhausted = isParticipant && Boolean(quota?.isExhausted);
 
+  // Ambil daftar riwayat obrolan & cek query param ?c= pada URL
+  useEffect(() => {
+    void listConversationsAction().then((res) => {
+      if (res.ok) {
+        setConversations(res.data);
+      }
+    });
+
+    const cParam = searchParams.get("c");
+    if (cParam) {
+      void getConversationMessagesAction(cParam).then((res) => {
+        if (res.ok) {
+          setActiveConversationId(cParam);
+          setMessages(
+            res.data.messages.map((m) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content,
+              createdAt: m.createdAt,
+            })),
+          );
+        }
+      });
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isPending]);
+
+  async function handleSelectConversation(convId: string) {
+    if (convId === activeConversationId) {
+      return;
+    }
+    setActiveConversationId(convId);
+    window.history.pushState(null, "", `/chat-ai?c=${convId}`);
+    setErrorMessage("");
+
+    const res = await getConversationMessagesAction(convId);
+    if (res.ok) {
+      setMessages(
+        res.data.messages.map((m) => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          createdAt: m.createdAt,
+        })),
+      );
+    } else {
+      setErrorMessage(res.error);
+    }
+  }
+
+  function handleNewChat() {
+    setActiveConversationId(null);
+    setMessages([]);
+    setErrorMessage("");
+    setInputValue("");
+    window.history.pushState(null, "", "/chat-ai");
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }
+
+  async function handleRenameConversation(id: string, newTitle: string) {
+    const res = await renameConversationAction({
+      conversationId: id,
+      title: newTitle,
+    });
+    if (res.ok) {
+      setConversations((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, title: newTitle } : c)),
+      );
+    }
+  }
+
+  async function handleDeleteConversation(id: string) {
+    const res = await deleteConversationAction({ conversationId: id });
+    if (res.ok) {
+      setConversations((prev) => prev.filter((c) => c.id !== id));
+      if (activeConversationId === id) {
+        handleNewChat();
+      }
+    }
+  }
 
   function handleSendMessage(textToSend?: string) {
     const rawText = textToSend ?? inputValue;
@@ -179,11 +312,39 @@ export function ChatAiView({
       const res = await sendChatAiMessageAction({
         message: trimmed,
         history: historyPayload,
+        conversationId: activeConversationId ?? undefined,
       });
 
       if (!res.ok) {
         setErrorMessage(res.error);
         return;
+      }
+
+      if (res.data.quota) {
+        setQuota(res.data.quota);
+      }
+
+      if (res.data.conversationId && !activeConversationId) {
+        setActiveConversationId(res.data.conversationId);
+        window.history.replaceState(
+          null,
+          "",
+          `/chat-ai?c=${res.data.conversationId}`,
+        );
+
+        if (res.data.conversationTitle) {
+          const newConv: AiConversation = {
+            id: res.data.conversationId,
+            userId: "",
+            title: res.data.conversationTitle,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          setConversations((prev) => [
+            newConv,
+            ...prev.filter((c) => c.id !== res.data.conversationId),
+          ]);
+        }
       }
 
       const assistantMsg: ChatMessage = {
@@ -194,9 +355,6 @@ export function ChatAiView({
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
-      if (res.data.quota) {
-        setQuota(res.data.quota);
-      }
     });
   }
 
@@ -204,15 +362,6 @@ export function ChatAiView({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
-    }
-  }
-
-  function handleResetChat() {
-    setMessages([]);
-    setErrorMessage("");
-    setInputValue("");
-    if (textareaRef.current) {
-      textareaRef.current.focus();
     }
   }
 
@@ -224,112 +373,68 @@ export function ChatAiView({
     }, 2000);
   }
 
+  function handleCloseHistory() {
+    setIsHistoryOpen(false);
+  }
+
   return (
-    <div className="flex flex-col h-[calc(100vh-8.5rem)] max-w-4xl mx-auto">
-      {/* Header Panel Chat */}
-      <Card className="shrink-0 mb-3 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
-              <SparklesHeaderIcon />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-semibold text-foreground">
-                  MIRA AI
-                </h1>
-              </div>
-              <p className="text-xs text-muted">
-                Asisten tutor cerdas materi sertifikasi MTCNA, konsep jaringan, &amp; sintaks CLI RouterOS.
-              </p>
-            </div>
-          </div>
+    <div className="flex flex-col h-[calc(100vh-6rem)] max-w-4xl mx-auto">
+      {/* Bar Atas: Tombol Riwayat Obrolan & Obrolan Baru */}
+      <div className="flex items-center justify-between pb-2 shrink-0">
+        <button
+          type="button"
+          onClick={() => setIsHistoryOpen(true)}
+          className="group flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer"
+        >
+          <HistoryIcon className="h-3.5 w-3.5 text-accent" />
+          <span>Riwayat Obrolan</span>
+          {conversations.length > 0 && (
+            <span className="rounded-full bg-surface-soft px-1.5 py-0.2 text-[10px] text-muted">
+              {conversations.length}
+            </span>
+          )}
+        </button>
 
-          <div className="flex items-center gap-2">
-            {isParticipant ? (
-              quota ? (
-                <Badge
-                  variant={
-                    quota.isExhausted
-                      ? "caution"
-                      : quota.remainingPercent < 15
-                        ? "caution"
-                        : "success"
-                  }
-                >
-                  {quota.isExhausted ? (
-                    <span className="flex items-center gap-1">
-                      <span>Kuota Habis</span>
-                      {quota.resetAt && (
-                        <span>
-                          · <AiResetCountdown resetAt={quota.resetAt} />
-                        </span>
-                      )}
-                    </span>
-                  ) : (
-                    `Sisa Kuota: ${formatScorePercent(quota.remainingPercent)}%`
-                  )}
-                </Badge>
-              ) : null
-            ) : (
-              <Badge variant="neutral">Mode Admin (Bebas Kuota)</Badge>
-            )}
+        {messages.length > 0 && (
+          <button
+            type="button"
+            onClick={handleNewChat}
+            disabled={isPending}
+            className="flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+          >
+            <PlusIcon className="h-3.5 w-3.5 text-accent" />
+            <span>Obrolan Baru</span>
+          </button>
+        )}
+      </div>
 
-            {messages.length > 0 && (
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={handleResetChat}
-                disabled={isPending}
-              >
-                Sesi Baru
-              </Button>
-            )}
-          </div>
-        </div>
-      </Card>
+      {/* Popup Riwayat Obrolan */}
+      <ChatHistoryDrawer
+        isOpen={isHistoryOpen}
+        onClose={handleCloseHistory}
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        onSelectConversation={(id) => void handleSelectConversation(id)}
+        onNewChat={handleNewChat}
+        onRenameConversation={handleRenameConversation}
+        onDeleteConversation={handleDeleteConversation}
+      />
 
       {/* Area Pesan Percakapan */}
-      <Card className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0 bg-surface">
+      <div className="flex-1 overflow-y-auto px-1 sm:px-3 py-4 space-y-4 min-h-0 scrollbar-minimal">
         {messages.length === 0 ? (
-          <div className="h-full flex flex-col justify-center items-center text-center py-8 px-2 max-w-lg mx-auto space-y-5">
-            <div className="h-12 w-12 rounded-2xl bg-surface-soft border border-border flex items-center justify-center text-accent">
-              <SparklesHeaderIcon className="h-6 w-6" />
+          <div className="h-full flex flex-col justify-center items-center text-center py-10 px-4 max-w-md mx-auto space-y-4">
+            <div className="h-14 w-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-2xs">
+              <SparklesHeaderIcon className="h-7 w-7" />
             </div>
 
-            <div className="space-y-1">
-              <h2 className="text-base font-semibold text-foreground">
+            <div className="space-y-1.5">
+              <h2 className="text-lg font-semibold text-foreground">
                 Halo, {userName || "Peserta MTCNA"}!
               </h2>
               <p className="text-xs sm:text-sm text-muted leading-relaxed">
                 Saya adalah MIRA AI, asisten tutor cerdas untuk materi MikroTik MTCNA. Anda dapat menanyakan konsep teori jaringan, bedah perintah CLI, atau troubleshooting konfigurasi RouterOS.
               </p>
-            </div>
-
-            {/* Starter Suggestion Chips */}
-            <div className="w-full space-y-2 pt-2 text-left">
-              <p className="text-xs font-semibold text-muted text-center">
-                Pilih topik pembuka atau ketik pertanyaan Anda sendiri di bawah:
-              </p>
-              <div className="flex flex-col gap-1.5">
-                {STARTER_PROMPTS.map((item) => (
-                  <button
-                    key={item.topic}
-                    type="button"
-                    disabled={isPending || isExhausted}
-                    onClick={() => handleSendMessage(item.prompt)}
-                    className="group flex items-start gap-2.5 rounded-xl border border-border bg-surface-soft px-3.5 py-2.5 text-xs text-foreground hover:border-accent hover:bg-surface-selected transition-all cursor-pointer text-left disabled:opacity-50"
-                  >
-                    <span className="shrink-0 font-semibold text-accent group-hover:text-accent-hover">
-                      [{item.topic}]
-                    </span>
-                    <span className="line-clamp-2 text-muted group-hover:text-foreground">
-                      {item.prompt}
-                    </span>
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         ) : (
@@ -410,7 +515,7 @@ export function ChatAiView({
             <div ref={messagesEndRef} />
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Pesan Kesalahan / Kuota Habis */}
       {errorMessage && (
@@ -429,10 +534,10 @@ export function ChatAiView({
         >
           <div className="space-y-0.5">
             <p className="font-semibold text-amber-900">
-              Kuota Bantuan AI Anda Telah Habis (0%)
+              Token AI Anda Telah Habis
             </p>
             <p className="text-amber-800">
-              Sistem menerapkan batas waktu reset otomatis 1 hari (24 jam) sejak kuota habis.
+              Tunggu waktu reset selesai atau minta admin untuk menambah token.
             </p>
           </div>
           {quota?.resetAt && (
@@ -447,7 +552,34 @@ export function ChatAiView({
       )}
 
       {/* Input Form Bar */}
-      <div className="mt-3 shrink-0">
+      <div className="mt-3 shrink-0 space-y-2">
+        {/* Suggestion Chat Horizontal di Bawah */}
+        {messages.length === 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-minimal">
+            <span className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-muted pl-1">
+              <SparklesHeaderIcon className="h-3 w-3 text-accent" />
+              Saran:
+            </span>
+            {STARTER_PROMPTS.map((item) => (
+              <button
+                key={item.topic}
+                type="button"
+                disabled={isPending || isExhausted}
+                onClick={() => handleSendMessage(item.prompt)}
+                title={item.prompt}
+                className="group shrink-0 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs text-foreground shadow-2xs hover:border-accent hover:bg-surface-selected transition-all cursor-pointer whitespace-nowrap disabled:opacity-50"
+              >
+                <span className="font-semibold text-accent group-hover:text-accent-hover">
+                  {item.topic}
+                </span>
+                <span className="text-muted group-hover:text-foreground text-[11px] max-w-[240px] sm:max-w-xs truncate">
+                  · {item.prompt}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -463,8 +595,8 @@ export function ChatAiView({
             onKeyDown={handleKeyDown}
             placeholder={
               isExhausted
-                ? "Kuota AI Anda saat ini habis..."
-                : "Tanyakan materi MTCNA atau perintah RouterOS (Enter untuk kirim)..."
+                ? "Ketik pesan kamu di sini..."
+                : "Ketik pesan kamu di sini..."
             }
             disabled={isPending || isExhausted}
             className="flex-1 max-h-32 min-h-[2.5rem] resize-none bg-transparent px-3 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted focus:outline-none"
@@ -492,8 +624,61 @@ export function ChatAiView({
         </form>
 
         <div className="flex items-center justify-between px-2 pt-1 text-[11px] text-muted">
-          <span>Tekan <strong>Enter</strong> untuk mengirim, <strong>Shift + Enter</strong> untuk baris baru.</span>
-          <span>{inputValue.length}/1500</span>
+          <div>
+            {isParticipant ? (
+              quota ? (
+                quota.isExhausted ? (
+                  <span className="flex items-center gap-1.5 text-amber-900">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+                    <span>Kuota Habis (0%)</span>{" "}
+                    <span className="text-[10px] text-muted tabular-nums">
+                      ({quota.tokensUsed.toLocaleString("id-ID")} /{" "}
+                      {quota.tokenBudget.toLocaleString("id-ID")} token)
+                    </span>
+                    {quota.resetAt && (
+                      <span className="text-amber-800 font-medium">
+                        · Reset: <AiResetCountdown resetAt={quota.resetAt} />
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full shrink-0 ${
+                        quota.remainingPercent < 15
+                          ? "bg-amber-500"
+                          : "bg-emerald-500"
+                      }`}
+                    />
+                    <span>
+                      Sisa Kuota:{" "}
+                      <span className="font-semibold text-foreground">
+                        {formatScorePercent(quota.remainingPercent)}%
+                      </span>{" "}
+                      <span className="text-[10px] text-muted tabular-nums">
+                        ({quota.tokensUsed.toLocaleString("id-ID")} /{" "}
+                        {quota.tokenBudget.toLocaleString("id-ID")} token)
+                      </span>
+                    </span>
+                  </span>
+                )
+              ) : (
+                <span>Memuat kuota...</span>
+              )
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
+                <span>Mode Admin (Bebas Kuota)</span>
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] text-muted text-right">
+              MIRA AI adalah generative AI yang dapat membuat kesalahan.
+            </span>
+            <span className="tabular-nums shrink-0">{inputValue.length}/1500</span>
+          </div>
         </div>
       </div>
     </div>

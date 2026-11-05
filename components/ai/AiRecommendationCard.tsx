@@ -49,7 +49,7 @@ export function AiRecommendationCard({
           {UI_STRINGS.ai.recommendationTitle}
         </h2>
         <p className="text-xs text-muted">
-          Analisis otomatis topik terlemah dan prioritas materi RouterOS yang
+          Analisis otomatis topik terlemah dan prioritas materi yang
           perlu Anda pelajari ulang dari hasil sesi ini.
         </p>
       </div>

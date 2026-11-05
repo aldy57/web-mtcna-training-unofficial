@@ -1,11 +1,13 @@
 import "server-only";
 import { getAiBudgetSettings } from "@/lib/ai/ai-config";
+import { fetchDynamicAiSettings } from "@/lib/ai/dynamic-settings";
 import { getGlobalAiQuotaStatus } from "@/lib/ai/global-quota";
 import { calculateQuotaStatus } from "@/lib/ai/quota";
 import { getQuestionBank } from "@/lib/questions-repo";
 import { calculateScorePercent } from "@/lib/scoring";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
+  AiDynamicSettings,
   AiGlobalQuotaStatus,
   AiQuotaStatus,
   Language,
@@ -41,6 +43,7 @@ export interface AdminAiManagementData {
   participants: UserProfile[];
   participantQuotas: Record<string, AiQuotaStatus>;
   cachedExplanationCount: number;
+  dynamicSettings: AiDynamicSettings;
 }
 
 export interface AdminMetricsData {
@@ -123,17 +126,19 @@ export async function getAdminAiData(): Promise<AdminAiManagementData> {
   const { userTokenBudget } = getAiBudgetSettings();
   const nowIso = new Date().toISOString();
 
-  const [users, quotasRes, cacheCountRes, aiGlobalStatus] = await Promise.all([
-    getAdminUsers(),
-    adminClient
-      .from("ai_user_quotas")
-      .select("user_id, tokens_used, period_started_at, reset_at")
-      .returns<DbQuotaRow[]>(),
-    adminClient
-      .from("ai_explanations")
-      .select("question_id", { count: "exact", head: true }),
-    getGlobalAiQuotaStatus(),
-  ]);
+  const [users, quotasRes, cacheCountRes, aiGlobalStatus, dynamicSettings] =
+    await Promise.all([
+      getAdminUsers(),
+      adminClient
+        .from("ai_user_quotas")
+        .select("user_id, tokens_used, period_started_at, reset_at")
+        .returns<DbQuotaRow[]>(),
+      adminClient
+        .from("ai_explanations")
+        .select("question_id", { count: "exact", head: true }),
+      getGlobalAiQuotaStatus(),
+      fetchDynamicAiSettings(true),
+    ]);
 
   const participants = users.filter((u) => u.role === "user");
   const quotaRowMap = new Map(
@@ -158,6 +163,7 @@ export async function getAdminAiData(): Promise<AdminAiManagementData> {
     participants,
     participantQuotas,
     cachedExplanationCount: cacheCountRes.count ?? 0,
+    dynamicSettings,
   };
 }
 

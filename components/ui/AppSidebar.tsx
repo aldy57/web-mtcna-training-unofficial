@@ -248,7 +248,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       {
         href: "/chat-ai",
         label: "MIRA AI",
-        badge: "Tes",
+        badge: "NEW",
         icon: SparklesIcon,
         isActive: (path) => path.startsWith("/chat-ai"),
       },

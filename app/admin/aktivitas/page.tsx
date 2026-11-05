@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { getAdminRecentAttempts } from "@/lib/admin-repo";
 import { requireRole } from "@/lib/auth";
 import { LANGUAGE_NAMES } from "@/lib/constants";
+import { formatAppDateTime } from "@/lib/format-date";
 import { formatScorePercent } from "@/lib/scoring";
 
 export const metadata: Metadata = {
@@ -85,11 +86,8 @@ async function RecentAttemptsContent() {
                     <td className="py-3.5 px-3 text-xs text-muted">
                       {LANGUAGE_NAMES[item.language]}
                     </td>
-                    <td className="py-3.5 px-3 text-xs text-muted tabular-nums">
-                      {new Date(item.startedAt).toLocaleString("id-ID", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
+                    <td className="py-3.5 px-3 text-xs text-muted font-mono tabular-nums">
+                      {formatAppDateTime(item.startedAt)}
                     </td>
                     <td className="py-3.5 px-3 tabular-nums">
                       {item.status === "in_progress" ? (

@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { getCachedDynamicAiOverrides } from "@/lib/ai/dynamic-settings";
 import { SUPPORTED_LANGUAGES } from "@/lib/constants";
 
 export const DEFAULT_AI_BASE_URL = "https://router.ryzumi.net/v1";
@@ -68,19 +69,22 @@ export function getAiBudgetSettings(
   quotaResetDays: number;
   totalPurchasedTokens: number;
 } {
+  const overrides =
+    envSource === process.env ? getCachedDynamicAiOverrides() : null;
+
   const budgetParsed = z.coerce
     .number()
     .int()
     .min(500)
     .max(10_000_000)
-    .safeParse(envSource.AI_USER_TOKEN_BUDGET);
+    .safeParse(overrides?.user_token_budget ?? envSource.AI_USER_TOKEN_BUDGET);
 
   const resetDaysParsed = z.coerce
     .number()
     .int()
     .min(1)
     .max(30)
-    .safeParse(envSource.AI_QUOTA_RESET_DAYS);
+    .safeParse(overrides?.quota_reset_days ?? envSource.AI_QUOTA_RESET_DAYS);
 
   const totalTokensParsed = z.coerce
     .number()
@@ -104,13 +108,21 @@ export function getAiBudgetSettings(
 export function hasAiServerConfig(
   envSource: Record<string, string | undefined> = process.env,
 ): boolean {
+  const overrides =
+    envSource === process.env ? getCachedDynamicAiOverrides() : null;
+
   const parsed = aiServerEnvSchema.safeParse({
     apiKey: envSource.AI_API_KEY,
-    baseUrl: envSource.AI_BASE_URL || DEFAULT_AI_BASE_URL,
-    model: envSource.AI_MODEL || DEFAULT_AI_MODEL,
+    baseUrl: overrides?.base_url || envSource.AI_BASE_URL || DEFAULT_AI_BASE_URL,
+    model: overrides?.model || envSource.AI_MODEL || DEFAULT_AI_MODEL,
     userTokenBudget:
-      envSource.AI_USER_TOKEN_BUDGET ?? DEFAULT_AI_USER_TOKEN_BUDGET,
-    quotaResetDays: envSource.AI_QUOTA_RESET_DAYS ?? DEFAULT_AI_QUOTA_RESET_DAYS,
+      overrides?.user_token_budget ??
+      envSource.AI_USER_TOKEN_BUDGET ??
+      DEFAULT_AI_USER_TOKEN_BUDGET,
+    quotaResetDays:
+      overrides?.quota_reset_days ??
+      envSource.AI_QUOTA_RESET_DAYS ??
+      DEFAULT_AI_QUOTA_RESET_DAYS,
     totalPurchasedTokens:
       envSource.AI_TOTAL_PURCHASED_TOKENS ?? DEFAULT_AI_TOTAL_PURCHASED_TOKENS,
   });
@@ -120,13 +132,21 @@ export function hasAiServerConfig(
 export function getAiServerConfig(
   envSource: Record<string, string | undefined> = process.env,
 ): AiServerConfig {
+  const overrides =
+    envSource === process.env ? getCachedDynamicAiOverrides() : null;
+
   const parsed = aiServerEnvSchema.safeParse({
     apiKey: envSource.AI_API_KEY,
-    baseUrl: envSource.AI_BASE_URL || DEFAULT_AI_BASE_URL,
-    model: envSource.AI_MODEL || DEFAULT_AI_MODEL,
+    baseUrl: overrides?.base_url || envSource.AI_BASE_URL || DEFAULT_AI_BASE_URL,
+    model: overrides?.model || envSource.AI_MODEL || DEFAULT_AI_MODEL,
     userTokenBudget:
-      envSource.AI_USER_TOKEN_BUDGET ?? DEFAULT_AI_USER_TOKEN_BUDGET,
-    quotaResetDays: envSource.AI_QUOTA_RESET_DAYS ?? DEFAULT_AI_QUOTA_RESET_DAYS,
+      overrides?.user_token_budget ??
+      envSource.AI_USER_TOKEN_BUDGET ??
+      DEFAULT_AI_USER_TOKEN_BUDGET,
+    quotaResetDays:
+      overrides?.quota_reset_days ??
+      envSource.AI_QUOTA_RESET_DAYS ??
+      DEFAULT_AI_QUOTA_RESET_DAYS,
     totalPurchasedTokens:
       envSource.AI_TOTAL_PURCHASED_TOKENS ?? DEFAULT_AI_TOTAL_PURCHASED_TOKENS,
   });
@@ -209,9 +229,67 @@ export const chatAiInputSchema = z.object({
     .array(chatAiMessageItemSchema)
     .max(10, { error: "Riwayat percakapan melebihi batas." })
     .default([]),
+  conversationId: z.string().uuid().optional(),
 });
+
+export const renameConversationInputSchema = z.object({
+  conversationId: z.string().uuid({ message: "ID obrolan tidak valid." }),
+  title: z
+    .string()
+    .trim()
+    .min(1, { message: "Judul obrolan tidak boleh kosong." })
+    .max(80, { message: "Judul obrolan maksimal 80 karakter." }),
+});
+
+export const deleteConversationInputSchema = z.object({
+  conversationId: z.string().uuid({ message: "ID obrolan tidak valid." }),
+});
+
+export const aiDynamicSettingsInputSchema = z.object({
+  baseUrl: z
+    .string({ error: "Base URL harus diisi." })
+    .trim()
+    .url({
+      error:
+        "Base URL harus berupa URL yang valid (misal: https://router.ryzumi.net/v1).",
+    })
+    .max(255, { error: "Base URL maksimal 255 karakter." }),
+  model: z
+    .string({ error: "Model AI harus diisi." })
+    .trim()
+    .min(1, { error: "Nama model AI tidak boleh kosong." })
+    .max(80, { error: "Nama model AI maksimal 80 karakter." }),
+  userTokenBudget: z.coerce
+    .number({ error: "Budget token harus berupa angka." })
+    .int({ error: "Budget token harus berupa bilangan bulat." })
+    .min(500, { error: "Budget token minimal 500 token." })
+    .max(10_000_000, { error: "Budget token maksimal 10.000.000 token." }),
+  quotaResetDays: z.coerce
+    .number({ error: "Durasi reset kuota harus berupa angka." })
+    .int({ error: "Durasi reset kuota harus berupa bilangan bulat." })
+    .min(1, { error: "Durasi reset kuota minimal 1 hari." })
+    .max(30, { error: "Durasi reset kuota maksimal 30 hari." }),
+});
+
+export function generateConversationTitle(firstPrompt: string): string {
+  const cleaned = firstPrompt.replace(/[\r\n\t]+/g, " ").trim();
+  if (cleaned.length <= 40) {
+    return cleaned || "Obrolan Baru";
+  }
+  return `${cleaned.slice(0, 37)}...`;
+}
 
 export type ChatAiInput = z.infer<typeof chatAiInputSchema>;
 export type ChatAiMessageItem = z.infer<typeof chatAiMessageItemSchema>;
+export type RenameConversationInput = z.infer<
+  typeof renameConversationInputSchema
+>;
+export type DeleteConversationInput = z.infer<
+  typeof deleteConversationInputSchema
+>;
+export type AiDynamicSettingsInput = z.infer<
+  typeof aiDynamicSettingsInputSchema
+>;
+
 
 
