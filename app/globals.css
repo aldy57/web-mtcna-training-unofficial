@@ -122,3 +122,12 @@ textarea:focus-visible {
   display: none;
 }
 
+/* Hilangkan browser default focus ring pada form chat textarea */
+[data-chat-view] textarea,
+[data-chat-view] textarea:focus,
+[data-chat-view] textarea:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+

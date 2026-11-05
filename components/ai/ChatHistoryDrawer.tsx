@@ -246,8 +246,8 @@ export function ChatHistoryDrawer({
           </button>
         </div>
 
-        {/* Daftar Sesi Obrolan */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 scrollbar-minimal">
+        {/* Daftar Sesi Obrolan (Maksimal 5 item tampil langsung, lebih dari 5 muncul scroll) */}
+        <div className="max-h-[260px] sm:max-h-[270px] overflow-y-auto p-3 sm:px-5 sm:py-3 space-y-3 scrollbar-minimal">
           {conversations.length === 0 ? (
             <div className="py-10 text-center text-xs text-muted flex flex-col items-center justify-center space-y-2">
               <div className="h-10 w-10 rounded-full bg-surface-soft border border-border flex items-center justify-center text-muted">

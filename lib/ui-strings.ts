@@ -35,26 +35,25 @@ export const UI_STRINGS = {
   ai: {
     generalButton: "Penjelasan AI",
     generalLoading: "Menyiapkan penjelasan AI...",
-    generalTitle: "Penjelasan Mendalam AI (RouterOS)",
-    freeBadge: "Gratis · Cache",
+    generalTitle: "Penjelasan Mendalam AI",
+    freeBadge: "Gratis",
     quotaBadge: "Memakai Kuota",
     personalButton: "Jelaskan Jawaban Saya",
     personalLoading: "Menganalisis jawaban Anda...",
     personalTitle: "Analisis Jawaban Anda",
     askButton: "Tanya AI",
-    askPlaceholder:
-      "Tanyakan konsep RouterOS atau MTCNA terkait soal ini...",
+    askPlaceholder: "Apa yang ingin Anda tanyakan mengenai soal ini?",
     askSubmit: "Kirim Pertanyaan",
     askLoading: "AI sedang menjawab...",
-    recommendationTitle: "Rekomendasi Belajar AI",
-    recommendationButton: "Buat Rekomendasi Belajar AI",
+    recommendationTitle: "Rekomendasi Belajar",
+    recommendationButton: "Buat Rekomendasi Belajar",
     recommendationLoading: "Menyusun rencana belajar...",
     disabledNotice:
-      "Fitur bantuan AI sedang dinonaktifkan sementara oleh administrator.",
+      "Fitur AI sedang dinonaktifkan sementara oleh administrator.",
     globalExhaustedNotice:
       "Kuota layanan AI global sedang habis. Silakan coba kembali nanti.",
     userExhaustedNotice:
-      "Kuota AI Anda telah mencapai 0% dan akan direset otomatis ke 100%.",
+      "Token AI Anda telah habis dan akan direset otomatis di hari berikutnya.",
   },
 } as const;
 

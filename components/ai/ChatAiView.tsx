@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { AiResetCountdown } from "@/components/ai/AiResetCountdown";
 import { ChatHistoryDrawer } from "@/components/ai/ChatHistoryDrawer";
-import { FormattedAiText } from "@/components/ai/FormattedAiText";
+import { TypewriterAiText } from "@/components/ai/TypewriterAiText";
 import { Button } from "@/components/ui/Button";
 import { sendChatAiMessageAction } from "@/lib/actions/ai-actions";
 import {
@@ -27,6 +27,7 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   createdAt: string;
+  isNew?: boolean;
 }
 
 const STARTER_PROMPTS = [
@@ -352,6 +353,7 @@ export function ChatAiView({
         role: "assistant",
         content: res.data.reply,
         createdAt: new Date().toISOString(),
+        isNew: true,
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
@@ -378,7 +380,10 @@ export function ChatAiView({
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] max-w-4xl mx-auto">
+    <div
+      data-chat-view
+      className="flex flex-col h-full max-w-4xl w-full mx-auto px-2 sm:px-4 pt-2 pb-2 min-h-0"
+    >
       {/* Bar Atas: Tombol Riwayat Obrolan & Obrolan Baru */}
       <div className="flex items-center justify-between pb-2 shrink-0">
         <button
@@ -481,7 +486,23 @@ export function ChatAiView({
                         {message.content}
                       </div>
                     ) : (
-                      <FormattedAiText content={message.content} />
+                      <TypewriterAiText
+                        content={message.content}
+                        isNew={message.isNew}
+                        onProgress={() => {
+                          messagesEndRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                          });
+                        }}
+                        onComplete={() => {
+                          setMessages((prev) =>
+                            prev.map((m) =>
+                              m.id === message.id ? { ...m, isNew: false } : m,
+                            ),
+                          );
+                        }}
+                      />
                     )}
 
                     <div
@@ -552,7 +573,7 @@ export function ChatAiView({
       )}
 
       {/* Input Form Bar */}
-      <div className="mt-3 shrink-0 space-y-2">
+      <div className="mt-2 shrink-0 space-y-2">
         {/* Suggestion Chat Horizontal di Bawah */}
         {messages.length === 0 && (
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-minimal">
@@ -585,7 +606,7 @@ export function ChatAiView({
             e.preventDefault();
             handleSendMessage();
           }}
-          className="relative flex items-center gap-2 rounded-2xl border border-border bg-surface p-2 shadow-2xs focus-within:border-accent transition-colors"
+          className="relative flex items-center gap-2 rounded-2xl border border-border bg-surface p-2 shadow-2xs focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/20 transition-all"
         >
           <textarea
             ref={textareaRef}
@@ -599,7 +620,8 @@ export function ChatAiView({
                 : "Ketik pesan kamu di sini..."
             }
             disabled={isPending || isExhausted}
-            className="flex-1 max-h-32 min-h-[2.5rem] resize-none bg-transparent px-3 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted focus:outline-none"
+            className="flex-1 max-h-32 min-h-[2.5rem] resize-none bg-transparent px-3 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 border-none shadow-none"
+            style={{ outline: "none", boxShadow: "none" }}
           />
 
           <Button

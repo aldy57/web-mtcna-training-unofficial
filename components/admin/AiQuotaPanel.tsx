@@ -63,8 +63,8 @@ export function AiQuotaPanel({
       setFeedback({
         type: "ok",
         text: res.data.isEnabled
-          ? "Layanan bantuan AI global diaktifkan."
-          : "Layanan bantuan AI global dinonaktifkan sementara.",
+          ? "Layanan AI diaktifkan."
+          : "Layanan AI dinonaktifkan sementara.",
       });
     });
   }
@@ -230,11 +230,11 @@ export function AiQuotaPanel({
                 globalStatus.isEnabled ? "text-emerald-700" : "text-neutral-500"
               }`}
             >
-              {globalStatus.isEnabled ? "Siap Digunakan" : "Dinonaktifkan"}
+              {globalStatus.isEnabled ? "Diaktifkan" : "Dinonaktifkan"}
             </div>
             <p className="text-[11px] text-muted">
               {globalStatus.isEnabled
-                ? "Tutor MIRA AI dapat diakses peserta"
+                ? "MIRA AI dapat diakses oleh pengguna"
                 : "Fitur AI dinonaktifkan sementara"}
             </p>
           </div>

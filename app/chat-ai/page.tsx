@@ -16,7 +16,7 @@ async function ChatAiContent() {
     user.role === "user" ? await getUserAiQuotaStatus(user.id) : null;
 
   return (
-    <div className="w-full">
+    <div className="-my-6 sm:-my-8 w-full h-[calc(100dvh-4rem)] flex flex-col min-h-0 overflow-hidden">
       <ChatAiView
         initialQuota={initialQuota}
         userRole={user.role}
@@ -30,8 +30,8 @@ export default function ChatAiPage() {
   return (
     <Suspense
       fallback={
-        <div className="max-w-4xl mx-auto">
-          <div className="h-[calc(100vh-6rem)] w-full animate-pulse rounded-2xl bg-surface-soft" />
+        <div className="-my-6 sm:-my-8 max-w-4xl mx-auto w-full h-[calc(100dvh-4rem)] flex flex-col justify-center p-4">
+          <div className="h-64 w-full animate-pulse rounded-2xl bg-surface-soft" />
         </div>
       }
     >

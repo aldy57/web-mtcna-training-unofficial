@@ -7,6 +7,7 @@ import {
   HeaderNavigation,
   MobileMenuButton,
 } from "@/components/ui/HeaderNavigation";
+import { NavigationScrollRestorer } from "@/components/ui/NavigationScrollRestorer";
 import { SidebarProvider } from "@/components/ui/SidebarContext";
 import { getOptionalUser } from "@/lib/auth";
 
@@ -55,13 +56,23 @@ export function AppHeader() {
             className="group flex items-center shrink-0 transition-opacity hover:opacity-85 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-lg"
             aria-label="MIRA - Beranda"
           >
+            {/* Logo Mobile (Tetap menggunakan mira-logo.svg) */}
             <Image
               src="/mira-logo.svg"
               alt="MIRA - MikroTik Intelligence Review & Assessment"
               width={106}
               height={38}
               priority
-              className="h-8.5 w-auto object-contain"
+              className="h-8.5 w-auto object-contain md:hidden"
+            />
+            {/* Logo Desktop (Menggunakan mira-logo-withtext.svg) */}
+            <Image
+              src="/mira-logo-withtext.svg"
+              alt="MIRA - MikroTik Intelligence Review & Assessment"
+              width={264}
+              height={38}
+              priority
+              className="hidden h-8.5 w-auto object-contain md:block"
             />
           </Link>
         </div>
@@ -80,6 +91,9 @@ export function AppHeader() {
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
+      <Suspense fallback={null}>
+        <NavigationScrollRestorer />
+      </Suspense>
       <div className="flex min-h-screen flex-col bg-background text-foreground">
         <AppHeader />
         {/* Spacer pembatas agar konten tidak tertutup fixed header */}

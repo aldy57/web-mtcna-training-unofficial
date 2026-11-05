@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -15,16 +15,47 @@ export interface AiUsageHistoryProps {
 
 const PAGE_SIZE = 10;
 
+function getLogFeatureLabel(entry: AiUsageLogEntry): string {
+  if (!entry.attemptId && !entry.questionId) {
+    return "MIRA AI";
+  }
+  return AI_FEATURE_LABELS[entry.feature] ?? entry.feature;
+}
+
+function getLogContextLabel(entry: AiUsageLogEntry): string {
+  if (entry.questionId) {
+    return `Soal ${entry.questionId}`;
+  }
+  if (entry.attemptId) {
+    return "Evaluasi Tryout";
+  }
+  return "Chat AI";
+}
+
 export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const totalPages = Math.max(1, Math.ceil(logs.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
   const startIdx = (safePage - 1) * PAGE_SIZE;
   const currentLogs = logs.slice(startIdx, startIdx + PAGE_SIZE);
 
+  function handlePageChange(newPage: number) {
+    setCurrentPage(newPage);
+    if (typeof window !== "undefined" && containerRef.current) {
+      const topOffset =
+        containerRef.current.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({
+        top: Math.max(0, topOffset),
+        behavior: "smooth",
+      });
+    }
+  }
+
   return (
-    <Card className="space-y-4">
+    <div ref={containerRef} id="riwayat-pemakaian-ai" className="scroll-mt-20">
+      <Card className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
         <div className="space-y-0.5">
           <h2 className="text-base font-semibold text-foreground">
@@ -78,12 +109,10 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
                       {formatAppDateTime(entry.createdAt)}
                     </td>
                     <td className="py-3 px-4 font-medium text-foreground">
-                      {AI_FEATURE_LABELS[entry.feature] ?? entry.feature}
+                      {getLogFeatureLabel(entry)}
                     </td>
                     <td className="py-3 px-4 text-xs text-muted">
-                      {entry.questionId
-                        ? `Soal ${entry.questionId}`
-                        : "Evaluasi Tryout"}
+                      {getLogContextLabel(entry)}
                     </td>
                     <td className="py-3 pl-4 text-right">
                       <div className="inline-flex flex-col items-end">
@@ -116,7 +145,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
                   size="sm"
                   variant="secondary"
                   disabled={safePage <= 1}
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  onClick={() => handlePageChange(Math.max(1, safePage - 1))}
                 >
                   ← Sebelumnya
                 </Button>
@@ -128,7 +157,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
                       <button
                         key={page}
                         type="button"
-                        onClick={() => setCurrentPage(page)}
+                        onClick={() => handlePageChange(page)}
                         className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                           page === safePage
                             ? "bg-accent text-white"
@@ -147,7 +176,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
                   variant="secondary"
                   disabled={safePage >= totalPages}
                   onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    handlePageChange(Math.min(totalPages, safePage + 1))
                   }
                 >
                   Berikutnya →
@@ -157,6 +186,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
           )}
         </>
       )}
-    </Card>
+      </Card>
+    </div>
   );
 }
