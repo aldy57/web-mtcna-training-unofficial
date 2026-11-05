@@ -35,7 +35,7 @@ import {
   shouldResetQuota,
 } from "@/lib/ai/quota";
 
-describe("lib/ai/quota — perhitungan kuota persentase & reset 3 hari", () => {
+describe("lib/ai/quota — perhitungan kuota persentase & reset 1 hari", () => {
   it("menghitung persentase pemakaian dan sisa kuota secara akurat", () => {
     assert.equal(calculatePercentUsed(0, 30000), 0);
     assert.equal(calculatePercentUsed(7500, 30000), 25);
@@ -58,7 +58,7 @@ describe("lib/ai/quota — perhitungan kuota persentase & reset 3 hari", () => {
     assert.equal(status.resetAt, null);
   });
 
-  it("menetapkan jadwal reset_at tepat 3 hari saat kuota mencapai 0%", () => {
+  it("menetapkan jadwal reset_at tepat 1 hari saat kuota mencapai 0%", () => {
     const startIso = "2026-11-01T00:00:00.000Z";
     const exhaustedIso = "2026-11-01T10:00:00.000Z";
 
@@ -68,7 +68,7 @@ describe("lib/ai/quota — perhitungan kuota persentase & reset 3 hari", () => {
       resetAt: null,
       tokensToConsume: 1500,
       tokenBudget: 3000,
-      resetDays: 3,
+      resetDays: 1,
       nowIso: startIso,
     });
 
@@ -82,23 +82,23 @@ describe("lib/ai/quota — perhitungan kuota persentase & reset 3 hari", () => {
       resetAt: step1.resetAt,
       tokensToConsume: 1800,
       tokenBudget: 3000,
-      resetDays: 3,
+      resetDays: 1,
       nowIso: exhaustedIso,
     });
 
     assert.equal(step2.tokensUsed, 3000);
-    assert.equal(step2.resetAt, "2026-11-04T10:00:00.000Z");
+    assert.equal(step2.resetAt, "2026-11-02T10:00:00.000Z");
   });
 
-  it("mereset kuota kembali ke 100% secara malas (lazy) setelah melewati 3 hari", () => {
-    const resetAtIso = "2026-11-04T10:00:00.000Z";
+  it("mereset kuota kembali ke 100% secara malas (lazy) setelah melewati 1 hari", () => {
+    const resetAtIso = "2026-11-02T10:00:00.000Z";
 
     assert.equal(
-      shouldResetQuota(resetAtIso, "2026-11-04T09:59:59.000Z"),
+      shouldResetQuota(resetAtIso, "2026-11-02T09:59:59.000Z"),
       false,
     );
     assert.equal(
-      shouldResetQuota(resetAtIso, "2026-11-04T10:00:00.000Z"),
+      shouldResetQuota(resetAtIso, "2026-11-02T10:00:00.000Z"),
       true,
     );
 
@@ -108,7 +108,7 @@ describe("lib/ai/quota — perhitungan kuota persentase & reset 3 hari", () => {
       periodStartedAt: "2026-11-01T10:00:00.000Z",
       resetAt: resetAtIso,
       tokenBudget: 3000,
-      nowIso: "2026-11-03T12:00:00.000Z",
+      nowIso: "2026-11-01T12:00:00.000Z",
     });
     assert.equal(beforeReset.isExhausted, true);
     assert.equal(beforeReset.remainingPercent, 0);
@@ -120,7 +120,7 @@ describe("lib/ai/quota — perhitungan kuota persentase & reset 3 hari", () => {
       periodStartedAt: "2026-11-01T10:00:00.000Z",
       resetAt: resetAtIso,
       tokenBudget: 3000,
-      nowIso: "2026-11-04T10:00:01.000Z",
+      nowIso: "2026-11-02T10:00:01.000Z",
     });
     assert.equal(afterReset.isExhausted, false);
     assert.equal(afterReset.remainingPercent, 100);
@@ -327,13 +327,21 @@ describe("lib/ai/global-quota & client — kuota global dan klien mock", () => {
     });
     assert.equal(longPromptAllowed.success, true);
 
-    const tooShortPrompt = askAiInputSchema.safeParse({
+    const emptyPrompt = askAiInputSchema.safeParse({
       attemptId: "00000000-0000-4000-8000-000000000001",
       questionId: "A01",
       language: "id",
-      prompt: "abc",
+      prompt: "   ",
     });
-    assert.equal(tooShortPrompt.success, false);
+    assert.equal(emptyPrompt.success, false);
+
+    const shortPromptValid = askAiInputSchema.safeParse({
+      attemptId: "00000000-0000-4000-8000-000000000001",
+      questionId: "A01",
+      language: "id",
+      prompt: "NAT?",
+    });
+    assert.equal(shortPromptValid.success, true);
 
     const invalidQuestionId = aiExplanationInputSchema.safeParse({
       attemptId: "00000000-0000-4000-8000-000000000001",

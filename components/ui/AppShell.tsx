@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { AppSidebar } from "@/components/ui/AppSidebar";
@@ -49,11 +50,19 @@ export function AppHeader() {
             <UserMobileToggle />
           </Suspense>
 
-          <Link href="/" className="group flex flex-col shrink-0">
-            <span className="text-base font-bold tracking-wider text-foreground group-hover:text-accent transition-colors">
-              {UI_STRINGS.brand}
-            </span>
-            <span className="text-xs text-muted">{UI_STRINGS.edition}</span>
+          <Link
+            href="/"
+            className="group flex items-center shrink-0 transition-opacity hover:opacity-85 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-lg"
+            aria-label="MIRA - Beranda"
+          >
+            <Image
+              src="/mira-logo.svg"
+              alt="MIRA - MikroTik Intelligence Review & Assessment"
+              width={106}
+              height={38}
+              priority
+              className="h-8.5 w-auto object-contain"
+            />
           </Link>
         </div>
 

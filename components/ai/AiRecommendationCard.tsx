@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { FormattedAiText } from "@/components/ai/FormattedAiText";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { getOrCreateAiRecommendationAction } from "@/lib/actions/ai-actions";
@@ -63,8 +64,11 @@ export function AiRecommendationCard({
       )}
 
       {recommendationText ? (
-        <div className="rounded-xl border border-accent/20 bg-surface-soft p-4 text-xs sm:text-sm text-foreground leading-relaxed whitespace-pre-line">
-          {recommendationText}
+        <div className="rounded-xl border border-accent/20 bg-surface-soft p-4">
+          <FormattedAiText
+            content={recommendationText}
+            className="text-xs sm:text-sm text-foreground"
+          />
         </div>
       ) : (
         <div>

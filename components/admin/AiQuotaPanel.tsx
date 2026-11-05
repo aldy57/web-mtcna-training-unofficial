@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { AiResetCountdown } from "@/components/ai/AiResetCountdown";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -386,7 +387,7 @@ export function AiQuotaPanel({
       <Card className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold text-foreground">
-            Kuota AI Peserta (Reset Otomatis 3 Hari setelah 0%)
+            Kuota AI Peserta (Reset Otomatis 1 Hari setelah 0%)
           </h3>
           <span className="text-xs text-muted">
             {participants.length} peserta terdaftar
@@ -430,12 +431,21 @@ export function AiQuotaPanel({
                         </Badge>
                       </td>
                       <td className="py-2.5 px-3 text-muted">
-                        {quota?.resetAt
-                          ? new Date(quota.resetAt).toLocaleString("id-ID", {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                            })
-                          : "Aktif"}
+                        {quota?.resetAt ? (
+                          <div className="space-y-0.5">
+                            <div>
+                              {new Date(quota.resetAt).toLocaleString("id-ID", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}
+                            </div>
+                            <div className="text-[11px] font-mono text-amber-700">
+                              (sisa <AiResetCountdown resetAt={quota.resetAt} />)
+                            </div>
+                          </div>
+                        ) : (
+                          "Aktif"
+                        )}
                       </td>
                       <td className="py-2.5 pl-3 text-right">
                         <div className="inline-flex items-center gap-1.5">

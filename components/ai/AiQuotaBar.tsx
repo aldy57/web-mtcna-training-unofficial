@@ -1,3 +1,4 @@
+import { AiResetCountdown } from "@/components/ai/AiResetCountdown";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { formatScorePercent } from "@/lib/scoring";
@@ -11,7 +12,7 @@ export interface AiQuotaBarProps {
 
 function formatResetDateTime(iso: string | null): string {
   if (!iso) {
-    return "3 hari setelah mencapai 0%";
+    return "1 hari setelah mencapai 0%";
   }
   try {
     return new Intl.DateTimeFormat("id-ID", {
@@ -73,12 +74,15 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
         </div>
 
         {quota.isExhausted && (
-          <p className="text-xs text-caution-ink">
-            {UI_STRINGS.ai.userExhaustedNotice} Jadwal reset:{" "}
-            <strong className="font-semibold">
-              {formatResetDateTime(quota.resetAt)}
-            </strong>
-            .
+          <p className="text-xs text-caution-ink flex items-center justify-between gap-2">
+            <span>
+              {UI_STRINGS.ai.userExhaustedNotice} ({formatResetDateTime(quota.resetAt)})
+            </span>
+            {quota.resetAt && (
+              <span className="font-semibold text-amber-800 shrink-0">
+                Reset: <AiResetCountdown resetAt={quota.resetAt} />
+              </span>
+            )}
           </p>
         )}
       </div>
@@ -141,7 +145,7 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
       ) : (
         <p className="text-xs text-muted">
           Apabila kuota mencapai 0%, kuota akan direset otomatis kembali ke 100%
-          setelah 3 hari.
+          setelah 1 hari (24 jam).
         </p>
       )}
     </Card>

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { AskAiBox } from "@/components/ai/AskAiBox";
+import { FormattedAiText } from "@/components/ai/FormattedAiText";
 import { Button } from "@/components/ui/Button";
 import {
   getGeneralAiExplanationAction,
@@ -144,9 +145,10 @@ export function AiExplanationPanel({
           <span className="block text-xs font-semibold uppercase tracking-wider text-accent">
             {UI_STRINGS.ai.generalTitle}
           </span>
-          <div className="text-xs sm:text-sm text-foreground leading-relaxed whitespace-pre-line">
-            {explanationText}
-          </div>
+          <FormattedAiText
+            content={explanationText}
+            className="text-xs sm:text-sm text-foreground"
+          />
         </div>
       )}
 
@@ -155,9 +157,10 @@ export function AiExplanationPanel({
           <span className="block text-xs font-semibold uppercase tracking-wider text-accent">
             {UI_STRINGS.ai.personalTitle}
           </span>
-          <div className="text-xs sm:text-sm text-foreground leading-relaxed whitespace-pre-line">
-            {personalText}
-          </div>
+          <FormattedAiText
+            content={personalText}
+            className="text-xs sm:text-sm text-foreground"
+          />
         </div>
       )}
 

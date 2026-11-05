@@ -5,10 +5,10 @@ import { SUPPORTED_LANGUAGES } from "@/lib/constants";
 export const DEFAULT_AI_BASE_URL = "https://router.ryzumi.net/v1";
 export const DEFAULT_AI_MODEL = "deepseek-v4-flash";
 export const DEFAULT_AI_USER_TOKEN_BUDGET = 30000;
-export const DEFAULT_AI_QUOTA_RESET_DAYS = 3;
+export const DEFAULT_AI_QUOTA_RESET_DAYS = 1;
 export const DEFAULT_AI_TOTAL_PURCHASED_TOKENS = 50_000_000;
 
-export const AI_MIN_QUESTION_CHARS = 5;
+export const AI_MIN_QUESTION_CHARS = 1;
 export const AI_MAX_COMPLETION_TOKENS = 700;
 export const AI_REQUEST_TIMEOUT_MS = 25000;
 export const AI_ESTIMATED_FALLBACK_TOKENS = 600;
@@ -169,7 +169,7 @@ export const askAiInputSchema = z.object({
     .string()
     .trim()
     .min(AI_MIN_QUESTION_CHARS, {
-      error: `Pertanyaan minimal ${AI_MIN_QUESTION_CHARS} karakter.`,
+      error: "Pertanyaan tidak boleh kosong.",
     }),
 });
 
@@ -189,4 +189,29 @@ export const adminQuotaAdjustmentSchema = z.object({
     .max(100, { error: "Tambahan kuota maksimal 100%." })
     .optional(),
 });
+
+export const chatAiMessageRoleSchema = z.enum(["user", "assistant"]);
+
+export const chatAiMessageItemSchema = z.object({
+  role: chatAiMessageRoleSchema,
+  content: z.string().trim().min(1).max(2500),
+});
+
+export const chatAiInputSchema = z.object({
+  message: z
+    .string()
+    .trim()
+    .min(AI_MIN_QUESTION_CHARS, {
+      error: "Pesan tidak boleh kosong.",
+    })
+    .max(1500, { error: "Pesan maksimal 1500 karakter." }),
+  history: z
+    .array(chatAiMessageItemSchema)
+    .max(10, { error: "Riwayat percakapan melebihi batas." })
+    .default([]),
+});
+
+export type ChatAiInput = z.infer<typeof chatAiInputSchema>;
+export type ChatAiMessageItem = z.infer<typeof chatAiMessageItemSchema>;
+
 

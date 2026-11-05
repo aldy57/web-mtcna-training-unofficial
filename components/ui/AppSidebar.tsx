@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
@@ -205,6 +206,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
         isActive: (path) => path.startsWith("/tryout"),
       },
       {
+        href: "/chat-ai",
+        label: UI_STRINGS.nav.chatAi,
+        badge: "NEW",
+        icon: SparklesIcon,
+        isActive: (path) => path.startsWith("/chat-ai"),
+      },
+      {
         href: "/panduan",
         label: UI_STRINGS.nav.guide,
         icon: GuideIcon,
@@ -236,6 +244,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
         label: "Layanan & Kuota AI",
         icon: SparklesIcon,
         isActive: (path) => path.startsWith("/admin/ai"),
+      },
+      {
+        href: "/chat-ai",
+        label: "MIRA AI",
+        badge: "Tes",
+        icon: SparklesIcon,
+        isActive: (path) => path.startsWith("/chat-ai"),
       },
       {
         href: "/admin/aktivitas",
@@ -318,14 +333,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
               <UserIcon className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-1.5">
-                <p className="text-xs font-semibold text-foreground truncate group-hover:text-accent">
-                  {user.fullName || "Pengguna"}
-                </p>
-                <Badge variant={user.role === "admin" ? "accent" : "neutral"}>
-                  {user.role === "admin" ? "Admin" : "Peserta"}
-                </Badge>
-              </div>
+              <p className="text-xs font-semibold text-foreground truncate group-hover:text-accent">
+                {user.fullName || "Pengguna"}
+              </p>
               <p className="text-[11px] text-muted truncate">{user.email}</p>
             </div>
           </Link>
@@ -359,14 +369,20 @@ export function AppSidebar({ user }: AppSidebarProps) {
             >
               {/* Header Drawer */}
               <div className="flex items-center justify-between pb-4 border-b border-border">
-                <div className="flex flex-col">
-                  <span className="text-base font-bold tracking-wider text-foreground">
-                    {UI_STRINGS.brand}
-                  </span>
-                  <span className="text-xs text-muted">
-                    {UI_STRINGS.edition}
-                  </span>
-                </div>
+                <Link
+                  href="/"
+                  onClick={closeMobile}
+                  className="flex items-center shrink-0 transition-opacity hover:opacity-85"
+                  aria-label="MIRA - Beranda"
+                >
+                  <Image
+                    src="/mira-logo.svg"
+                    alt="MIRA - MikroTik Intelligence Review & Assessment"
+                    width={106}
+                    height={38}
+                    className="h-8 w-auto object-contain"
+                  />
+                </Link>
                 <button
                   type="button"
                   onClick={closeMobile}
@@ -400,14 +416,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   <UserIcon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-1.5">
-                    <p className="text-sm font-semibold text-foreground truncate group-hover:text-accent">
-                      {user.fullName || user.email}
-                    </p>
-                    <Badge variant={user.role === "admin" ? "accent" : "neutral"}>
-                      {user.role === "admin" ? "Admin" : "Peserta"}
-                    </Badge>
-                  </div>
+                  <p className="text-sm font-semibold text-foreground truncate group-hover:text-accent">
+                    {user.fullName || user.email}
+                  </p>
                   <p className="text-xs text-muted truncate">{user.email}</p>
                 </div>
               </Link>

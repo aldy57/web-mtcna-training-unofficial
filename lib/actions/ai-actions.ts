@@ -4,7 +4,10 @@ import {
   aiExplanationInputSchema,
   aiRecommendationInputSchema,
   askAiInputSchema,
+  chatAiInputSchema,
+  type ChatAiInput,
 } from "@/lib/ai/ai-config";
+import { callAiChatCompletion } from "@/lib/ai/client";
 import { getCachedAiExplanation } from "@/lib/ai/explanation-cache";
 import {
   answerParticipantQuestion,
@@ -16,6 +19,7 @@ import {
   getAiEnabledSetting,
   getGlobalAiQuotaStatus,
 } from "@/lib/ai/global-quota";
+import { buildTutorChatMessages } from "@/lib/ai/prompts";
 import {
   consumeUserAiQuota,
   getUserAiQuotaStatus,
@@ -28,7 +32,10 @@ import {
   getAttemptSessionForUser,
   getCompletedAttemptReport,
 } from "@/lib/attempts-repo";
-import { requireParticipantForAction } from "@/lib/auth";
+import {
+  requireParticipantForAction,
+  requireUserForAction,
+} from "@/lib/auth";
 import type { ActionResult, AiQuotaStatus, Language } from "@/lib/types";
 import { UI_STRINGS } from "@/lib/ui-strings";
 
@@ -422,6 +429,89 @@ export async function askAiQuestionAction(input: {
       error instanceof Error
         ? error.message
         : "Gagal memproses pertanyaan AI saat ini.";
+    return { ok: false, error: message };
+  }
+}
+
+export interface SendChatAiResult {
+  reply: string;
+  tokensUsed: number;
+  quota: AiQuotaStatus | null;
+}
+
+export async function sendChatAiMessageAction(
+  input: ChatAiInput,
+): Promise<ActionResult<SendChatAiResult>> {
+  const auth = await requireUserForAction();
+  if (!auth.ok) {
+    return auth;
+  }
+
+  const parsed = chatAiInputSchema.safeParse(input);
+  if (!parsed.success) {
+    const firstIssue =
+      parsed.error.issues[0]?.message ?? "Pesan chat tidak valid.";
+    return { ok: false, error: firstIssue };
+  }
+
+  const isEnabled = await getAiEnabledSetting();
+  if (!isEnabled) {
+    return { ok: false, error: UI_STRINGS.ai.disabledNotice };
+  }
+
+  const isParticipant = auth.user.role === "user";
+
+  if (isParticipant) {
+    const currentQuota = await getUserAiQuotaStatus(auth.user.id);
+    if (currentQuota.isExhausted) {
+      return { ok: false, error: UI_STRINGS.ai.userExhaustedNotice };
+    }
+  }
+
+  const globalQuota = await getGlobalAiQuotaStatus({
+    isEnabledOverride: isEnabled,
+  });
+  if (globalQuota.isExhausted) {
+    return { ok: false, error: UI_STRINGS.ai.globalExhaustedNotice };
+  }
+  if (!globalQuota.isAvailable) {
+    return {
+      ok: false,
+      error:
+        "Layanan AI belum dikonfigurasi di server. Pastikan AI_API_KEY telah diatur.",
+    };
+  }
+
+  try {
+    const messages = buildTutorChatMessages({
+      history: parsed.data.history,
+      userMessage: parsed.data.message,
+    });
+
+    const completion = await callAiChatCompletion({ messages });
+
+    let updatedQuota: AiQuotaStatus | null = null;
+    if (isParticipant) {
+      updatedQuota = await consumeUserAiQuota({
+        userId: auth.user.id,
+        tokensUsed: completion.totalTokens,
+        feature: "ask_ai",
+      });
+    }
+
+    return {
+      ok: true,
+      data: {
+        reply: completion.content,
+        tokensUsed: completion.totalTokens,
+        quota: updatedQuota,
+      },
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Gagal memproses pesan chat AI saat ini.";
     return { ok: false, error: message };
   }
 }

@@ -15,11 +15,19 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Latihan & Tryout MTCNA",
-    template: "%s · Latihan MTCNA",
+    default: "MIRA · MikroTik Intelligence Review & Assessment",
+    template: "%s · MIRA",
   },
   description:
-    "Platform latihan dan simulasi tryout sertifikasi MikroTik MTCNA dwibahasa (Indonesia & English) dengan 50 soal kurasi dan pembahasan lengkap.",
+    "MIRA (MikroTik Intelligence Review & Assessment) — Platform latihan sertifikasi MikroTik MTCNA, simulasi tryout dwibahasa (Indonesia & English), dan tutor cerdas RouterOS.",
+  icons: {
+    icon: [
+      { url: "/mira.svg", type: "image/svg+xml" },
+      { url: "/mira.png", type: "image/png" },
+    ],
+    shortcut: "/mira.png",
+    apple: "/mira.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

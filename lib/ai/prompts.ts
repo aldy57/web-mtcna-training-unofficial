@@ -147,3 +147,55 @@ export function buildRecommendationMessages(
   ];
 }
 
+export interface TutorChatMessageInput {
+  history: readonly { role: "user" | "assistant"; content: string }[];
+  userMessage: string;
+}
+
+const SYSTEM_CHAT_TUTOR_PROMPT = [
+  "Anda adalah MIRA AI, asisten tutor cerdas MikroTik Certified Network Associate (MTCNA) pada platform MIRA (MikroTik Intelligence Review & Assessment).",
+  "Tugas utama Anda adalah membantu peserta mempelajari dan memahami materi silabus sertifikasi MTCNA serta konfigurasi MikroTik RouterOS (v6 & v7) dan WinBox.",
+  "",
+  "Cakupan Topik Utama MTCNA:",
+  "1. Dasar Jaringan, Subnetting IPv4/IPv6, CIDR, VLSM, Default Gateway.",
+  "2. Arsitektur RouterOS, Manajemen Konfigurasi (Backup binary vs Export rsc).",
+  "3. Routing: Static Route, Default Route, Gateway Check, Distance, Konsep OSPF.",
+  "4. Bridging: Konsep Bridge Port, Bridge VLAN Filtering di v7, RSTP.",
+  "5. Wireless: Standar 802.11a/b/g/n/ac, Frekuensi, SSID, Security Profile.",
+  "6. Firewall: Filter Rules (Input, Forward, Output), NAT (Srcnat Masquerade, Dstnat Port Forwarding), FastTrack.",
+  "7. QoS: Simple Queue, Target, Max-Limit, Burst, PCQ.",
+  "8. Tunnels: PPP, PPPoE Client/Server, SSTP, L2TP, IP Pool.",
+  "9. Tools: Ping, Traceroute, Torch, Netwatch, RouterOS CLI.",
+  "",
+  "Aturan Respon:",
+  "- Jawab dalam Bahasa Indonesia yang lugas, terstruktur, dan edukatif.",
+  "- Sertakan contoh perintah CLI RouterOS (dalam blok kode `/...`) atau navigasi menu WinBox bila relevan.",
+  "- Gunakan format Markdown yang rapi (poin-poin dan cetak tebal).",
+  "- Fokus eksklusif pada jaringan komputer, MikroTik, dan MTCNA. Bila ada pertanyaan di luar topik, tolak secara sopan dan ajak kembali ke materi MTCNA.",
+].join("\n");
+
+export function buildTutorChatMessages(
+  input: TutorChatMessageInput,
+): AiChatMessage[] {
+  const messages: AiChatMessage[] = [
+    { role: "system", content: SYSTEM_CHAT_TUTOR_PROMPT },
+  ];
+
+  // Batasi riwayat maksimal 6 pesan terakhir untuk efisiensi token
+  const recentHistory = input.history.slice(-6);
+  for (const item of recentHistory) {
+    messages.push({
+      role: item.role,
+      content: item.content,
+    });
+  }
+
+  messages.push({
+    role: "user",
+    content: input.userMessage.trim(),
+  });
+
+  return messages;
+}
+
+

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { FormattedAiText } from "@/components/ai/FormattedAiText";
 import { Button } from "@/components/ui/Button";
 import { askAiQuestionAction } from "@/lib/actions/ai-actions";
 import type { AiQuotaStatus, Language } from "@/lib/types";
@@ -93,7 +94,7 @@ export function AskAiBox({
             type="submit"
             variant="primary"
             size="sm"
-            disabled={isPending || isQuotaExhausted || prompt.trim().length < 5}
+            disabled={isPending || isQuotaExhausted || prompt.trim().length === 0}
           >
             {isPending ? UI_STRINGS.ai.askLoading : UI_STRINGS.ai.askSubmit}
           </Button>
@@ -116,9 +117,10 @@ export function AskAiBox({
               Pertanyaan: <span className="text-foreground">{submittedQuestion}</span>
             </p>
           )}
-          <div className="text-xs sm:text-sm text-foreground leading-relaxed whitespace-pre-line">
-            {answerText}
-          </div>
+          <FormattedAiText
+            content={answerText}
+            className="text-xs sm:text-sm text-foreground"
+          />
         </div>
       )}
     </div>

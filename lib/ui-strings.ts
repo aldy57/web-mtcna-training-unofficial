@@ -1,10 +1,11 @@
 export const UI_STRINGS = {
-  brand: "LATIHAN MTCNA",
-  edition: "2 bahasa · 50 soal per bahasa",
+  brand: "MIRA",
+  brandFullName: "MikroTik Intelligence Review & Assessment",
+  edition: "MikroTik Intelligence Review & Assessment",
   eyebrowHome: "Persiapan sertifikasi MTCNA",
-  heroTitle: "Latihan dan Tryout Sertifikasi MikroTik MTCNA",
+  heroTitle: "MIRA — MikroTik Intelligence Review & Assessment",
   heroSubtitle:
-    "Tersedia 50 soal kurasi dalam Bahasa Indonesia atau English. Pembahasan konsep RouterOS mendalam, progres tersimpan otomatis, dan penilaian aman di sisi server.",
+    "Platform latihan dan simulasi tryout sertifikasi MikroTik MTCNA. Tersedia 50 soal kurasi dalam Bahasa Indonesia atau English, pembahasan konsep RouterOS mendalam, asisten tutor AI cerdas, dan penilaian aman di sisi server.",
   languageRecommendation:
     "Rekomendasi: gunakan English untuk membiasakan diri dengan bahasa soal ujian sertifikasi resmi.",
   disclaimerTitle: "Perhatian: latihan ini bukan soal ujian resmi",
@@ -18,6 +19,7 @@ export const UI_STRINGS = {
     dashboard: "Dashboard",
     study: "Belajar per Topik",
     tryout: "Tryout",
+    chatAi: "MIRA AI",
     guide: "Panduan",
     account: "Akun",
     admin: "Panel Admin",
