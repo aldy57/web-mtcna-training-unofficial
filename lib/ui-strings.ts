@@ -13,8 +13,7 @@ export const UI_STRINGS = {
     "Soal dalam simulasi ini tidak 100% sama persis dengan soal sertifikasi MTCNA yang sebenarnya.",
   disclaimerBody2:
     "Peserta wajib mempelajari dan memahami konsep serta praktik RouterOS, bukan hanya menghafal jawaban, agar lebih siap menghadapi sertifikasi.",
-  footerText:
-    "Simulasi independen dengan soal latihan orisinal, bukan soal resmi atau salinan ujian sertifikasi MikroTik. Pahami konsep dan praktik, bukan hanya menghafal jawaban.",
+  footerText: "",
   nav: {
     dashboard: "Dashboard",
     study: "Belajar per Topik",

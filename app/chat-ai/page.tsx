@@ -5,9 +5,9 @@ import { getUserAiQuotaStatus } from "@/lib/ai/quota";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "MIRA AI · Tutor Cerdas RouterOS",
+  title: "MIRA AI · Tutor Cerdas Jaringan & MTCNA",
   description:
-    "Tanyakan seputar Mikrotik disini.",
+    "Tutor cerdas untuk fundamental jaringan komputer, cara kerja internet, dan konfigurasi MikroTik RouterOS MTCNA.",
 };
 
 async function ChatAiContent() {

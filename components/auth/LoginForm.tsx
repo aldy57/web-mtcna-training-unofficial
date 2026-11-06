@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
@@ -18,16 +19,20 @@ export function LoginForm() {
     null,
   );
   const [dismissedState, setDismissedState] = useState<FormActionState>(null);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const hasRedirectedRef = useRef(false);
 
-  const isRedirecting = Boolean(state?.ok);
+  // Hanya tampilkan layar loading jika form benar-benar disubmit oleh pengguna pada sesi saat ini
+  const isRedirecting = Boolean(hasSubmitted && state?.ok);
   const isErrorPopupOpen = Boolean(
     state && !state.ok && state !== dismissedState,
   );
 
+  // Efek pengalihan setelah login berhasil
   useEffect(() => {
-    if (state?.ok && !hasRedirectedRef.current) {
+    if (hasSubmitted && state?.ok && !hasRedirectedRef.current) {
       hasRedirectedRef.current = true;
+
       const toastPayload = {
         type: "success" as const,
         title: "Login Berhasil!",
@@ -38,10 +43,61 @@ export function LoginForm() {
       // Tampilkan notifikasi toast langsung di container toast
       showToast(toastPayload);
 
-      router.push(state.data);
+      router.replace(state.data);
       router.refresh();
     }
-  }, [state, router]);
+  }, [hasSubmitted, state, router]);
+
+  // Safety net timeout: jika terjadi gangguan jaringan atau pengalihan tertahan lebih dari 10 detik,
+  // kembalikan kontrol ke form login agar pengguna tidak terjebak
+  useEffect(() => {
+    if (!isRedirecting) return;
+
+    const safetyTimer = setTimeout(() => {
+      setHasSubmitted(false);
+      hasRedirectedRef.current = false;
+    }, 10000);
+
+    return () => clearTimeout(safetyTimer);
+  }, [isRedirecting]);
+
+  function handleFormSubmit() {
+    setHasSubmitted(true);
+    hasRedirectedRef.current = false;
+  }
+
+  // Tampilan loading layar penuh (fullscreen overlay) ala Figma
+  if (isRedirecting) {
+    return (
+      <div
+        className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background select-none animate-in fade-in duration-200"
+        role="status"
+        aria-live="polite"
+        aria-label="Menyiapkan dashboard"
+      >
+        <div className="flex flex-col items-center space-y-4">
+          {/* Logo MIRA */}
+          <Image
+            src="/mira-logo.svg"
+            alt="MIRA"
+            width={130}
+            height={46}
+            priority
+            className="h-8.5 w-auto object-contain opacity-90"
+          />
+
+          {/* Progress Bar Ramping Khas Figma */}
+          <div
+            className="relative h-1 w-52 overflow-hidden rounded-full bg-surface-soft border border-border/60"
+            role="progressbar"
+            aria-label="Menyiapkan dashboard"
+          >
+            <div className="absolute top-0 bottom-0 left-0 w-1/3 rounded-full bg-accent animate-indeterminate-progress" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-6 sm:space-y-8">
@@ -65,7 +121,7 @@ export function LoginForm() {
           </Notice>
         )}
 
-        <form action={action} className="space-y-4" noValidate>
+        <form action={action} onSubmit={handleFormSubmit} className="space-y-4" noValidate>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
               <label

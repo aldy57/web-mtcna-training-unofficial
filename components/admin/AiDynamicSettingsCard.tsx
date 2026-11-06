@@ -204,8 +204,7 @@ export function AiDynamicSettingsCard({
               className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-mono text-foreground focus:border-accent focus:outline-hidden disabled:opacity-50"
             />
             <p className="text-[11px] text-muted">
-              Endpoint proxy AI kompatibel format OpenAI (contoh:{" "}
-              <code>https://router.ryzumi.net/v1</code>).
+              Endpoint AI API.
             </p>
           </div>
 

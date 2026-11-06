@@ -93,6 +93,8 @@ describe("lib/ai — MIRA AI (Tutor Cerdas)", () => {
     assert.equal(messages.length, 8);
     assert.equal(messages[0]?.role, "system");
     assert.ok(messages[0]?.content.includes("MTCNA"));
+    assert.ok(messages[0]?.content.includes("jaringan komputer"));
+    assert.ok(messages[0]?.content.includes("internet"));
     assert.equal(messages[messages.length - 1]?.role, "user");
     assert.equal(
       messages[messages.length - 1]?.content,

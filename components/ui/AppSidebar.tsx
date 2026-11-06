@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { Badge } from "@/components/ui/Badge";
@@ -182,6 +183,11 @@ function ShieldCheckIcon({ className = "h-4 w-4" }: { className?: string }) {
 export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname();
   const { isMobileOpen, closeMobile } = useSidebar();
+  const isClient = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const navLinks: NavLinkItem[] = [];
 
@@ -293,6 +299,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <Link
                   key={link.href}
                   href={link.href}
+                  prefetch={false}
                   className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 cursor-pointer ${
                     active
                       ? "bg-surface-selected text-accent font-semibold border border-accent/20 shadow-2xs"
@@ -320,6 +327,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <div className="mt-auto pt-4 border-t border-border">
           <Link
             href="/akun"
+            prefetch={false}
             className={`flex items-center gap-3 rounded-xl border p-3 transition-colors cursor-pointer group ${
               isAccountActive
                 ? "border-accent/30 bg-surface-selected"
@@ -342,26 +350,40 @@ export function AppSidebar({ user }: AppSidebarProps) {
       {/* ==================================================================== */}
       {/* 2. DRAWER SIDEBAR MOBILE (PORTAL ROOT, md:hidden)                   */}
       {/* ==================================================================== */}
-      {isMobileOpen &&
-        typeof document !== "undefined" &&
+      {isClient &&
         createPortal(
           <div
             id="mobile-sidebar-drawer"
-            className="fixed inset-0 z-100 flex md:hidden"
+            className={`fixed inset-0 z-100 flex md:hidden pointer-events-none ${
+              isMobileOpen ? "visible" : "invisible"
+            }`}
+            style={{
+              transitionProperty: "visibility",
+              transitionDuration: "280ms",
+              transitionDelay: isMobileOpen ? "0ms" : "280ms",
+            }}
             role="dialog"
             aria-modal="true"
             aria-label="Menu navigasi sidebar"
           >
-            {/* Backdrop Redup */}
+            {/* Backdrop Redup dengan Animasi Fade In & Fade Out Halus */}
             <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+              className={`fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-280 ease-in-out ${
+                isMobileOpen
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 pointer-events-none"
+              }`}
               onClick={closeMobile}
               aria-hidden="true"
             />
 
-            {/* Panel Drawer Geser Kiri */}
+            {/* Panel Drawer Geser Kiri dengan Animasi Slide In & Slide Out */}
             <div
-              className="relative z-10 flex h-full w-full max-w-xs flex-col bg-surface p-5 shadow-2xl border-r border-border overflow-y-auto animate-in slide-in-from-left duration-200"
+              className={`relative z-10 flex h-full w-full max-w-xs flex-col bg-surface p-5 shadow-2xl border-r border-border overflow-y-auto transform transition-transform duration-280 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                isMobileOpen
+                  ? "translate-x-0 pointer-events-auto"
+                  : "-translate-x-full pointer-events-none"
+              }`}
               onClick={(event) => event.stopPropagation()}
             >
               {/* Header Drawer */}
@@ -384,7 +406,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   type="button"
                   onClick={closeMobile}
                   aria-label="Tutup menu navigasi"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface text-muted hover:border-neutral-300 hover:bg-neutral-100 hover:text-foreground transition-colors cursor-pointer"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface text-muted hover:border-neutral-300 hover:bg-neutral-100 hover:text-foreground active:scale-95 transition-all duration-150 cursor-pointer"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -406,6 +428,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               {/* Status Akun Pengguna Mobile */}
               <Link
                 href="/akun"
+                prefetch={false}
                 onClick={closeMobile}
                 className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-surface-soft p-3 hover:border-neutral-300 hover:bg-neutral-100/70 transition-colors cursor-pointer group"
               >
@@ -432,6 +455,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                     <Link
                       key={link.href}
                       href={link.href}
+                      prefetch={false}
                       onClick={closeMobile}
                       className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150 cursor-pointer ${
                         active
@@ -456,6 +480,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
                 <Link
                   href="/akun"
+                  prefetch={false}
                   onClick={closeMobile}
                   className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150 cursor-pointer ${
                     isAccountActive

@@ -43,24 +43,32 @@ interface ChatMessage {
 
 const STARTER_PROMPTS = [
   {
+    topic: "Dasar Jaringan",
+    prompt: "Jelaskan fungsi 7 Layer OSI dan perbandingannya dengan model TCP/IP secara mudah dipahami!",
+  },
+  {
+    topic: "Jaringan Internet",
+    prompt: "Bagaimana cara kerja dan alur paket internet dari komputer lokal sampai bisa membuka website google.com?",
+  },
+  {
+    topic: "Subnetting IPv4",
+    prompt: "Bantu saya menghitung netmask, network address, dan broadcast address untuk IP 192.168.10.75/27!",
+  },
+  {
     topic: "Firewall & NAT",
     prompt: "Bagaimana cara konfigurasi NAT Masquerade dan port forwarding (dstnat) di MikroTik RouterOS?",
   },
   {
-    topic: "Static Routing",
-    prompt: "Apa perbedaan default route dengan check-gateway=ping vs arp pada RouterOS?",
-  },
-  {
-    topic: "QoS & Bandwidth",
-    prompt: "Bagaimana cara membuat Simple Queue untuk membatasi kecepatan download/upload per IP peserta?",
+    topic: "Routing & Gateway",
+    prompt: "Apa fungsi Default Gateway dan bagaimana perbedaan default route dengan check-gateway=ping vs arp?",
   },
   {
     topic: "Bridging & VLAN",
     prompt: "Jelaskan konsep dasar Bridge VLAN Filtering pada RouterOS v7 dan contoh konfigurasinya!",
   },
   {
-    topic: "Subnetting IPv4",
-    prompt: "Bantu saya menghitung netmask, network address, dan broadcast address untuk IP 192.168.10.75/27!",
+    topic: "QoS & Bandwidth",
+    prompt: "Bagaimana cara membuat Simple Queue untuk membatasi kecepatan download/upload per IP peserta?",
   },
 ] as const;
 
@@ -693,10 +701,10 @@ export function ChatAiView({
 
             <div className="space-y-1.5">
               <h2 className="text-lg font-semibold text-foreground">
-                Halo, {userName || "Peserta MTCNA"}!
+                Halo, {userName || "Peserta"}!
               </h2>
               <p className="text-xs sm:text-sm text-muted leading-relaxed">
-                Saya adalah MIRA AI, asisten pintar untuk membantu anda memahami materi seputar MikroTik Router dan MTCNA. Silahkan bertanya materi seputar MikroTik Router dan MTCNA!
+                Saya adalah MIRA AI, asisten tutor cerdas untuk materi fundamental jaringan komputer, cara kerja internet, serta konfigurasi MikroTik RouterOS &amp; silabus MTCNA. Silakan tanyakan konsep dasar maupun praktik jaringan!
               </p>
             </div>
           </div>
@@ -873,13 +881,10 @@ export function ChatAiView({
             ref={textareaRef}
             rows={1}
             value={inputValue}
+            maxLength={1500}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={
-              isExhausted
-                ? "Ketik pesan kamu di sini..."
-                : "Ketik pesan kamu di sini..."
-            }
+            placeholder="Ketik pesan kamu di sini..."
             disabled={isPending || isExhausted}
             className="flex-1 max-h-32 min-h-[2.5rem] resize-none bg-transparent px-3 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 border-none shadow-none"
             style={{ outline: "none", boxShadow: "none" }}
@@ -918,62 +923,68 @@ export function ChatAiView({
           </Button>
         </form>
 
-        <div className="flex items-center justify-between px-2 pt-1 text-[11px] text-muted">
-          <div>
-            {isParticipant ? (
-              quota ? (
-                quota.isExhausted ? (
-                  <span className="flex items-center gap-1.5 text-amber-900">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
-                    <span>Token Habis (0%)</span>{" "}
-                    <span className="text-[10px] text-muted tabular-nums">
-                      ({quota.tokensUsed.toLocaleString("id-ID")} /{" "}
-                      {quota.tokenBudget.toLocaleString("id-ID")} token)
-                    </span>
-                    {quota.resetAt && (
-                      <span className="text-amber-800 font-medium">
-                        {/* · Reset: <AiResetCountdown resetAt={quota.resetAt} /> */}
-                      </span>
-                    )}
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1.5">
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full shrink-0 ${
-                        quota.remainingPercent < 15
-                          ? "bg-amber-500"
-                          : "bg-emerald-500"
-                      }`}
-                    />
-                    <span>
-                      Sisa Kuota:{" "}
-                      <span className="font-semibold text-foreground">
-                        {formatScorePercent(quota.remainingPercent)}%
-                      </span>{" "}
+        <div className="space-y-1 px-1.5 pt-1 text-[11px] text-muted">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              {isParticipant ? (
+                quota ? (
+                  quota.isExhausted ? (
+                    <span className="flex items-center gap-1.5 text-amber-900">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+                      <span className="font-medium">Token Habis (0%)</span>{" "}
                       <span className="text-[10px] text-muted tabular-nums">
                         ({quota.tokensUsed.toLocaleString("id-ID")} /{" "}
                         {quota.tokenBudget.toLocaleString("id-ID")} token)
                       </span>
                     </span>
-                  </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full shrink-0 ${
+                          quota.remainingPercent < 15
+                            ? "bg-amber-500"
+                            : "bg-emerald-500"
+                        }`}
+                      />
+                      <span>
+                        Sisa Kuota:{" "}
+                        <span className="font-semibold text-foreground">
+                          {formatScorePercent(quota.remainingPercent)}%
+                        </span>{" "}
+                        <span className="text-[10px] text-muted tabular-nums">
+                          ({quota.tokensUsed.toLocaleString("id-ID")} /{" "}
+                          {quota.tokenBudget.toLocaleString("id-ID")} token)
+                        </span>
+                      </span>
+                    </span>
+                  )
+                ) : (
+                  <span>Memuat kuota...</span>
                 )
               ) : (
-                <span>Memuat kuota...</span>
-              )
-            ) : (
-              <span className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
-                <span>Mode Admin (Bebas Kuota)</span>
-              </span>
-            )}
+                <span className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
+                  <span>Mode Admin (Bebas Kuota)</span>
+                </span>
+              )}
+            </div>
+
+            <span
+              className={`tabular-nums shrink-0 text-[10px] sm:text-[11px] ${
+                inputValue.length >= 1450
+                  ? "text-danger-ink font-semibold"
+                  : inputValue.length >= 1300
+                    ? "text-amber-800 font-medium"
+                    : "text-muted"
+              }`}
+            >
+              {inputValue.length}/1500
+            </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-muted text-right">
-              MIRA AI adalah generative AI yang dapat membuat kesalahan.
-            </span>
-            <span className="tabular-nums shrink-0">{inputValue.length}/1500</span>
-          </div>
+          <p className="text-center text-[10px] sm:text-[11px] text-muted/75 leading-tight pt-0.5">
+            MIRA AI adalah generative AI yang dapat membuat kesalahan.
+          </p>
         </div>
       </div>
     </div>

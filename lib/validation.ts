@@ -14,9 +14,10 @@ const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 80;
 
 export const emailFieldSchema = z
-  .email({ error: "Format email tidak valid." })
+  .string()
   .trim()
-  .toLowerCase();
+  .toLowerCase()
+  .pipe(z.email({ error: "Format email tidak valid." }));
 
 export const passwordFieldSchema = z
   .string()
@@ -56,9 +57,12 @@ export const registerSchema = z
     message: "Konfirmasi password tidak cocok.",
   });
 
-export const updateProfileNameSchema = z.object({
+export const updateProfileSchema = z.object({
   fullName: fullNameFieldSchema,
+  email: emailFieldSchema,
 });
+
+export const updateProfileNameSchema = updateProfileSchema;
 
 export const changeOwnPasswordSchema = z
   .object({

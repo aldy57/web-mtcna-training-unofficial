@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  experimental: {
+    staleTimes: {
+      dynamic: 0,
+    },
+  },
   turbopack: {
     rules: {
       "*.css": {

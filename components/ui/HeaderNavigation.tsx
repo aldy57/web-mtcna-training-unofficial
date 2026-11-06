@@ -39,9 +39,10 @@ export function MobileMenuButton() {
       onClick={toggleMobile}
       aria-label={isMobileOpen ? "Tutup navigasi menu" : "Buka navigasi menu"}
       aria-expanded={isMobileOpen}
-      className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface text-muted hover:border-neutral-300 hover:bg-neutral-100 hover:text-foreground transition-all duration-150 cursor-pointer"
+      className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface text-muted hover:border-neutral-300 hover:bg-neutral-100 hover:text-foreground active:scale-95 transition-all duration-150 cursor-pointer"
     >
-      {isMobileOpen ? (
+      <div className="relative h-4.5 w-4.5 flex items-center justify-center">
+        {/* Ikon Silang (X) saat Terbuka */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -50,13 +51,18 @@ export function MobileMenuButton() {
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="h-4.5 w-4.5"
+          className={`absolute h-4.5 w-4.5 transition-all duration-200 ${
+            isMobileOpen
+              ? "opacity-100 rotate-0 scale-100"
+              : "opacity-0 -rotate-90 scale-75 pointer-events-none"
+          }`}
           aria-hidden="true"
         >
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
         </svg>
-      ) : (
+
+        {/* Ikon Burger saat Tertutup */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -65,14 +71,18 @@ export function MobileMenuButton() {
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="h-4.5 w-4.5"
+          className={`absolute h-4.5 w-4.5 transition-all duration-200 ${
+            isMobileOpen
+              ? "opacity-0 rotate-90 scale-75 pointer-events-none"
+              : "opacity-100 rotate-0 scale-100"
+          }`}
           aria-hidden="true"
         >
           <line x1="3" y1="6" x2="21" y2="6" />
           <line x1="3" y1="12" x2="21" y2="12" />
           <line x1="3" y1="18" x2="21" y2="18" />
         </svg>
-      )}
+      </div>
     </button>
   );
 }

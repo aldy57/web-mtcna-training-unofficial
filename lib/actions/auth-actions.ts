@@ -11,7 +11,7 @@ import {
   changeOwnPasswordSchema,
   loginSchema,
   registerSchema,
-  updateProfileNameSchema,
+  updateProfileSchema,
 } from "@/lib/validation";
 
 export type FormActionState = ActionResult<string> | null;
@@ -243,7 +243,7 @@ export async function logoutAction(): Promise<void> {
   redirect("/login");
 }
 
-export async function updateProfileNameAction(
+export async function updateProfileAction(
   _prevState: FormActionState,
   formData: FormData,
 ): Promise<FormActionState> {
@@ -252,38 +252,159 @@ export async function updateProfileNameAction(
     return auth;
   }
 
-  const parsed = updateProfileNameSchema.safeParse({
+  const parsed = updateProfileSchema.safeParse({
     fullName: formData.get("fullName"),
+    email: formData.get("email"),
   });
 
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Nama lengkap tidak valid.",
+      error: "Periksa kembali isian nama lengkap dan alamat email Anda.",
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
 
-  const supabase = await createSupabaseServerClient();
-  const { error } = await supabase
-    .from("profiles")
-    .update({ full_name: parsed.data.fullName })
-    .eq("id", auth.user.id);
+  const newEmail = parsed.data.email.trim().toLowerCase();
+  const currentEmail = auth.user.email.trim().toLowerCase();
+  const isEmailChanged = newEmail !== currentEmail;
 
-  if (error) {
-    return {
-      ok: false,
-      error: "Gagal memperbarui nama profil.",
-    };
+  const supabase = await createSupabaseServerClient();
+
+  // Jika email diubah, validasi keunikan dan perbarui kredensial login
+  if (isEmailChanged) {
+    // 1. Cek duplikasi di tabel profiles
+    const { data: existingProfile, error: checkError } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("email", newEmail)
+      .neq("id", auth.user.id)
+      .maybeSingle();
+
+    if (checkError) {
+      return {
+        ok: false,
+        error: "Gagal memeriksa ketersediaan email baru.",
+      };
+    }
+
+    if (existingProfile) {
+      return {
+        ok: false,
+        error: "Alamat email tersebut sudah digunakan oleh akun lain.",
+        fieldErrors: {
+          email: ["Email sudah digunakan oleh akun lain."],
+        },
+      };
+    }
+
+    // 2. Perbarui email di Supabase Auth
+    let authUpdated = false;
+    try {
+      const adminClient = createSupabaseAdminClient();
+      const { error: adminUpdateError } =
+        await adminClient.auth.admin.updateUserById(auth.user.id, {
+          email: newEmail,
+          email_confirm: true,
+          user_metadata: { full_name: parsed.data.fullName },
+        });
+
+      if (adminUpdateError) {
+        const errorMsg = adminUpdateError.message.toLowerCase();
+        const isDuplicate =
+          errorMsg.includes("already") ||
+          errorMsg.includes("exists") ||
+          errorMsg.includes("unique");
+        return {
+          ok: false,
+          error: isDuplicate
+            ? "Alamat email tersebut sudah digunakan oleh akun lain."
+            : `Gagal memperbarui email akun: ${adminUpdateError.message}`,
+          fieldErrors: isDuplicate
+            ? { email: ["Email sudah digunakan oleh akun lain."] }
+            : undefined,
+        };
+      }
+      authUpdated = true;
+    } catch {
+      // Fallback menggunakan session client jika service role key tidak tersedia
+    }
+
+    if (!authUpdated) {
+      const { error: userUpdateError } = await supabase.auth.updateUser({
+        email: newEmail,
+        data: { full_name: parsed.data.fullName },
+      });
+
+      if (userUpdateError) {
+        const errorMsg = userUpdateError.message.toLowerCase();
+        const isDuplicate =
+          errorMsg.includes("already") ||
+          errorMsg.includes("exists") ||
+          errorMsg.includes("unique");
+        return {
+          ok: false,
+          error: isDuplicate
+            ? "Alamat email tersebut sudah digunakan oleh akun lain."
+            : `Gagal memperbarui email akun: ${userUpdateError.message}`,
+          fieldErrors: isDuplicate
+            ? { email: ["Email sudah digunakan oleh akun lain."] }
+            : undefined,
+        };
+      }
+    }
+  }
+
+  // 3. Perbarui baris tabel public.profiles
+  let profileUpdated = false;
+  try {
+    const adminClient = createSupabaseAdminClient();
+    const { error: adminProfileError } = await adminClient
+      .from("profiles")
+      .update({
+        full_name: parsed.data.fullName,
+        email: newEmail,
+      })
+      .eq("id", auth.user.id);
+
+    if (!adminProfileError) {
+      profileUpdated = true;
+    }
+  } catch {
+    // Abaikan jika service role key tidak ada
+  }
+
+  if (!profileUpdated) {
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({
+        full_name: parsed.data.fullName,
+        email: newEmail,
+      })
+      .eq("id", auth.user.id);
+
+    if (profileError) {
+      return {
+        ok: false,
+        error: "Gagal memperbarui data profil akun.",
+      };
+    }
   }
 
   revalidatePath("/akun");
   revalidatePath("/dashboard");
+  revalidatePath("/admin");
+  revalidatePath("/", "layout");
+
   return {
     ok: true,
-    data: "Nama profil berhasil diperbarui.",
+    data: isEmailChanged
+      ? "Profil dan alamat email berhasil diperbarui."
+      : "Profil akun berhasil diperbarui.",
   };
 }
+
+export const updateProfileNameAction = updateProfileAction;
 
 export async function changeOwnPasswordAction(
   _prevState: FormActionState,

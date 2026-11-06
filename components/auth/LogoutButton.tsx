@@ -21,6 +21,11 @@ export function LogoutButton({
 
   function handleConfirmLogout() {
     onLogoutStart?.();
+    try {
+      sessionStorage.removeItem("mira_login_in_flight");
+    } catch {
+      // Abaikan bila sessionStorage tidak tersedia
+    }
     startTransition(async () => {
       await logoutAction();
     });

@@ -9,17 +9,17 @@ import { PasswordInput } from "@/components/ui/PasswordInput";
 import { StatusPopup } from "@/components/ui/PopupModal";
 import {
   changeOwnPasswordAction,
-  updateProfileNameAction,
+  updateProfileAction,
   type FormActionState,
 } from "@/lib/actions/auth-actions";
 import type { UserProfile } from "@/lib/types";
 
 export function AccountSettingsForms({ user }: { user: UserProfile }) {
-  const [nameState, nameAction, isNamePending] = useActionState<
+  const [profileState, profileAction, isProfilePending] = useActionState<
     FormActionState,
     FormData
-  >(updateProfileNameAction, null);
-  const [dismissedNameState, setDismissedNameState] =
+  >(updateProfileAction, null);
+  const [dismissedProfileState, setDismissedProfileState] =
     useState<FormActionState>(null);
 
   const [pwdState, pwdAction, isPwdPending] = useActionState<
@@ -29,7 +29,9 @@ export function AccountSettingsForms({ user }: { user: UserProfile }) {
   const [dismissedPwdState, setDismissedPwdState] =
     useState<FormActionState>(null);
 
-  const isNamePopupOpen = Boolean(nameState && nameState !== dismissedNameState);
+  const isProfilePopupOpen = Boolean(
+    profileState && profileState !== dismissedProfileState,
+  );
   const isPwdPopupOpen = Boolean(pwdState && pwdState !== dismissedPwdState);
 
   return (
@@ -41,7 +43,7 @@ export function AccountSettingsForms({ user }: { user: UserProfile }) {
               Profil Akun
             </h2>
             <p className="text-xs text-muted">
-              Perbarui nama tampilan pada dashboard dan laporan hasil.
+              Perbarui nama tampilan dan alamat email akun Anda.
             </p>
           </div>
           <Badge variant={user.role === "admin" ? "accent" : "neutral"}>
@@ -49,27 +51,35 @@ export function AccountSettingsForms({ user }: { user: UserProfile }) {
           </Badge>
         </div>
 
-        {nameState && (
-          <Notice variant={nameState.ok ? "success" : "danger"}>
-            <p>{nameState.ok ? nameState.data : nameState.error}</p>
+        {profileState && (
+          <Notice variant={profileState.ok ? "success" : "danger"}>
+            <p>{profileState.ok ? profileState.data : profileState.error}</p>
           </Notice>
         )}
 
-        <form action={nameAction} className="space-y-4">
+        <form action={profileAction} className="space-y-4">
           <div className="space-y-1.5">
             <label
               htmlFor="account-email"
-              className="block text-sm font-medium text-muted"
+              className="block text-sm font-medium text-foreground"
             >
-              Email Terdaftar
+              Alamat Email
             </label>
             <input
               id="account-email"
+              name="email"
               type="email"
-              value={user.email}
-              disabled
-              className="w-full rounded-xl border border-border bg-surface-soft px-3.5 py-2.5 text-sm text-muted"
+              required
+              defaultValue={user.email}
+              className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none"
             />
+            {profileState &&
+              !profileState.ok &&
+              profileState.fieldErrors?.email && (
+                <p className="text-xs text-danger-ink">
+                  {profileState.fieldErrors.email[0]}
+                </p>
+              )}
           </div>
 
           <div className="space-y-1.5">
@@ -85,17 +95,19 @@ export function AccountSettingsForms({ user }: { user: UserProfile }) {
               type="text"
               required
               defaultValue={user.fullName}
-              className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground"
+              className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none"
             />
-            {nameState && !nameState.ok && nameState.fieldErrors?.fullName && (
-              <p className="text-xs text-danger-ink">
-                {nameState.fieldErrors.fullName[0]}
-              </p>
-            )}
+            {profileState &&
+              !profileState.ok &&
+              profileState.fieldErrors?.fullName && (
+                <p className="text-xs text-danger-ink">
+                  {profileState.fieldErrors.fullName[0]}
+                </p>
+              )}
           </div>
 
-          <Button type="submit" variant="primary" disabled={isNamePending}>
-            {isNamePending ? "Menyimpan..." : "Simpan Nama"}
+          <Button type="submit" variant="primary" disabled={isProfilePending}>
+            {isProfilePending ? "Menyimpan..." : "Simpan Perubahan"}
           </Button>
         </form>
       </Card>
@@ -167,17 +179,17 @@ export function AccountSettingsForms({ user }: { user: UserProfile }) {
         </form>
       </Card>
 
-      {nameState && (
+      {profileState && (
         <StatusPopup
-          isOpen={isNamePopupOpen}
-          status={nameState.ok ? "success" : "error"}
+          isOpen={isProfilePopupOpen}
+          status={profileState.ok ? "success" : "error"}
           title={
-            nameState.ok
+            profileState.ok
               ? "Profil Berhasil Diperbarui"
               : "Gagal Memperbarui Profil"
           }
-          message={nameState.ok ? nameState.data : nameState.error}
-          onClose={() => setDismissedNameState(nameState)}
+          message={profileState.ok ? profileState.data : profileState.error}
+          onClose={() => setDismissedProfileState(profileState)}
         />
       )}
 

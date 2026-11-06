@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Notice } from "@/components/ui/Notice";
+import { Pagination } from "@/components/ui/Pagination";
 import { ConfirmDialog, StatusPopup } from "@/components/ui/PopupModal";
 import {
   deleteQuestionAction,
@@ -13,8 +14,11 @@ import {
   type AdminFormState,
 } from "@/lib/actions/admin-actions";
 import { OPTION_KEYS } from "@/lib/constants";
+import { calculatePagination } from "@/lib/pagination";
 import { TOPICS, TOPIC_KEYS } from "@/lib/topics";
 import type { QuestionRecord, TopicKey } from "@/lib/types";
+
+const QUESTIONS_PER_PAGE = 10;
 
 function EditIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
@@ -63,6 +67,7 @@ export function QuestionManagementPanel({
   questions: readonly QuestionRecord[];
 }) {
   const [selectedTopic, setSelectedTopic] = useState<TopicKey | "ALL">("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
   const [editingQuestion, setEditingQuestion] = useState<QuestionRecord | null>(
     null,
   );
@@ -90,6 +95,19 @@ export function QuestionManagementPanel({
     selectedTopic === "ALL"
       ? questions
       : questions.filter((q) => q.topic === selectedTopic);
+
+  const { safePage, totalPages, startIdx, endIdx } = calculatePagination(
+    filteredQuestions.length,
+    currentPage,
+    QUESTIONS_PER_PAGE,
+  );
+
+  const paginatedQuestions = filteredQuestions.slice(startIdx, endIdx);
+
+  function handleTopicChange(topic: TopicKey | "ALL") {
+    setSelectedTopic(topic);
+    setCurrentPage(1);
+  }
 
   function handleOpenCreate() {
     setEditingQuestion(null);
@@ -124,7 +142,7 @@ export function QuestionManagementPanel({
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setSelectedTopic("ALL")}
+            onClick={() => handleTopicChange("ALL")}
             className={`rounded-full px-3.5 py-1.5 text-xs font-medium cursor-pointer ${
               selectedTopic === "ALL"
                 ? "bg-accent text-white"
@@ -137,7 +155,7 @@ export function QuestionManagementPanel({
             <button
               key={key}
               type="button"
-              onClick={() => setSelectedTopic(key)}
+              onClick={() => handleTopicChange(key)}
               className={`rounded-full px-3.5 py-1.5 text-xs font-medium cursor-pointer ${
                 selectedTopic === key
                   ? "bg-accent text-white"
@@ -400,7 +418,7 @@ export function QuestionManagementPanel({
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filteredQuestions.map((q) => (
+              {paginatedQuestions.map((q) => (
                 <tr key={q.id}>
                   <td className="py-3 pr-3 font-mono text-xs font-bold text-accent">
                     {q.id}
@@ -445,6 +463,15 @@ export function QuestionManagementPanel({
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          currentPage={safePage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={filteredQuestions.length}
+          pageSize={QUESTIONS_PER_PAGE}
+          itemLabel="soal"
+        />
       </Card>
 
       <ConfirmDialog

@@ -13,6 +13,7 @@ import {
 import {
   canRoleTakeQuiz,
   registerSchema,
+  updateProfileSchema,
   upsertQuestionSchema,
   validateAnswerKeyForKind,
   verifyAdminTargetModification,
@@ -187,6 +188,30 @@ describe("lib/validation and security rules", () => {
       explanationEn: "Sample explanation in English.",
     });
     assert.equal(parsed.success, false);
+  });
+
+  it("validates updateProfileSchema for editing profile name and email", () => {
+    const valid = updateProfileSchema.safeParse({
+      fullName: "  Aldy Alfiansyah  ",
+      email: "  ALDY@Example.com  ",
+    });
+    assert.equal(valid.success, true);
+    if (valid.success) {
+      assert.equal(valid.data.fullName, "Aldy Alfiansyah");
+      assert.equal(valid.data.email, "aldy@example.com");
+    }
+
+    const invalidEmail = updateProfileSchema.safeParse({
+      fullName: "Aldy Alfiansyah",
+      email: "not-an-email",
+    });
+    assert.equal(invalidEmail.success, false);
+
+    const invalidName = updateProfileSchema.safeParse({
+      fullName: "A",
+      email: "aldy@example.com",
+    });
+    assert.equal(invalidName.success, false);
   });
 });
 
