@@ -3,9 +3,11 @@
 import { useState, useTransition } from "react";
 import { AiDynamicSettingsCard } from "@/components/admin/AiDynamicSettingsCard";
 import { AiResetCountdown } from "@/components/ai/AiResetCountdown";
+import { ActionMenu } from "@/components/ui/ActionMenu";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Pagination } from "@/components/ui/Pagination";
 import {
   adjustParticipantAiQuotaAction,
   clearQuestionAiCacheAction,
@@ -30,6 +32,48 @@ interface AiQuotaPanelProps {
 }
 
 const QUICK_ADD_PERCENT = 50;
+const PARTICIPANTS_PER_PAGE = 10;
+
+function PlusCircleIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 8v8" />
+      <path d="M8 12h8" />
+    </svg>
+  );
+}
+
+function RefreshIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M8 16H3v5" />
+    </svg>
+  );
+}
 
 export function AiQuotaPanel({
   initialGlobalStatus,
@@ -47,7 +91,19 @@ export function AiQuotaPanel({
     type: "ok" | "err";
     text: string;
   } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isPending, startTransition] = useTransition();
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(participants.length / PARTICIPANTS_PER_PAGE),
+  );
+  const safePage = Math.min(currentPage, totalPages);
+  const startIdx = (safePage - 1) * PARTICIPANTS_PER_PAGE;
+  const currentParticipants = participants.slice(
+    startIdx,
+    startIdx + PARTICIPANTS_PER_PAGE,
+  );
 
   function handleToggleGlobal() {
     setFeedback(null);
@@ -343,7 +399,8 @@ export function AiQuotaPanel({
         {participants.length === 0 ? (
           <p className="text-xs text-muted py-2">Belum ada akun peserta.</p>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            <div className="overflow-x-auto">
             <table className="w-full border-collapse text-xs">
               <thead>
                 <tr className="border-b border-border text-left text-muted">
@@ -356,7 +413,7 @@ export function AiQuotaPanel({
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {participants.map((user) => {
+                {currentParticipants.map((user) => {
                   const quota = quotas[user.id];
                   const remaining = quota?.remainingPercent ?? 100;
                   return (
@@ -382,7 +439,10 @@ export function AiQuotaPanel({
                             <div className="font-mono text-xs">
                               {formatAppDateTime(quota.resetAt)}
                             </div>
-                            <div className="text-[11px] font-mono text-amber-700">
+                            <div
+                              className="text-[11px] font-mono text-amber-700"
+                              suppressHydrationWarning
+                            >
                               (sisa <AiResetCountdown resetAt={quota.resetAt} />)
                             </div>
                           </div>
@@ -391,30 +451,28 @@ export function AiQuotaPanel({
                         )}
                       </td>
                       <td className="py-2.5 pl-3 text-right">
-                        <div className="inline-flex items-center gap-1.5">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            disabled={isPending}
-                            onClick={() =>
-                              handleAdjustUserQuota(user.id, "add_percent")
-                            }
-                          >
-                            +{QUICK_ADD_PERCENT}%
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="primary"
-                            disabled={isPending || remaining >= 100}
-                            onClick={() =>
-                              handleAdjustUserQuota(user.id, "reset")
-                            }
-                          >
-                            Reset 100%
-                          </Button>
-                        </div>
+                        <ActionMenu
+                          ariaLabel={`Tindakan kuota untuk ${user.fullName || user.email}`}
+                          items={[
+                            {
+                              key: "add_percent",
+                              label: `Tambah Kuota (+${QUICK_ADD_PERCENT}%)`,
+                              icon: <PlusCircleIcon />,
+                              disabled: isPending,
+                              onClick: () =>
+                                handleAdjustUserQuota(user.id, "add_percent"),
+                            },
+                            {
+                              key: "reset",
+                              label: "Reset Kuota (100%)",
+                              icon: <RefreshIcon />,
+                              variant: "accent",
+                              disabled: isPending || remaining >= 100,
+                              onClick: () =>
+                                handleAdjustUserQuota(user.id, "reset"),
+                            },
+                          ]}
+                        />
                       </td>
                     </tr>
                   );
@@ -422,6 +480,16 @@ export function AiQuotaPanel({
               </tbody>
             </table>
           </div>
+
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={participants.length}
+              pageSize={PARTICIPANTS_PER_PAGE}
+              itemLabel="peserta"
+            />
+          </>
         )}
       </Card>
     </div>

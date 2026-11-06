@@ -820,7 +820,10 @@ export function ChatAiView({
             </p>
           </div>
           {quota?.resetAt && (
-            <div className="shrink-0 flex items-center gap-1.5 rounded-lg bg-amber-100 border border-amber-300 px-3 py-1.5 font-mono text-xs font-bold text-amber-950">
+            <div
+              className="shrink-0 flex items-center gap-1.5 rounded-lg bg-amber-100 border border-amber-300 px-3 py-1.5 font-mono text-xs font-bold text-amber-950"
+              suppressHydrationWarning
+            >
               <span className="text-[11px] font-sans font-medium text-amber-800">
                 Reset dalam:
               </span>

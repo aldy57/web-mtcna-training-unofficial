@@ -285,9 +285,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
         aria-label="Navigasi sidebar utama"
       >
         <div className="space-y-1">
-          <p className="px-2 text-[11px] font-bold uppercase tracking-wider text-muted">
-            Menu Utama
-          </p>
           <nav className="space-y-1" aria-label="Menu navigasi">
             {navLinks.map((link) => {
               const active = link.isActive(pathname);
@@ -428,9 +425,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 className="mt-5 flex-1 space-y-1"
                 aria-label="Navigasi menu mobile"
               >
-                <p className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted">
-                  Menu Utama
-                </p>
                 {navLinks.map((link) => {
                   const active = link.isActive(pathname);
                   const IconComponent = link.icon;

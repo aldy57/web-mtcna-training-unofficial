@@ -286,7 +286,7 @@ export function AiDynamicSettingsCard({
               className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-mono text-foreground focus:border-accent focus:outline-hidden disabled:opacity-50"
             />
             <p className="text-[11px] text-muted">
-              Waktu tunggu otomatis kuota direset kembali ke 100% setelah habis (1 hari = 24 jam).
+              Token direset kembali ke 100% setelah habis.
             </p>
           </div>
         </div>

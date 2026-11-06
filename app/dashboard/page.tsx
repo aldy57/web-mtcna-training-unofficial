@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ActionMenu } from "@/components/ui/ActionMenu";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -14,6 +15,46 @@ import type { Attempt } from "@/lib/types";
 export const metadata: Metadata = {
   title: "Dashboard Peserta",
 };
+
+function PlayIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <polygon points="6 3 20 12 6 21 6 3" />
+    </svg>
+  );
+}
+
+function FileTextIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+      <path d="M10 9H8" />
+      <path d="M16 13H8" />
+      <path d="M16 17H8" />
+    </svg>
+  );
+}
 
 function formatAttemptLabel(attempt: Attempt): string {
   if (attempt.mode === "tryout") {
@@ -221,12 +262,18 @@ async function DashboardContent() {
                         )}
                       </td>
                       <td className="py-3 pl-3 text-right">
-                        <Link
-                          href={targetHref}
-                          className="inline-flex items-center rounded-full border border-border bg-surface px-3.5 py-1 text-xs font-medium text-foreground hover:border-accent hover:text-accent transition-colors"
-                        >
-                          {isOngoing ? "Lanjutkan" : "Lihat Hasil"}
-                        </Link>
+                        <ActionMenu
+                          ariaLabel={`Aksi untuk sesi ${formatAttemptLabel(item)}`}
+                          items={[
+                            {
+                              key: "open-attempt",
+                              label: isOngoing ? "Lanjutkan Pengerjaan" : "Lihat Hasil Evaluasi",
+                              href: targetHref,
+                              variant: isOngoing ? "accent" : "default",
+                              icon: isOngoing ? <PlayIcon /> : <FileTextIcon />,
+                            },
+                          ]}
+                        />
                       </td>
                     </tr>
                   );

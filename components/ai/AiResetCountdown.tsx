@@ -78,11 +78,18 @@ export function AiResetCountdown({
   }, [resetAt, onExpired]);
 
   if (!resetAt) {
-    return <span className={className}>1 hari</span>;
+    return (
+      <span suppressHydrationWarning className={className}>
+        1 hari
+      </span>
+    );
   }
 
   return (
-    <span className={`tabular-nums font-mono ${className}`}>
+    <span
+      suppressHydrationWarning
+      className={`tabular-nums font-mono ${className}`}
+    >
       {formatRemainingDuration(diffMs)}
     </span>
   );

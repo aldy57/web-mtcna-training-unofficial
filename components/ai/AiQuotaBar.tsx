@@ -65,7 +65,10 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
               {UI_STRINGS.ai.userExhaustedNotice} ({formatResetDateTime(quota.resetAt)})
             </span>
             {quota.resetAt && (
-              <span className="font-semibold text-amber-800 shrink-0">
+              <span
+                className="font-semibold text-amber-800 shrink-0"
+                suppressHydrationWarning
+              >
                 Reset: <AiResetCountdown resetAt={quota.resetAt} />
               </span>
             )}
@@ -84,7 +87,7 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
             Token AI
           </h2>
           <p className="text-xs text-muted">
-            Digunakan untuk fitur Tanya AI (MIRA AI), Jelaskan Jawaban Saya, dan
+            Digunakan untuk fitur Tanya AI, MIRA AI, Jelaskan Jawaban Saya, dan
             Rekomendasi Belajar pasca-tryout.
           </p>
         </div>

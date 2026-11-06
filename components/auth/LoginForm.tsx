@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Notice } from "@/components/ui/Notice";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { StatusPopup } from "@/components/ui/PopupModal";
 import { loginAction, type FormActionState } from "@/lib/actions/auth-actions";
+import { showToast } from "@/lib/toast";
 
 export function LoginForm() {
   const router = useRouter();
@@ -17,16 +18,30 @@ export function LoginForm() {
     null,
   );
   const [dismissedState, setDismissedState] = useState<FormActionState>(null);
+  const hasRedirectedRef = useRef(false);
 
-  const isPopupOpen = Boolean(state && state !== dismissedState);
+  const isRedirecting = Boolean(state?.ok);
+  const isErrorPopupOpen = Boolean(
+    state && !state.ok && state !== dismissedState,
+  );
 
-  function handleClosePopup() {
-    setDismissedState(state);
-    if (state?.ok) {
+  useEffect(() => {
+    if (state?.ok && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      const toastPayload = {
+        type: "success" as const,
+        title: "Login Berhasil!",
+        message: "Selamat datang di platform MIRA MTCNA Training.",
+        duration: 5000,
+      };
+
+      // Tampilkan notifikasi toast langsung di container toast
+      showToast(toastPayload);
+
       router.push(state.data);
       router.refresh();
     }
-  }
+  }, [state, router]);
 
   return (
     <div className="w-full space-y-6 sm:space-y-8">
@@ -107,25 +122,29 @@ export function LoginForm() {
                 Daftar sekarang
               </Link>
             </p>
-            <Button type="submit" variant="primary" disabled={isPending}>
-              {isPending ? "Memproses..." : "Masuk"}
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isPending || isRedirecting}
+            >
+              {isRedirecting
+                ? "Mengalihkan ke dashboard..."
+                : isPending
+                  ? "Memproses..."
+                  : "Masuk"}
             </Button>
           </div>
         </form>
       </Card>
 
-      {state && (
+      {state && !state.ok && (
         <StatusPopup
-          isOpen={isPopupOpen}
-          status={state.ok ? "success" : "error"}
-          title={state.ok ? "Berhasil!" : "Gagal!"}
-          message={
-            state.ok
-              ? "Autentikasi berhasil. Klik Lanjutkan untuk menuju halaman dashboard."
-              : state.error
-          }
-          buttonLabel={state.ok ? "Lanjutkan" : "Tutup"}
-          onClose={handleClosePopup}
+          isOpen={isErrorPopupOpen}
+          status="error"
+          title="Gagal Masuk"
+          message={state.error}
+          buttonLabel="Tutup"
+          onClose={() => setDismissedState(state)}
         />
       )}
     </div>

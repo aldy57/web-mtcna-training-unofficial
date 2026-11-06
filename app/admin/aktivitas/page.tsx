@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ActionMenu } from "@/components/ui/ActionMenu";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { getAdminRecentAttempts } from "@/lib/admin-repo";
@@ -8,6 +9,28 @@ import { requireRole } from "@/lib/auth";
 import { LANGUAGE_NAMES } from "@/lib/constants";
 import { formatAppDateTime } from "@/lib/format-date";
 import { formatScorePercent } from "@/lib/scoring";
+
+function FileTextIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+      <path d="M10 9H8" />
+      <path d="M16 13H8" />
+      <path d="M16 17H8" />
+    </svg>
+  );
+}
 
 export const metadata: Metadata = {
   title: "Aktivitas Tryout · Panel Admin",
@@ -108,12 +131,17 @@ async function RecentAttemptsContent() {
                     </td>
                     <td className="py-3.5 pl-3 text-right">
                       {item.status !== "in_progress" ? (
-                        <Link
-                          href={`/tryout/${item.id}/hasil`}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline"
-                        >
-                          Lihat Hasil →
-                        </Link>
+                        <ActionMenu
+                          ariaLabel={`Aksi aktivitas peserta ${item.userName}`}
+                          items={[
+                            {
+                              key: "view-result",
+                              label: "Lihat Hasil",
+                              href: `/tryout/${item.id}/hasil`,
+                              icon: <FileTextIcon />,
+                            },
+                          ]}
+                        />
                       ) : (
                         <span className="text-xs text-muted">—</span>
                       )}

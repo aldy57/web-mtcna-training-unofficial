@@ -1,10 +1,12 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
+import { ActionMenu } from "@/components/ui/ActionMenu";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Notice } from "@/components/ui/Notice";
+import { Pagination } from "@/components/ui/Pagination";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { ConfirmDialog, StatusPopup } from "@/components/ui/PopupModal";
 import {
@@ -14,6 +16,50 @@ import {
   type AdminFormState,
 } from "@/lib/actions/admin-actions";
 import type { UserProfile } from "@/lib/types";
+
+function KeyIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="7.5" cy="15.5" r="5.5" />
+      <path d="m21 2-9.6 9.6" />
+      <path d="m15.5 7.5 3 3L22 7l-3-3" />
+    </svg>
+  );
+}
+
+function TrashIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  );
+}
+
+const USERS_PER_PAGE = 10;
 
 export function AccountManagementPanel({
   users,
@@ -36,7 +82,13 @@ export function AccountManagementPanel({
     title: string;
     message: string;
   } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isMutating, startTransition] = useTransition();
+
+  const totalPages = Math.max(1, Math.ceil(users.length / USERS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const startIdx = (safePage - 1) * USERS_PER_PAGE;
+  const currentUsers = users.slice(startIdx, startIdx + USERS_PER_PAGE);
 
   const isCreatePopupOpen = Boolean(
     createState && createState !== dismissedCreateState,
@@ -264,70 +316,87 @@ export function AccountManagementPanel({
           </span>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-xs text-muted">
-                <th className="py-2.5 pr-4 font-semibold">Nama</th>
-                <th className="py-2.5 px-3 font-semibold">Email</th>
-                <th className="py-2.5 px-3 font-semibold">Role</th>
-                <th className="py-2.5 pl-3 font-semibold text-right">
-                  Manajemen Akun
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {users.map((item) => {
-                const isAdminAccount = item.role === "admin";
-                return (
-                  <tr key={item.id}>
-                    <td className="py-3 pr-4 font-medium text-foreground">
-                      {item.fullName || "—"}
-                    </td>
-                    <td className="py-3 px-3 text-xs text-muted">
-                      {item.email}
-                    </td>
-                    <td className="py-3 px-3">
-                      <Badge variant={isAdminAccount ? "accent" : "neutral"}>
-                        {isAdminAccount ? "Admin" : "Peserta"}
-                      </Badge>
-                    </td>
-                    <td className="py-3 pl-3 text-right">
-                      {isAdminAccount ? (
-                        <span className="text-xs text-muted italic">
-                          Akun Admin Dilindungi
-                        </span>
-                      ) : (
-                        <div className="inline-flex flex-wrap justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => {
-                              setDeleteTarget(null);
-                              setResetTarget(item);
-                            }}
-                          >
-                            Edit Password
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => {
-                              setResetTarget(null);
-                              setDeleteTarget(item);
-                            }}
-                          >
-                            Hapus
-                          </Button>
-                        </div>
-                      )}
-                    </td>
+        {users.length === 0 ? (
+          <p className="text-xs text-muted py-2">Belum ada akun terdaftar.</p>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs text-muted">
+                    <th className="py-2.5 pr-4 font-semibold">Nama</th>
+                    <th className="py-2.5 px-3 font-semibold">Email</th>
+                    <th className="py-2.5 px-3 font-semibold">Role</th>
+                    <th className="py-2.5 pl-3 font-semibold text-right">
+                      Manajemen Akun
+                    </th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {currentUsers.map((item) => {
+                    const isAdminAccount = item.role === "admin";
+                    return (
+                      <tr key={item.id}>
+                        <td className="py-3 pr-4 font-medium text-foreground">
+                          {item.fullName || "—"}
+                        </td>
+                        <td className="py-3 px-3 text-xs text-muted">
+                          {item.email}
+                        </td>
+                        <td className="py-3 px-3">
+                          <Badge variant={isAdminAccount ? "accent" : "neutral"}>
+                            {isAdminAccount ? "Admin" : "Peserta"}
+                          </Badge>
+                        </td>
+                        <td className="py-3 pl-3 text-right">
+                          {isAdminAccount ? (
+                            <span className="text-xs text-muted italic">
+                              Akun Admin Dilindungi
+                            </span>
+                          ) : (
+                            <ActionMenu
+                              ariaLabel={`Aksi untuk akun ${item.fullName || item.email}`}
+                              items={[
+                                {
+                                  key: "reset-password",
+                                  label: "Edit Password",
+                                  icon: <KeyIcon />,
+                                  onClick: () => {
+                                    setDeleteTarget(null);
+                                    setResetTarget(item);
+                                  },
+                                },
+                                {
+                                  key: "delete",
+                                  label: "Hapus Akun",
+                                  icon: <TrashIcon />,
+                                  variant: "danger",
+                                  onClick: () => {
+                                    setResetTarget(null);
+                                    setDeleteTarget(item);
+                                  },
+                                },
+                              ]}
+                            />
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={users.length}
+              pageSize={USERS_PER_PAGE}
+              itemLabel="akun"
+            />
+          </>
+        )}
       </Card>
 
       <ConfirmDialog

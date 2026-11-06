@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/HeaderNavigation";
 import { NavigationScrollRestorer } from "@/components/ui/NavigationScrollRestorer";
 import { SidebarProvider } from "@/components/ui/SidebarContext";
+import { ToastContainer } from "@/components/ui/Toast";
 import { getOptionalUser } from "@/lib/auth";
 
 async function UserNavigationItems() {
@@ -91,6 +92,7 @@ export function AppHeader() {
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
+      <ToastContainer />
       <Suspense fallback={null}>
         <NavigationScrollRestorer />
       </Suspense>

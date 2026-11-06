@@ -2,8 +2,8 @@
 
 import { useRef, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Pagination } from "@/components/ui/Pagination";
 import { AI_FEATURE_LABELS } from "@/lib/constants";
 import { formatAppDateTime } from "@/lib/format-date";
 import { formatScorePercent } from "@/lib/scoring";
@@ -59,10 +59,10 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
         <div className="space-y-0.5">
           <h2 className="text-base font-semibold text-foreground">
-            Riwayat Pemakaian Kuota AI
+            Riwayat Pemakaian Token
           </h2>
           <p className="text-xs text-muted">
-            Catatan penggunaan fitur AI berkuota pada akun Anda.
+            Catatan penggunaan token pada akun Anda.
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
 
       {logs.length === 0 ? (
         <div className="rounded-xl border border-border bg-surface-soft p-5 text-center text-xs text-muted">
-          Belum ada riwayat pemakaian kuota AI.
+          Belum ada riwayat pemakaian token AI.
         </div>
       ) : (
         <>
@@ -132,7 +132,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
                   <th className="py-2.5 px-4 font-semibold">Fitur</th>
                   <th className="py-2.5 px-4 font-semibold">Konteks</th>
                   <th className="py-2.5 pl-4 text-right font-semibold">
-                    Total Penggunaan Kuota
+                    Total Penggunaan
                   </th>
                 </tr>
               </thead>
@@ -165,68 +165,14 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
           </div>
 
           {/* Kontrol Pagination 10 Item per Halaman */}
-          {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-border/80">
-              <span className="text-xs text-muted font-mono text-center sm:text-left">
-                Menampilkan {startIdx + 1}–
-                {Math.min(startIdx + PAGE_SIZE, logs.length)} dari {logs.length}{" "}
-                riwayat
-              </span>
-
-              <div className="flex items-center justify-center gap-1.5 w-full sm:w-auto">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  disabled={safePage <= 1}
-                  onClick={() => handlePageChange(Math.max(1, safePage - 1))}
-                  className="px-2.5 sm:px-3 py-1 text-xs shrink-0"
-                >
-                  <span className="sm:hidden">← Prev</span>
-                  <span className="hidden sm:inline">← Sebelumnya</span>
-                </Button>
-
-                {/* Di mobile: Label Halaman X / Y */}
-                <span className="text-xs font-semibold text-foreground px-2 tabular-nums sm:hidden">
-                  {safePage} / {totalPages}
-                </span>
-
-                {/* Di desktop: Nomor Halaman Interaktif */}
-                <div className="hidden sm:flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <button
-                        key={page}
-                        type="button"
-                        onClick={() => handlePageChange(page)}
-                        className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                          page === safePage
-                            ? "bg-accent text-white shadow-2xs"
-                            : "border border-border text-foreground hover:bg-neutral-100"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ),
-                  )}
-                </div>
-
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  disabled={safePage >= totalPages}
-                  onClick={() =>
-                    handlePageChange(Math.min(totalPages, safePage + 1))
-                  }
-                  className="px-2.5 sm:px-3 py-1 text-xs shrink-0"
-                >
-                  <span className="sm:hidden">Next →</span>
-                  <span className="hidden sm:inline">Berikutnya →</span>
-                </Button>
-              </div>
-            </div>
-          )}
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalItems={logs.length}
+            pageSize={PAGE_SIZE}
+            itemLabel="riwayat"
+          />
         </>
       )}
       </Card>
