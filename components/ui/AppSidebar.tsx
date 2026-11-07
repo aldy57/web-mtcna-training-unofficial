@@ -328,6 +328,11 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   prefetch={false}
                   onClick={() => {
                     if (link.href === "/chat-ai") {
+                      try {
+                        sessionStorage.setItem("mira-ai:force-new", "1");
+                      } catch {
+                        // Abaikan jika sessionStorage dibatasi
+                      }
                       window.dispatchEvent(new CustomEvent("mira-ai:new-chat"));
                     }
                   }}
@@ -490,6 +495,11 @@ export function AppSidebar({ user }: AppSidebarProps) {
                       onClick={() => {
                         closeMobile();
                         if (link.href === "/chat-ai") {
+                          try {
+                            sessionStorage.setItem("mira-ai:force-new", "1");
+                          } catch {
+                            // Abaikan jika sessionStorage dibatasi
+                          }
                           window.dispatchEvent(new CustomEvent("mira-ai:new-chat"));
                         }
                       }}

@@ -760,6 +760,9 @@ export function ChatAiView({
   const isParticipant = userRole === "user";
   const isExhausted = isParticipant && Boolean(quota?.isExhausted);
 
+  const activeConversationIdRef = useRef<string | null>(activeConversationId);
+  activeConversationIdRef.current = activeConversationId;
+
   // Ambil daftar riwayat obrolan & cek query param ?c= pada URL
   useEffect(() => {
     void listConversationsAction().then((res) => {
@@ -768,19 +771,43 @@ export function ChatAiView({
       }
     });
 
+    let isForcedNew = false;
+    try {
+      if (sessionStorage.getItem("mira-ai:force-new")) {
+        sessionStorage.removeItem("mira-ai:force-new");
+        isForcedNew = true;
+      }
+    } catch {
+      // Abaikan jika sessionStorage dibatasi
+    }
+
     const cParam = searchParams.get("c");
-    if (cParam) {
-      void getConversationMessagesAction(cParam).then((res) => {
-        if (res.ok) {
-          setActiveConversationId(cParam);
-          setMessages(
-            res.data.messages.map((m) => ({
-              id: m.id,
-              role: m.role,
-              content: m.content,
-              createdAt: m.createdAt,
-            })),
-          );
+    if (cParam && !isForcedNew) {
+      if (cParam !== activeConversationIdRef.current) {
+        void getConversationMessagesAction(cParam).then((res) => {
+          if (res.ok) {
+            setActiveConversationId(cParam);
+            setMessages(
+              res.data.messages.map((m) => ({
+                id: m.id,
+                role: m.role,
+                content: m.content,
+                createdAt: m.createdAt,
+              })),
+            );
+          }
+        });
+      }
+    } else {
+      // Jika tidak ada query ?c= atau ada instruksi force-new dari sidebar:
+      // Jadwalkan pembersihan tampilan agar sesi selalu bersih (Obrolan Baru)
+      queueMicrotask(() => {
+        setActiveConversationId(null);
+        setMessages([]);
+        setErrorMessage("");
+        setInputValue("");
+        if (typeof window !== "undefined" && window.location.search) {
+          window.history.replaceState(null, "", "/chat-ai");
         }
       });
     }
