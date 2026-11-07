@@ -9,10 +9,49 @@ import {
   updateAiDynamicSettingsAction,
 } from "@/lib/actions/ai-admin-actions";
 import { formatAppDateTime } from "@/lib/format-date";
-import type { AiDynamicSettings } from "@/lib/types";
+import type { AiCustomModel, AiDynamicSettings } from "@/lib/types";
 
 export interface AiDynamicSettingsCardProps {
   initialSettings: AiDynamicSettings;
+}
+
+function PlusIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
+  );
+}
+
+function TrashIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    </svg>
+  );
 }
 
 function SettingsSlidersIcon({ className = "h-5 w-5" }: { className?: string }) {
@@ -72,6 +111,19 @@ export function AiDynamicSettingsCard({
   const [quotaResetDays, setQuotaResetDays] = useState(
     initialSettings.quotaResetDays,
   );
+  const [availableModels, setAvailableModels] = useState<AiCustomModel[]>(
+    initialSettings.availableModels && initialSettings.availableModels.length > 0
+      ? initialSettings.availableModels
+      : [
+          {
+            id: initialSettings.model,
+            name: "MIRA Standar",
+            description: "Model bawaan sistem",
+            isActive: true,
+            isDefault: true,
+          },
+        ],
+  );
 
   const [feedback, setFeedback] = useState<{
     type: "ok" | "err";
@@ -80,16 +132,86 @@ export function AiDynamicSettingsCard({
 
   const [isPending, startTransition] = useTransition();
 
+  function handleAddModel() {
+    setAvailableModels((prev) => [
+      ...prev,
+      {
+        id: "",
+        name: "",
+        description: "",
+        isActive: true,
+        isDefault: prev.length === 0,
+      },
+    ]);
+  }
+
+  function handleUpdateModel(
+    index: number,
+    field: keyof AiCustomModel,
+    value: string | boolean,
+  ) {
+    setAvailableModels((prev) =>
+      prev.map((item, idx) => {
+        if (idx !== index) {
+          if (field === "isDefault" && value === true) {
+            return { ...item, isDefault: false };
+          }
+          return item;
+        }
+        return { ...item, [field]: value };
+      }),
+    );
+  }
+
+  function handleRemoveModel(index: number) {
+    if (availableModels.length <= 1) return;
+    setAvailableModels((prev) => {
+      const removed = prev[index];
+      const next = prev.filter((_, idx) => idx !== index);
+      if (removed.isDefault && next.length > 0) {
+        next[0].isDefault = true;
+      }
+      return next;
+    });
+  }
+
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setFeedback(null);
 
+    const sanitizedModels = availableModels
+      .map((m) => ({
+        id: m.id.trim(),
+        name: m.name.trim(),
+        description: m.description?.trim() || undefined,
+        isActive: m.isActive,
+        isDefault: Boolean(m.isDefault),
+      }))
+      .filter((m) => m.id.length > 0 && m.name.length > 0);
+
+    if (sanitizedModels.length === 0) {
+      setFeedback({
+        type: "err",
+        text: "Minimal harus ada 1 model AI dengan ID teknis dan Nama Tampilan yang valid.",
+      });
+      return;
+    }
+
+    const hasDefault = sanitizedModels.some((m) => m.isDefault);
+    if (!hasDefault) {
+      sanitizedModels[0].isDefault = true;
+    }
+
+    const defaultModel =
+      sanitizedModels.find((m) => m.isDefault)?.id || sanitizedModels[0].id;
+
     startTransition(async () => {
       const res = await updateAiDynamicSettingsAction({
         baseUrl: baseUrl.trim(),
-        model: model.trim(),
+        model: defaultModel,
         userTokenBudget: Number(userTokenBudget),
         quotaResetDays: Number(quotaResetDays),
+        availableModels: sanitizedModels,
       });
 
       if (!res.ok) {
@@ -102,9 +224,10 @@ export function AiDynamicSettingsCard({
       setModel(res.data.model);
       setUserTokenBudget(res.data.userTokenBudget);
       setQuotaResetDays(res.data.quotaResetDays);
+      setAvailableModels(res.data.availableModels);
       setFeedback({
         type: "ok",
-        text: "Konfigurasi AI berhasil diperbarui dan langsung aktif tanpa restart server.",
+        text: "Konfigurasi AI dan model peserta berhasil diperbarui dan langsung aktif.",
       });
     });
   }
@@ -130,6 +253,7 @@ export function AiDynamicSettingsCard({
       setModel(res.data.model);
       setUserTokenBudget(res.data.userTokenBudget);
       setQuotaResetDays(res.data.quotaResetDays);
+      setAvailableModels(res.data.availableModels);
       setFeedback({
         type: "ok",
         text: "Konfigurasi AI berhasil dikembalikan ke nilai default file .env.",
@@ -287,6 +411,168 @@ export function AiDynamicSettingsCard({
             <p className="text-[11px] text-muted">
               Token direset kembali ke 100% setelah habis.
             </p>
+          </div>
+        </div>
+
+        {/* Seksi Manajemen Model AI untuk Peserta */}
+        <div className="space-y-3 pt-3 border-t border-border/80">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 className="text-sm font-semibold text-foreground">
+                Daftar Model AI untuk Peserta
+              </h4>
+              <p className="text-[11px] text-muted mt-0.5 max-w-2xl">
+                Atur nama ramah dan aktifkan model. Jika <strong>hanya 1 model aktif</strong>, pemilih model otomatis disembunyikan di layar peserta (hanya mode Rendah/Sedang/Tinggi yang tampil). Jika <strong>2 atau lebih model aktif</strong>, pemilih model otomatis muncul di ruang chat peserta dengan Nama Tampilan yang Anda tentukan di bawah.
+              </p>
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={handleAddModel}
+              disabled={isPending}
+              className="inline-flex items-center gap-1.5"
+            >
+              <PlusIcon />
+              <span>Tambah Model</span>
+            </Button>
+          </div>
+
+          <div className="space-y-2.5">
+            {availableModels.map((item, idx) => (
+              <div
+                key={idx}
+                className={`p-3 rounded-xl border transition-all space-y-2.5 ${
+                  item.isActive
+                    ? "border-border bg-surface"
+                    : "border-border/50 bg-surface-soft/60 opacity-75"
+                }`}
+              >
+                <div className="grid gap-2.5 sm:grid-cols-12 items-center">
+                  {/* ID Model Teknis */}
+                  <div className="sm:col-span-4 space-y-1">
+                    <label className="text-[11px] font-semibold text-muted block">
+                      ID Model (Router API)
+                    </label>
+                    <input
+                      type="text"
+                      value={item.id}
+                      onChange={(e) =>
+                        handleUpdateModel(idx, "id", e.target.value)
+                      }
+                      placeholder="misal: gpt-6-luna atau deepseek-chat"
+                      disabled={isPending}
+                      required
+                      className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-mono text-foreground focus:border-accent focus:outline-hidden"
+                    />
+                  </div>
+
+                  {/* Nama Tampilan Peserta */}
+                  <div className="sm:col-span-4 space-y-1">
+                    <label className="text-[11px] font-semibold text-muted block">
+                      Nama Tampilan Peserta
+                    </label>
+                    <input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) =>
+                        handleUpdateModel(idx, "name", e.target.value)
+                      }
+                      placeholder="misal: MIRA Standar"
+                      disabled={isPending}
+                      required
+                      className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-foreground focus:border-accent focus:outline-hidden"
+                    />
+                  </div>
+
+                  {/* Deskripsi Singkat */}
+                  <div className="sm:col-span-4 space-y-1">
+                    <label className="text-[11px] font-semibold text-muted block">
+                      Keterangan Singkat (Opsional)
+                    </label>
+                    <input
+                      type="text"
+                      value={item.description ?? ""}
+                      onChange={(e) =>
+                        handleUpdateModel(idx, "description", e.target.value)
+                      }
+                      placeholder="misal: Cepat & seimbang"
+                      disabled={isPending}
+                      className="w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-foreground focus:border-accent focus:outline-hidden"
+                    />
+                  </div>
+                </div>
+
+                {/* Kontrol Status & Default */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/40 text-xs">
+                  <div className="flex items-center gap-4">
+                    {/* Toggle Aktif */}
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={item.isActive}
+                        onChange={(e) =>
+                          handleUpdateModel(idx, "isActive", e.target.checked)
+                        }
+                        disabled={isPending}
+                        className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
+                      />
+                      <span
+                        className={
+                          item.isActive
+                            ? "font-medium text-foreground"
+                            : "text-muted"
+                        }
+                      >
+                        {item.isActive ? "Aktif untuk Peserta" : "Dinonaktifkan"}
+                      </span>
+                    </label>
+
+                    {/* Radio Default */}
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="radio"
+                        name="default-ai-model"
+                        checked={Boolean(item.isDefault)}
+                        onChange={() => {
+                          handleUpdateModel(idx, "isDefault", true);
+                          if (item.id.trim()) {
+                            setModel(item.id.trim());
+                          }
+                        }}
+                        disabled={isPending}
+                        className="h-4 w-4 border-border text-accent focus:ring-accent"
+                      />
+                      <span
+                        className={
+                          item.isDefault
+                            ? "font-semibold text-accent"
+                            : "text-muted"
+                        }
+                      >
+                        {item.isDefault
+                          ? "Model Utama (Default)"
+                          : "Jadikan Default"}
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Tombol Hapus */}
+                  {availableModels.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveModel(idx)}
+                      disabled={isPending}
+                      className="inline-flex items-center gap-1 text-[11px] text-danger-ink hover:underline cursor-pointer disabled:opacity-50"
+                    >
+                      <TrashIcon className="h-3.5 w-3.5" />
+                      <span>Hapus Model</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

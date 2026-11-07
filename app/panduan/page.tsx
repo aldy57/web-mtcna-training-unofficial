@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Card } from "@/components/ui/Card";
 import { CertificationDisclaimerNotice } from "@/components/ui/Notice";
@@ -38,6 +39,9 @@ const GUIDE_SECTIONS = [
 
 async function GuideContent() {
   const user = await getCurrentUser();
+  if (user.role === "admin") {
+    redirect("/admin");
+  }
 
   return (
     <div className="w-full space-y-6 sm:space-y-8">
@@ -68,35 +72,30 @@ async function GuideContent() {
       <CertificationDisclaimerNotice />
 
       <div className="flex flex-wrap gap-3 pt-2">
-        {user.role === "admin" ? (
-          <Link
-            href="/admin"
-            className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
-          >
-            Ke Beranda Admin
-          </Link>
-        ) : (
-          <>
-            <Link
-              href="/tryout"
-              className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
-            >
-              Mulai Tryout
-            </Link>
-            <Link
-              href="/belajar"
-              className="rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground hover:bg-surface-soft transition-colors"
-            >
-              Belajar per Topik
-            </Link>
-            <Link
-              href="/dashboard"
-              className="rounded-full px-4 py-2.5 text-sm font-medium text-muted hover:bg-surface-soft hover:text-foreground transition-colors"
-            >
-              Ke Dashboard
-            </Link>
-          </>
-        )}
+        <Link
+          href="/tryout"
+          className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent-hover transition-colors"
+        >
+          Mulai Tryout
+        </Link>
+        <Link
+          href="/belajar"
+          className="rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground hover:bg-surface-soft transition-colors"
+        >
+          Belajar per Topik
+        </Link>
+        <Link
+          href="/materi"
+          className="rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground hover:bg-surface-soft transition-colors"
+        >
+          Sumber Materi
+        </Link>
+        <Link
+          href="/dashboard"
+          className="rounded-full px-4 py-2.5 text-sm font-medium text-muted hover:bg-surface-soft hover:text-foreground transition-colors"
+        >
+          Ke Dashboard
+        </Link>
       </div>
     </div>
   );

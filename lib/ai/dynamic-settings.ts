@@ -8,13 +8,14 @@ import {
 } from "@/lib/ai/ai-config";
 import { hasSupabasePublicEnv } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import type { AiDynamicSettings } from "@/lib/types";
+import type { AiCustomModel, AiDynamicSettings } from "@/lib/types";
 
 export interface AiSettingsRow {
   base_url: string | null;
   model: string | null;
   user_token_budget: number | null;
   quota_reset_days: number | null;
+  available_models?: AiCustomModel[] | null;
   updated_at: string | null;
   updated_by: string | null;
 }
@@ -65,11 +66,41 @@ export function resolveEffectiveAiConfig(
       ? dynamicRow.quota_reset_days
       : envResetDays;
 
+  const rawModels = dynamicRow?.available_models;
+  let effectiveModels: AiCustomModel[] = [];
+
+  if (Array.isArray(rawModels) && rawModels.length > 0) {
+    effectiveModels = rawModels.filter(
+      (m): m is AiCustomModel =>
+        typeof m === "object" &&
+        m !== null &&
+        typeof m.id === "string" &&
+        m.id.trim().length > 0 &&
+        typeof m.name === "string" &&
+        m.name.trim().length > 0,
+    );
+  }
+
+  // Jika belum ada model kustom terkonfigurasi, buat fallback default dari effectiveModel
+  if (effectiveModels.length === 0) {
+    effectiveModels = [
+      {
+        id: effectiveModel,
+        name: "MIRA Standar",
+        description: "Model bawaan sistem",
+        isActive: true,
+        isDefault: true,
+      },
+    ];
+  }
+
   const isCustomized = Boolean(
     dynamicRow?.base_url ||
       dynamicRow?.model ||
       dynamicRow?.user_token_budget ||
-      dynamicRow?.quota_reset_days,
+      dynamicRow?.quota_reset_days ||
+      (Array.isArray(dynamicRow?.available_models) &&
+        dynamicRow.available_models.length > 0),
   );
 
   return {
@@ -77,10 +108,29 @@ export function resolveEffectiveAiConfig(
     model: effectiveModel,
     userTokenBudget: effectiveBudget,
     quotaResetDays: effectiveResetDays,
+    availableModels: effectiveModels,
     isCustomized,
     updatedAt: dynamicRow?.updated_at ?? null,
     updatedBy: dynamicRow?.updated_by ?? null,
   };
+}
+
+export function getActiveAiModels(
+  settings: AiDynamicSettings,
+): AiCustomModel[] {
+  const active = settings.availableModels.filter((m) => m.isActive);
+  if (active.length > 0) {
+    return active;
+  }
+  return [
+    {
+      id: settings.model,
+      name: "MIRA Standar",
+      description: "Model bawaan sistem",
+      isActive: true,
+      isDefault: true,
+    },
+  ];
 }
 
 export function clearDynamicAiSettingsCache(): void {
@@ -118,7 +168,7 @@ export async function fetchDynamicAiSettings(
     const { data } = await admin
       .from("ai_settings")
       .select(
-        "base_url, model, user_token_budget, quota_reset_days, updated_at, updated_by",
+        "base_url, model, user_token_budget, quota_reset_days, available_models, updated_at, updated_by",
       )
       .eq("id", "global")
       .maybeSingle<AiSettingsRow>();
@@ -129,5 +179,10 @@ export async function fetchDynamicAiSettings(
   } catch {
     return resolveEffectiveAiConfig(cachedRow, process.env);
   }
+}
+
+export async function getEffectiveActiveAiModels(): Promise<AiCustomModel[]> {
+  const settings = await fetchDynamicAiSettings();
+  return getActiveAiModels(settings);
 }
 

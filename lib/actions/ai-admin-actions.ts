@@ -318,6 +318,7 @@ export async function updateAiDynamicSettingsAction(
       model: parsed.data.model,
       user_token_budget: parsed.data.userTokenBudget,
       quota_reset_days: parsed.data.quotaResetDays,
+      available_models: parsed.data.availableModels ?? [],
       updated_by: auth.admin.id,
       updated_at: nowIso,
     },
@@ -340,6 +341,7 @@ export async function updateAiDynamicSettingsAction(
       model: parsed.data.model,
       userTokenBudget: parsed.data.userTokenBudget,
       quotaResetDays: parsed.data.quotaResetDays,
+      availableModelsCount: parsed.data.availableModels?.length ?? 0,
     },
   });
 
@@ -375,6 +377,7 @@ export async function resetAiDynamicSettingsToEnvAction(): Promise<
       model: null,
       user_token_budget: null,
       quota_reset_days: null,
+      available_models: null,
       updated_by: auth.admin.id,
       updated_at: nowIso,
     },

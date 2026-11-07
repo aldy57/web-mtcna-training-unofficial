@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { aiDynamicSettingsInputSchema } from "@/lib/ai/ai-config";
 import {
   clearDynamicAiSettingsCache,
+  getActiveAiModels,
   getCachedDynamicAiOverrides,
   resolveEffectiveAiConfig,
   setCachedDynamicAiSettings,
@@ -124,6 +125,7 @@ describe("lib/ai — Pengaturan Konfigurasi AI Dinamis (Admin)", () => {
       model: "deepseek-chat",
       user_token_budget: 80000,
       quota_reset_days: 2,
+      available_models: null,
       updated_at: null,
       updated_by: null,
     });
@@ -150,6 +152,68 @@ describe("lib/ai — Pengaturan Konfigurasi AI Dinamis (Admin)", () => {
     assert.equal(formatAppDateTime(null), "—");
     assert.equal(formatAppDateTime(undefined), "—");
     assert.equal(formatAppDateTime("invalid-date"), "—");
+  });
+
+  it("memvalidasi dan mengelola daftar model AI kustom untuk peserta", () => {
+    const validWithModels = aiDynamicSettingsInputSchema.safeParse({
+      baseUrl: "https://router.ryzumi.net/v1",
+      model: "gpt-6-luna",
+      userTokenBudget: 50000,
+      quotaResetDays: 1,
+      availableModels: [
+        {
+          id: "gpt-6-luna",
+          name: "MIRA Standar",
+          description: "Cepat & seimbang",
+          isActive: true,
+          isDefault: true,
+        },
+        {
+          id: "deepseek-chat",
+          name: "MIRA Troubleshooting",
+          description: "Analisis mendalam",
+          isActive: true,
+          isDefault: false,
+        },
+        {
+          id: "qwen-2.5",
+          name: "MIRA Fundamental",
+          isActive: false,
+        },
+      ],
+    });
+    assert.equal(validWithModels.success, true);
+    if (validWithModels.success) {
+      assert.equal(validWithModels.data.availableModels?.length, 3);
+    }
+
+    // Resolusi konfigurasi dengan model kustom
+    const resolved = resolveEffectiveAiConfig({
+      model: "gpt-6-luna",
+      available_models: validWithModels.success
+        ? validWithModels.data.availableModels
+        : [],
+    });
+    assert.equal(resolved.availableModels.length, 3);
+
+    // Filter hanya model yang aktif
+    const activeOnly = getActiveAiModels(resolved);
+    assert.equal(activeOnly.length, 2);
+    assert.equal(activeOnly[0].name, "MIRA Standar");
+    assert.equal(activeOnly[1].name, "MIRA Troubleshooting");
+  });
+
+  it("menyediakan fallback model otomatis jika database belum memiliki daftar model", () => {
+    const resolved = resolveEffectiveAiConfig({
+      model: "gpt-6-luna",
+      available_models: [],
+    });
+    assert.equal(resolved.availableModels.length, 1);
+    assert.equal(resolved.availableModels[0].id, "gpt-6-luna");
+    assert.equal(resolved.availableModels[0].isActive, true);
+
+    const activeOnly = getActiveAiModels(resolved);
+    assert.equal(activeOnly.length, 1);
   });
 });
 

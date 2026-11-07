@@ -17,6 +17,7 @@ export const UI_STRINGS = {
   nav: {
     dashboard: "Dashboard",
     study: "Belajar per Topik",
+    materials: "Sumber Materi",
     tryout: "Tryout",
     chatAi: "MIRA AI",
     guide: "Panduan",

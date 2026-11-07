@@ -235,6 +235,7 @@ export const chatAiInputSchema = z.object({
     .default([]),
   conversationId: z.string().uuid().optional(),
   complexity: z.enum(["low", "medium", "high"]).default("low"),
+  model: z.string().trim().max(80).optional(),
 });
 
 export const renameConversationInputSchema = z.object({
@@ -248,6 +249,22 @@ export const renameConversationInputSchema = z.object({
 
 export const deleteConversationInputSchema = z.object({
   conversationId: z.string().uuid({ message: "ID obrolan tidak valid." }),
+});
+
+export const aiCustomModelSchema = z.object({
+  id: z
+    .string({ error: "ID model teknis harus diisi." })
+    .trim()
+    .min(1, { error: "ID model teknis tidak boleh kosong." })
+    .max(80, { error: "ID model teknis maksimal 80 karakter." }),
+  name: z
+    .string({ error: "Nama tampilan model harus diisi." })
+    .trim()
+    .min(1, { error: "Nama tampilan model tidak boleh kosong." })
+    .max(80, { error: "Nama tampilan model maksimal 80 karakter." }),
+  description: z.string().trim().max(160).optional(),
+  isActive: z.boolean().default(true),
+  isDefault: z.boolean().optional(),
 });
 
 export const aiDynamicSettingsInputSchema = z.object({
@@ -274,6 +291,7 @@ export const aiDynamicSettingsInputSchema = z.object({
     .int({ error: "Durasi reset kuota harus berupa bilangan bulat." })
     .min(1, { error: "Durasi reset kuota minimal 1 hari." })
     .max(30, { error: "Durasi reset kuota maksimal 30 hari." }),
+  availableModels: z.array(aiCustomModelSchema).optional(),
 });
 
 export function generateConversationTitle(firstPrompt: string): string {

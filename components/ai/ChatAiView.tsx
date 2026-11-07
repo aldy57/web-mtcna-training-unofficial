@@ -22,6 +22,7 @@ import {
 import { formatScorePercent } from "@/lib/scoring";
 import type {
   AiConversation,
+  AiCustomModel,
   AiQuotaStatus,
   ChatComplexity,
   Role,
@@ -31,6 +32,7 @@ export interface ChatAiViewProps {
   initialQuota: AiQuotaStatus | null;
   userRole: Role;
   userName: string;
+  activeModels?: AiCustomModel[];
 }
 
 interface ChatMessage {
@@ -82,17 +84,17 @@ const MODE_OPTIONS: ModeOption[] = [
   {
     key: "low",
     label: "Rendah",
-    description: "Ringkas, cepat, dan hemat",
+    description: "Cepat dan Ringan",
   },
   {
     key: "medium",
-    label: "Menengah",
-    description: "Seimbang, standar, dan lengkap",
+    label: "Sedang",
+    description: "Seimbang dan standar",
   },
   {
     key: "high",
     label: "Tinggi",
-    description: "Analisis mendalam, detail, dan komprehensif",
+    description: "Mendalam dan komprehensif",
   },
 ];
 
@@ -217,8 +219,11 @@ function generateMessageId(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-// Mode Dropdown selector mandiri bergaya Google Gemini
-interface ModeDropdownProps {
+// Dropdown Terpadu Model & Tingkat Penalaran bergaya Google Gemini
+interface GeminiModelModeDropdownProps {
+  models: AiCustomModel[];
+  selectedModel: string;
+  onSelectModel: (modelId: string) => void;
   complexity: ChatComplexity;
   onSelectComplexity: (mode: ChatComplexity) => void;
   disabled?: boolean;
@@ -227,15 +232,19 @@ interface ModeDropdownProps {
   buttonClassName?: string;
 }
 
-function ModeDropdown({
+function GeminiModelModeDropdown({
+  models,
+  selectedModel,
+  onSelectModel,
   complexity,
   onSelectComplexity,
   disabled = false,
   dropDirection = "up",
   align = "right",
   buttonClassName,
-}: ModeDropdownProps) {
+}: GeminiModelModeDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -247,12 +256,14 @@ function ModeDropdown({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        setIsSubmenuOpen(false);
       }
     }
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsOpen(false);
+        setIsSubmenuOpen(false);
       }
     }
 
@@ -265,28 +276,58 @@ function ModeDropdown({
     };
   }, [isOpen]);
 
-  const currentLabel =
-    MODE_OPTIONS.find((o) => o.key === complexity)?.label ?? "Rendah";
+  const hasMultipleModels = models.length > 1;
+  const currentModel =
+    models.find((m) => m.id === selectedModel) ||
+    models.find((m) => m.isDefault) ||
+    models[0];
+  const currentMode =
+    MODE_OPTIONS.find((o) => o.key === complexity) ?? MODE_OPTIONS[0];
 
+  // Jika model > 1: "[Nama Model] [Mode]" (contoh: "Argon Tinggi" atau "MIRA Standar Tinggi")
+  // Warna teks mode dibuat lebih pudar (abu-abu/muted) persis seperti Gemini
   const positionClasses =
     dropDirection === "up" ? "bottom-full mb-2" : "top-full mt-2";
-
   const alignClasses = align === "right" ? "right-0" : "left-0";
+  const isSubmenuVisible = isOpen && isSubmenuOpen;
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative shrink-0" ref={dropdownRef}>
       <button
         type="button"
         disabled={disabled}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          setIsOpen((prev) => !prev);
+          setIsSubmenuOpen(false);
+        }}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        title={
+          hasMultipleModels
+            ? `Model: ${currentModel?.name || "AI"} · Tingkat penalaran: ${currentMode.label}`
+            : `Tingkat penalaran: ${currentMode.label}`
+        }
         className={
           buttonClassName ??
-          "inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-neutral-100/90 hover:bg-neutral-200/80 px-3 py-1.5 text-xs font-semibold text-foreground transition-all cursor-pointer disabled:opacity-50"
+          "inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-neutral-100/90 hover:bg-neutral-200/80 px-3 py-1.5 text-xs text-foreground transition-all cursor-pointer disabled:opacity-50"
         }
       >
-        <span>{currentLabel}</span>
+        <span className="inline-flex items-center gap-1.5 truncate max-w-[150px] sm:max-w-[200px]">
+          {hasMultipleModels ? (
+            <>
+              <span className="text-foreground font-semibold truncate">
+                {currentModel?.name || "MIRA"}
+              </span>
+              <span className="text-neutral-500 dark:text-neutral-400 font-normal shrink-0">
+                {currentMode.label}
+              </span>
+            </>
+          ) : (
+            <span className="text-foreground font-semibold">
+              {currentMode.label}
+            </span>
+          )}
+        </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -295,7 +336,7 @@ function ModeDropdown({
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className={`h-3 w-3 text-muted transition-transform duration-200 ${
+          className={`h-3 w-3 text-neutral-500 dark:text-neutral-400 transition-transform duration-200 shrink-0 ${
             isOpen ? "rotate-180" : ""
           }`}
           aria-hidden="true"
@@ -307,59 +348,272 @@ function ModeDropdown({
       {isOpen && (
         <div
           role="listbox"
-          aria-label="Pilih mode kedalaman AI"
-          className={`absolute ${positionClasses} ${alignClasses} z-50 w-[270px] sm:w-80 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-border bg-surface p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-150`}
+          aria-label="Pilihan model dan tingkat penalaran AI"
+          className={`absolute ${positionClasses} ${alignClasses} z-50 w-[240px] sm:w-[260px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-border bg-surface p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-150`}
         >
-          {MODE_OPTIONS.map((opt) => {
-            const isSelected = opt.key === complexity;
-            return (
-              <button
-                key={opt.key}
-                type="button"
-                role="option"
-                aria-selected={isSelected}
-                onClick={() => {
-                  onSelectComplexity(opt.key);
-                  setIsOpen(false);
-                }}
-                className={`w-full flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${
-                  isSelected
-                    ? "bg-surface-selected/60"
-                    : "hover:bg-neutral-100/90"
-                }`}
-              >
-                <div className="w-4 pt-0.5 text-accent font-bold shrink-0">
-                  {isSelected && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-4 w-4 text-accent"
-                      aria-hidden="true"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className={`text-xs font-semibold ${
-                      isSelected ? "text-accent" : "text-foreground"
+          {/* JIKA HANYA 1 MODEL: Tampilkan langsung pilihan mode Rendah, Menengah, Tinggi */}
+          {!hasMultipleModels ? (
+            <div className="space-y-0.5">
+              {MODE_OPTIONS.map((opt) => {
+                const isSelected = opt.key === complexity;
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => {
+                      onSelectComplexity(opt.key);
+                      setIsOpen(false);
+                    }}
+                    className={`w-full flex items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors cursor-pointer ${
+                      isSelected
+                        ? "bg-surface-selected/60"
+                        : "hover:bg-neutral-100/90"
                     }`}
                   >
-                    {opt.label}
-                  </p>
-                  <p className="text-[11px] text-muted leading-relaxed mt-0.5">
-                    {opt.description}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
+                    <div className="w-4 pt-0.5 shrink-0 flex items-center justify-center">
+                      {isSelected && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4 text-foreground"
+                          aria-hidden="true"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground">
+                        {opt.label}
+                      </p>
+                      <p className="text-[11px] text-muted leading-relaxed mt-0.5">
+                        {opt.description}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            /* JIKA > 1 MODEL: Tampilkan daftar model + submenu Tingkat penalaran persis gaya Gemini */
+            <div className="space-y-0.5">
+              {/* Daftar Model */}
+              {models.map((item) => {
+                const isSelected = item.id === currentModel?.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => {
+                      onSelectModel(item.id);
+                      setIsOpen(false);
+                      setIsSubmenuOpen(false);
+                    }}
+                    className={`w-full flex items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors cursor-pointer ${
+                      isSelected
+                        ? "bg-surface-selected/60"
+                        : "hover:bg-neutral-100/90"
+                    }`}
+                  >
+                    <div className="w-4 pt-0.5 shrink-0 flex items-center justify-center">
+                      {isSelected && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4 text-foreground"
+                          aria-hidden="true"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-foreground truncate">
+                          {item.name}
+                        </span>
+                      </div>
+                      {item.description && (
+                        <p className="text-[11px] text-muted leading-relaxed mt-0.5 truncate">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+
+              {/* Garis Pemisah */}
+              <div className="my-1 border-t border-border/70" />
+
+              {/* Baris Tingkat penalaran dengan Submenu Flyout (Desktop) & Accordion (Mobile) */}
+              <div
+                className="relative"
+                onMouseEnter={() => setIsSubmenuOpen(true)}
+                onMouseLeave={() => setIsSubmenuOpen(false)}
+              >
+                <button
+                  type="button"
+                  onClick={() => setIsSubmenuOpen((prev) => !prev)}
+                  className={`w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-foreground transition-colors cursor-pointer ${
+                    isSubmenuVisible
+                      ? "bg-neutral-100/90"
+                      : "hover:bg-neutral-100/90"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-4 shrink-0" />
+                    <span>Tingkat penalaran</span>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`h-4 w-4 text-muted transition-transform duration-150 ${
+                      isSubmenuVisible ? "translate-x-0.5 text-foreground" : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+
+                {/* Submenu Flyout untuk Layar Desktop (sm ke atas) */}
+                {isSubmenuVisible && (
+                  <div
+                    role="listbox"
+                    aria-label="Pilihan tingkat penalaran"
+                    className={`hidden sm:block absolute ${
+                      align === "right" ? "right-full mr-1.5" : "left-full ml-1.5"
+                    } ${
+                      dropDirection === "up" ? "bottom-0" : "top-0"
+                    } z-50 w-56 rounded-2xl border border-border bg-surface p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-150`}
+                  >
+                    <div className="space-y-0.5">
+                      {MODE_OPTIONS.map((opt) => {
+                        const isSelected = opt.key === complexity;
+                        return (
+                          <button
+                            key={opt.key}
+                            type="button"
+                            role="option"
+                            aria-selected={isSelected}
+                            onClick={() => {
+                              onSelectComplexity(opt.key);
+                              setIsOpen(false);
+                              setIsSubmenuOpen(false);
+                            }}
+                            className={`w-full flex items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors cursor-pointer ${
+                              isSelected
+                                ? "bg-surface-selected/60"
+                                : "hover:bg-neutral-100/90"
+                            }`}
+                          >
+                            <div className="w-4 pt-0.5 shrink-0 flex items-center justify-center">
+                              {isSelected && (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="h-4 w-4 text-foreground"
+                                  aria-hidden="true"
+                                >
+                                  <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-foreground">
+                                {opt.label}
+                              </p>
+                              <p className="text-[11px] text-muted leading-relaxed mt-0.5">
+                                {opt.description}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Submenu Accordion Khusus Layar Mobile (< sm) agar tidak terpotong tepi layar */}
+                {isSubmenuVisible && (
+                  <div className="sm:hidden pl-3 pr-1 py-1 space-y-0.5 border-t border-border/50 bg-neutral-50/70 rounded-xl mt-1">
+                    {MODE_OPTIONS.map((opt) => {
+                      const isSelected = opt.key === complexity;
+                      return (
+                        <button
+                          key={opt.key}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => {
+                            onSelectComplexity(opt.key);
+                            setIsOpen(false);
+                            setIsSubmenuOpen(false);
+                          }}
+                          className={`w-full flex items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors cursor-pointer ${
+                            isSelected
+                              ? "bg-surface-selected/60"
+                              : "hover:bg-neutral-100/90"
+                          }`}
+                        >
+                          <div className="w-4 pt-0.5 shrink-0 flex items-center justify-center">
+                            {isSelected && (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="h-4 w-4 text-foreground"
+                                aria-hidden="true"
+                              >
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-foreground">
+                              {opt.label}
+                            </p>
+                            <p className="text-[11px] text-muted leading-relaxed mt-0.5">
+                              {opt.description}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -367,15 +621,23 @@ function ModeDropdown({
 }
 
 const CHAT_COMPLEXITY_STORAGE_KEY = "mira_chat_complexity";
+const CHAT_MODEL_STORAGE_KEY = "mira_chat_selected_model";
 
 function isValidComplexity(val: string | null): val is ChatComplexity {
   return val === "low" || val === "medium" || val === "high";
 }
 
 let complexityListeners: Array<() => void> = [];
+let modelListeners: Array<() => void> = [];
 
 function emitComplexityChange() {
   for (const listener of complexityListeners) {
+    listener();
+  }
+}
+
+function emitModelChange() {
+  for (const listener of modelListeners) {
     listener();
   }
 }
@@ -414,12 +676,63 @@ const chatComplexityStore = {
   },
 };
 
+const chatModelStore = {
+  subscribe(listener: () => void) {
+    modelListeners = [...modelListeners, listener];
+    return () => {
+      modelListeners = modelListeners.filter((l) => l !== listener);
+    };
+  },
+  getSnapshot(): string {
+    if (typeof window === "undefined") {
+      return "";
+    }
+    try {
+      return localStorage.getItem(CHAT_MODEL_STORAGE_KEY) || "";
+    } catch {
+      // Abaikan jika akses localStorage dibatasi lingkungan browser
+      return "";
+    }
+  },
+  getServerSnapshot(): string {
+    return "";
+  },
+  setModel(newModelId: string) {
+    try {
+      localStorage.setItem(CHAT_MODEL_STORAGE_KEY, newModelId);
+    } catch {
+      // Abaikan jika akses localStorage dibatasi lingkungan browser
+    }
+    emitModelChange();
+  },
+};
+
 export function ChatAiView({
   initialQuota,
   userRole,
   userName,
+  activeModels = [],
 }: ChatAiViewProps) {
   const searchParams = useSearchParams();
+  const defaultModelId =
+    activeModels.find((m) => m.isDefault)?.id ||
+    activeModels[0]?.id ||
+    "";
+  const rawSavedModel = useSyncExternalStore(
+    chatModelStore.subscribe,
+    chatModelStore.getSnapshot,
+    chatModelStore.getServerSnapshot,
+  );
+  // Gunakan model yang tersimpan di localStorage bila masih aktif; jika tidak ada/sudah tidak aktif, gunakan default
+  const selectedModel =
+    rawSavedModel && activeModels.some((m) => m.id === rawSavedModel)
+      ? rawSavedModel
+      : defaultModelId;
+
+  function handleModelChange(modelId: string) {
+    chatModelStore.setModel(modelId);
+  }
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [quota, setQuota] = useState<AiQuotaStatus | null>(initialQuota);
@@ -472,6 +785,17 @@ export function ChatAiView({
       });
     }
   }, [searchParams]);
+
+  // Dengarkan event pembuatan chat baru (misal saat menu MIRA AI di sidebar diklik)
+  useEffect(() => {
+    function handleNewChatEvent() {
+      handleNewChat();
+    }
+    window.addEventListener("mira-ai:new-chat", handleNewChatEvent);
+    return () => {
+      window.removeEventListener("mira-ai:new-chat", handleNewChatEvent);
+    };
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -564,6 +888,7 @@ export function ChatAiView({
         history: historyPayload,
         conversationId: activeConversationId ?? undefined,
         complexity,
+        model: selectedModel || undefined,
       });
 
       if (!res.ok) {
@@ -634,7 +959,7 @@ export function ChatAiView({
       data-chat-view
       className="flex flex-col h-full max-w-4xl w-full mx-auto px-2 sm:px-4 pt-2 pb-2 min-h-0"
     >
-      {/* Bar Atas: Tombol Riwayat, Obrolan Baru, & Mode (mobile) */}
+      {/* Bar Atas: Tombol Riwayat, Obrolan Baru, & Dropdown Terpadu (Mobile) */}
       <div className="flex items-center justify-between gap-1 sm:gap-2 pb-2 shrink-0">
         <button
           type="button"
@@ -665,15 +990,18 @@ export function ChatAiView({
             </button>
           )}
 
-          {/* Mode Dropdown khusus mobile di bar atas sejajar dengan riwayat & obrolan baru */}
+          {/* Dropdown Terpadu Model & Tingkat Penalaran khusus mobile di bar atas */}
           <div className="sm:hidden shrink-0">
-            <ModeDropdown
+            <GeminiModelModeDropdown
+              models={activeModels}
+              selectedModel={selectedModel}
+              onSelectModel={handleModelChange}
               complexity={complexity}
               onSelectComplexity={handleComplexityChange}
               disabled={isPending}
               dropDirection="down"
               align="right"
-              buttonClassName="inline-flex items-center gap-1 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+              buttonClassName="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
             />
           </div>
         </div>
@@ -890,15 +1218,18 @@ export function ChatAiView({
             style={{ outline: "none", boxShadow: "none" }}
           />
 
-          {/* Mode Dropdown bergaya Gemini di sebelah kiri tombol kirim (Desktop / Layar >= sm) */}
+          {/* Dropdown Terpadu Model & Tingkat Penalaran bergaya Gemini di sebelah kiri tombol kirim (Desktop / Layar >= sm) */}
           <div className="hidden sm:block shrink-0">
-            <ModeDropdown
+            <GeminiModelModeDropdown
+              models={activeModels}
+              selectedModel={selectedModel}
+              onSelectModel={handleModelChange}
               complexity={complexity}
               onSelectComplexity={handleComplexityChange}
               disabled={isPending}
               dropDirection="up"
               align="right"
-              buttonClassName="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-neutral-100/90 hover:bg-neutral-200/80 px-3 py-1.5 text-xs font-semibold text-foreground transition-all cursor-pointer disabled:opacity-50"
+              buttonClassName="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-neutral-100/90 hover:bg-neutral-200/80 px-3 py-1.5 text-xs text-foreground transition-all cursor-pointer disabled:opacity-50"
             />
           </div>
 

@@ -26,6 +26,9 @@ export interface ReferenceSource {
   id: string;
   title: string;
   url: string;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface QuestionTranslationContent {
@@ -205,11 +208,20 @@ export interface AiChatMessageRecord {
   createdAt: string;
 }
 
+export interface AiCustomModel {
+  id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  isDefault?: boolean;
+}
+
 export interface AiDynamicSettings {
   baseUrl: string;
   model: string;
   userTokenBudget: number;
   quotaResetDays: number;
+  availableModels: AiCustomModel[];
   isCustomized: boolean;
   updatedAt: string | null;
   updatedBy: string | null;
@@ -220,6 +232,7 @@ export interface AiDynamicSettingsInput {
   model: string;
   userTokenBudget: number;
   quotaResetDays: number;
+  availableModels?: AiCustomModel[];
 }
 
 

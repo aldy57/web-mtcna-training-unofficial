@@ -9,6 +9,10 @@ import {
   type ChatAiInput,
 } from "@/lib/ai/ai-config";
 import { callAiChatCompletion } from "@/lib/ai/client";
+import {
+  fetchDynamicAiSettings,
+  getActiveAiModels,
+} from "@/lib/ai/dynamic-settings";
 import { getCachedAiExplanation } from "@/lib/ai/explanation-cache";
 import {
   answerParticipantQuestion,
@@ -493,7 +497,29 @@ export async function sendChatAiMessageAction(
       complexity: parsed.data.complexity,
     });
 
-    const completion = await callAiChatCompletion({ messages });
+    const effectiveSettings = await fetchDynamicAiSettings();
+    const activeModels = getActiveAiModels(effectiveSettings);
+
+    let targetModel = effectiveSettings.model;
+    if (parsed.data.model) {
+      const matched = activeModels.find(
+        (m) =>
+          m.id.toLowerCase() === parsed.data.model?.toLowerCase() && m.isActive,
+      );
+      if (matched) {
+        targetModel = matched.id;
+      }
+    } else {
+      const defaultModel = activeModels.find((m) => m.isDefault);
+      if (defaultModel) {
+        targetModel = defaultModel.id;
+      }
+    }
+
+    const completion = await callAiChatCompletion({
+      messages,
+      model: targetModel,
+    });
 
     let updatedQuota: AiQuotaStatus | null = null;
     if (isParticipant) {

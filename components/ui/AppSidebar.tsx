@@ -103,6 +103,26 @@ function GuideIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
+function MaterialIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+      <path d="M6 6h10" />
+      <path d="M6 10h10" />
+    </svg>
+  );
+}
+
 function UserIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg
@@ -206,6 +226,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
         isActive: (path) => path.startsWith("/belajar"),
       },
       {
+        href: "/materi",
+        label: UI_STRINGS.nav.materials,
+        icon: MaterialIcon,
+        isActive: (path) => path.startsWith("/materi"),
+      },
+      {
         href: "/tryout",
         label: UI_STRINGS.nav.tryout,
         icon: TryoutIcon,
@@ -246,6 +272,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
         isActive: (path) => path.startsWith("/admin/soal"),
       },
       {
+        href: "/admin/materi",
+        label: "Sumber Materi",
+        icon: MaterialIcon,
+        isActive: (path) => path.startsWith("/admin/materi"),
+      },
+      {
         href: "/admin/ai",
         label: "Layanan & Kuota AI",
         icon: SparklesIcon,
@@ -269,12 +301,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
         label: "Log Audit",
         icon: ShieldCheckIcon,
         isActive: (path) => path.startsWith("/admin/audit"),
-      },
-      {
-        href: "/panduan",
-        label: UI_STRINGS.nav.guide,
-        icon: GuideIcon,
-        isActive: (path) => path === "/panduan",
       },
     );
   }
@@ -300,6 +326,11 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   key={link.href}
                   href={link.href}
                   prefetch={false}
+                  onClick={() => {
+                    if (link.href === "/chat-ai") {
+                      window.dispatchEvent(new CustomEvent("mira-ai:new-chat"));
+                    }
+                  }}
                   className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 cursor-pointer ${
                     active
                       ? "bg-surface-selected text-accent font-semibold border border-accent/20 shadow-2xs"
@@ -456,7 +487,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
                       key={link.href}
                       href={link.href}
                       prefetch={false}
-                      onClick={closeMobile}
+                      onClick={() => {
+                        closeMobile();
+                        if (link.href === "/chat-ai") {
+                          window.dispatchEvent(new CustomEvent("mira-ai:new-chat"));
+                        }
+                      }}
                       className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150 cursor-pointer ${
                         active
                           ? "bg-surface-selected text-accent font-semibold border border-accent/20"
