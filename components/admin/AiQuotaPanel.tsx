@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { AdminAiUsageHistory } from "@/components/admin/AdminAiUsageHistory";
 import { AiDynamicSettingsCard } from "@/components/admin/AiDynamicSettingsCard";
 import { AiResetCountdown } from "@/components/ai/AiResetCountdown";
 import { ActionMenu } from "@/components/ui/ActionMenu";
@@ -20,6 +21,7 @@ import type {
   AiDynamicSettings,
   AiGlobalQuotaStatus,
   AiQuotaStatus,
+  AiUsageLogEntry,
   UserProfile,
 } from "@/lib/types";
 
@@ -29,6 +31,7 @@ interface AiQuotaPanelProps {
   participants: UserProfile[];
   initialQuotas: Record<string, AiQuotaStatus>;
   cachedExplanationCount: number;
+  usageLogs?: readonly AiUsageLogEntry[];
 }
 
 const QUICK_ADD_PERCENT = 50;
@@ -81,6 +84,7 @@ export function AiQuotaPanel({
   participants,
   initialQuotas,
   cachedExplanationCount,
+  usageLogs = [],
 }: AiQuotaPanelProps) {
   const [globalStatus, setGlobalStatus] =
     useState<AiGlobalQuotaStatus>(initialGlobalStatus);
@@ -492,6 +496,9 @@ export function AiQuotaPanel({
           </>
         )}
       </Card>
+
+      {/* Kartu Riwayat Penggunaan Token Seluruh Pengguna */}
+      <AdminAiUsageHistory logs={usageLogs} />
     </div>
   );
 }

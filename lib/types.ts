@@ -151,6 +151,8 @@ export interface AiQuotaStatus {
 export interface AiUsageLogEntry {
   id: string;
   userId: string;
+  userName?: string;
+  userEmail?: string;
   feature: AiFeature;
   questionId: string | null;
   attemptId: string | null;

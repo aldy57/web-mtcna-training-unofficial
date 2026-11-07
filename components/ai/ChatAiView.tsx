@@ -20,6 +20,7 @@ import {
   renameConversationAction,
 } from "@/lib/actions/chat-history-actions";
 import { formatScorePercent } from "@/lib/scoring";
+import { formatAppTime } from "@/lib/format-date";
 import type {
   AiConversation,
   AiCustomModel,
@@ -1131,10 +1132,7 @@ export function ChatAiView({
                         isUser ? "text-white/70" : "text-muted"
                       }`}
                     >
-                      {new Date(message.createdAt).toLocaleTimeString("id-ID", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {formatAppTime(message.createdAt)}
                     </div>
                   </div>
                 </div>

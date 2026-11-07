@@ -8,6 +8,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { getUserDashboardStats } from "@/lib/attempts-repo";
 import { requireRole } from "@/lib/auth";
 import { LANGUAGE_NAMES, PASSING_SCORE_PERCENT } from "@/lib/constants";
+import { formatAppDateTime } from "@/lib/format-date";
 import { formatScorePercent, hasPassedTryout } from "@/lib/scoring";
 import { TOPICS, TOPIC_KEYS } from "@/lib/topics";
 import type { Attempt } from "@/lib/types";
@@ -178,17 +179,6 @@ function formatAttemptLabel(attempt: Attempt): string {
     return "Latihan Ulang (Remedial)";
   }
   return attempt.topic ? `Belajar: ${TOPICS[attempt.topic]}` : "Belajar Topik";
-}
-
-function formatShortDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat("id-ID", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 async function DashboardContent() {
@@ -398,7 +388,7 @@ async function DashboardContent() {
                         {LANGUAGE_NAMES[item.language]}
                       </td>
                       <td className="py-3 px-3 text-xs text-muted">
-                        {formatShortDate(item.startedAt)}
+                        {formatAppDateTime(item.startedAt)}
                       </td>
                       <td className="py-3 px-3 tabular-nums">
                         {isOngoing ? (

@@ -41,6 +41,7 @@ async function AiManagementContent() {
         participants={aiData.participants}
         initialQuotas={aiData.participantQuotas}
         cachedExplanationCount={aiData.cachedExplanationCount}
+        usageLogs={aiData.usageLogs}
       />
     </div>
   );

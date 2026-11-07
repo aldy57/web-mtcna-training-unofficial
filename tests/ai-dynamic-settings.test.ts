@@ -140,13 +140,13 @@ describe("lib/ai — Pengaturan Konfigurasi AI Dinamis (Admin)", () => {
   });
 
   it("memformat tanggal dan waktu ke format dd/mm/yy 24h", () => {
-    // 5 November 2026 jam 18:05 lokal
-    const localDate = new Date(2026, 10, 5, 18, 5, 0);
-    assert.equal(formatAppDateTime(localDate), "05/11/26 18:05");
+    // 5 November 2026 jam 18:05 UTC+7 (11:05 UTC)
+    const date1 = new Date("2026-11-05T11:05:00.000Z");
+    assert.equal(formatAppDateTime(date1), "05/11/26 18:05");
 
-    // Tanggal 9 Januari 2027 jam 09:02 lokal
-    const singleDigitDate = new Date(2027, 0, 9, 9, 2, 0);
-    assert.equal(formatAppDateTime(singleDigitDate), "09/01/27 09:02");
+    // Tanggal 9 Januari 2027 jam 09:02 UTC+7 (02:02 UTC)
+    const date2 = new Date("2027-01-09T02:02:00.000Z");
+    assert.equal(formatAppDateTime(date2), "09/01/27 09:02");
 
     // Null atau undefined
     assert.equal(formatAppDateTime(null), "—");

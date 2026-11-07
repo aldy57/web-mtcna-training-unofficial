@@ -400,6 +400,39 @@ export async function consumeUserAiQuota(params: {
   });
 }
 
+export async function getAllAiUsageHistory(
+  limit: number = 200,
+): Promise<AiUsageLogEntry[]> {
+  if (!hasSupabasePublicEnv()) {
+    return [];
+  }
+
+  try {
+    const admin = createSupabaseAdminClient();
+    const { data } = await admin
+      .from("ai_usage_logs")
+      .select(
+        "id, user_id, feature, question_id, attempt_id, tokens_used, percent_used, created_at",
+      )
+      .order("created_at", { ascending: false })
+      .limit(limit)
+      .returns<UsageLogRow[]>();
+
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      feature: row.feature,
+      questionId: row.question_id,
+      attemptId: row.attempt_id,
+      tokensUsed: Number(row.tokens_used ?? 0),
+      percentUsed: Number(row.percent_used),
+      createdAt: row.created_at,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function getUserAiUsageHistory(
   userId: string,
   limit: number = DEFAULT_USAGE_HISTORY_LIMIT,
