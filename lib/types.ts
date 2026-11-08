@@ -237,5 +237,26 @@ export interface AiDynamicSettingsInput {
   availableModels?: AiCustomModel[];
 }
 
+export interface AppBrandingSettings {
+  appName: string;
+  appFullName: string;
+  logoIconUrl: string;
+  logoWithTextUrl: string;
+  logoUrl: string;
+  faviconUrl: string;
+  updatedAt?: string | null;
+  updatedBy?: string | null;
+}
+
+export interface AppBrandingInput {
+  appName: string;
+  appFullName: string;
+  logoIconUrl: string;
+  logoWithTextUrl: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+}
+
+
 
 

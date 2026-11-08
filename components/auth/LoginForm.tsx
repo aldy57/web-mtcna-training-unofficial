@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
@@ -11,8 +10,13 @@ import { PasswordInput } from "@/components/ui/PasswordInput";
 import { StatusPopup } from "@/components/ui/PopupModal";
 import { loginAction, type FormActionState } from "@/lib/actions/auth-actions";
 import { showToast } from "@/lib/toast";
+import type { AppBrandingSettings } from "@/lib/types";
 
-export function LoginForm() {
+export interface LoginFormProps {
+  branding?: AppBrandingSettings;
+}
+
+export function LoginForm({ branding }: LoginFormProps = {}) {
   const router = useRouter();
   const [state, action, isPending] = useActionState<FormActionState, FormData>(
     loginAction,
@@ -36,7 +40,7 @@ export function LoginForm() {
       const toastPayload = {
         type: "success" as const,
         title: "Login Berhasil!",
-        message: "Selamat datang di platform MIRA MTCNA Training.",
+        message: `Selamat datang di ${branding?.appName || "platform pembelajaran jaringan"}.`,
         duration: 5000,
       };
 
@@ -46,7 +50,7 @@ export function LoginForm() {
       router.replace(state.data);
       router.refresh();
     }
-  }, [hasSubmitted, state, router]);
+  }, [hasSubmitted, state, router, branding?.appName]);
 
   // Safety net timeout: jika terjadi gangguan jaringan atau pengalihan tertahan lebih dari 10 detik,
   // kembalikan kontrol ke form login agar pengguna tidak terjebak
@@ -76,13 +80,15 @@ export function LoginForm() {
         aria-label="Menyiapkan dashboard"
       >
         <div className="flex flex-col items-center space-y-4">
-          {/* Logo MIRA */}
-          <Image
-            src="/mira-logo.svg"
-            alt="MIRA"
-            width={130}
-            height={46}
-            priority
+          {/* Logo dengan Teks Aplikasi */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={
+              branding?.logoWithTextUrl ||
+              branding?.logoUrl ||
+              "/network-router-logo-text.svg"
+            }
+            alt={branding?.appName || "Logo"}
             className="h-8.5 w-auto object-contain opacity-90"
           />
 

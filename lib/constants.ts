@@ -29,4 +29,16 @@ export const LANGUAGE_NAMES = {
   en: "English",
 } as const;
 
+export const DEFAULT_BRANDING = {
+  appName: "Web Belajar Jaringan Dasar dan AI Jaringan",
+  appFullName: "Web Belajar Jaringan Dasar dan AI Jaringan",
+  logoIconUrl: "/network-router-icon.svg",
+  logoWithTextUrl: "/network-router-logo-text.svg",
+  logoUrl: "/network-router-logo-text.svg",
+  faviconUrl: "/network-router-icon.svg",
+  updatedAt: null,
+  updatedBy: null,
+} as const;
+
+
 

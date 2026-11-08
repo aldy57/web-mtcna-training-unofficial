@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { AppFooter } from "@/components/ui/AppFooter";
@@ -11,6 +10,25 @@ import { NavigationScrollRestorer } from "@/components/ui/NavigationScrollRestor
 import { SidebarProvider } from "@/components/ui/SidebarContext";
 import { ToastContainer } from "@/components/ui/Toast";
 import { getOptionalUser } from "@/lib/auth";
+import { getAppBranding } from "@/lib/branding-repo";
+
+async function HeaderLogo() {
+  const branding = await getAppBranding();
+  return (
+    <Link
+      href="/"
+      className="group flex items-center shrink-0 transition-opacity hover:opacity-85 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-lg"
+      aria-label={`${branding.appName} - Beranda`}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={branding.logoWithTextUrl || branding.logoUrl || "/network-router-logo-text.svg"}
+        alt={branding.appName}
+        className="h-8.5 w-auto object-contain"
+      />
+    </Link>
+  );
+}
 
 async function UserNavigationItems() {
   const user = await getOptionalUser();
@@ -46,36 +64,19 @@ export function AppHeader() {
   return (
     <header className="fixed top-0 left-0 right-0 z-30 w-full border-b border-border bg-surface/95 backdrop-blur-md">
       <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6">
-        {/* Sisi Kiri: Tombol Hamburger Mobile (khusus user login) + Logo */}
+        {/* Sisi Kiri: Tombol Hamburger Mobile (khusus user login) + Logo Murni Ikon */}
         <div className="flex items-center gap-3">
           <Suspense fallback={null}>
             <UserMobileToggle />
           </Suspense>
 
-          <Link
-            href="/"
-            className="group flex items-center shrink-0 transition-opacity hover:opacity-85 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-lg"
-            aria-label="MIRA - Beranda"
+          <Suspense
+            fallback={
+              <div className="h-9 w-9 rounded-lg bg-surface-soft animate-pulse" />
+            }
           >
-            {/* Logo Mobile (Tetap menggunakan mira-logo.svg) */}
-            <Image
-              src="/mira-logo.svg"
-              alt="MIRA - MikroTik Intelligence Review & Assessment"
-              width={106}
-              height={38}
-              priority
-              className="h-8.5 w-auto object-contain md:hidden"
-            />
-            {/* Logo Desktop (Menggunakan mira-logo-withtext.svg) */}
-            <Image
-              src="/mira-logo-withtext.svg"
-              alt="MIRA - MikroTik Intelligence Review & Assessment"
-              width={264}
-              height={38}
-              priority
-              className="hidden h-8.5 w-auto object-contain md:block"
-            />
-          </Link>
+            <HeaderLogo />
+          </Suspense>
         </div>
 
         {/* Sisi Kanan: Ikon Profil & Tombol Logout (atau Masuk/Daftar) */}

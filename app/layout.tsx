@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppShell } from "@/components/ui/AppShell";
+import { getAppBranding } from "@/lib/branding-repo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,22 +14,34 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "MIRA · MikroTik Intelligence Review & Assessment",
-    template: "%s · MIRA",
-  },
-  description:
-    "MIRA (MikroTik Intelligence Review & Assessment) — Platform latihan sertifikasi MikroTik MTCNA, simulasi tryout dwibahasa (Indonesia & English), dan tutor cerdas RouterOS.",
-  icons: {
-    icon: [
-      { url: "/mira.svg", type: "image/svg+xml" },
-      { url: "/mira.png", type: "image/png" },
-    ],
-    shortcut: "/mira.png",
-    apple: "/mira.png",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const branding = await getAppBranding();
+  return {
+    title: {
+      default: branding.appName,
+      template: `%s · ${branding.appName}`,
+    },
+    description: `${branding.appFullName} — Platform latihan dan pembelajaran jaringan komputer serta AI tutor jaringan.`,
+    icons: {
+      icon: [
+        {
+          url:
+            branding.logoIconUrl ||
+            branding.faviconUrl ||
+            "/network-router-icon.svg",
+        },
+      ],
+      shortcut:
+        branding.logoIconUrl ||
+        branding.faviconUrl ||
+        "/network-router-icon.svg",
+      apple:
+        branding.logoIconUrl ||
+        branding.faviconUrl ||
+        "/network-router-icon.svg",
+    },
+  };
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
