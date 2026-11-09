@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Notice } from "@/components/ui/Notice";
@@ -14,10 +15,17 @@ import type { AppBrandingSettings } from "@/lib/types";
 
 export interface LoginFormProps {
   branding?: AppBrandingSettings;
+  initialError?: string;
+  nextUrl?: string;
 }
 
-export function LoginForm({ branding }: LoginFormProps = {}) {
+export function LoginForm({
+  branding,
+  initialError,
+  nextUrl,
+}: LoginFormProps = {}) {
   const router = useRouter();
+  const oauthError = initialError || null;
   const [state, action, isPending] = useActionState<FormActionState, FormData>(
     loginAction,
     null,
@@ -121,11 +129,25 @@ export function LoginForm({ branding }: LoginFormProps = {}) {
       </div>
 
       <Card className="w-full space-y-6">
-        {state && !state.ok && (
+        {((state && !state.ok) || oauthError) && (
           <Notice variant="danger">
-            <p>{state.error}</p>
+            <p>{state && !state.ok ? state.error : oauthError}</p>
           </Notice>
         )}
+
+        {/* Tombol Masuk dengan Google */}
+        <div className="space-y-4">
+          <GoogleSignInButton label="Masuk dengan Google" nextUrl={nextUrl} />
+
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-border" />
+            </div>
+            <span className="relative bg-surface px-3 text-xs font-medium text-muted">
+              atau masuk dengan email
+            </span>
+          </div>
+        </div>
 
         <form action={action} onSubmit={handleFormSubmit} className="space-y-4" noValidate>
           <div className="grid gap-4 md:grid-cols-2">

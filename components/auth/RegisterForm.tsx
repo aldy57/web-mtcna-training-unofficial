@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Notice } from "@/components/ui/Notice";
@@ -13,8 +14,14 @@ import {
   type FormActionState,
 } from "@/lib/actions/auth-actions";
 
-export function RegisterForm() {
+export interface RegisterFormProps {
+  initialError?: string;
+  nextUrl?: string;
+}
+
+export function RegisterForm({ initialError, nextUrl }: RegisterFormProps = {}) {
   const router = useRouter();
+  const oauthError = initialError || null;
   const [state, action, isPending] = useActionState<FormActionState, FormData>(
     registerAction,
     null,
@@ -46,11 +53,25 @@ export function RegisterForm() {
       </div>
 
       <Card className="w-full space-y-6">
-        {state && !state.ok && (
+        {((state && !state.ok) || oauthError) && (
           <Notice variant="danger">
-            <p>{state.error}</p>
+            <p>{state && !state.ok ? state.error : oauthError}</p>
           </Notice>
         )}
+
+        {/* Tombol Daftar dengan Google */}
+        <div className="space-y-4">
+          <GoogleSignInButton label="Daftar dengan Google" nextUrl={nextUrl} />
+
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-border" />
+            </div>
+            <span className="relative bg-surface px-3 text-xs font-medium text-muted">
+              atau daftar dengan email
+            </span>
+          </div>
+        </div>
 
         <form action={action} className="space-y-4" noValidate>
           <div className="grid gap-4 md:grid-cols-2">

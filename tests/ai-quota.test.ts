@@ -147,6 +147,51 @@ describe("lib/ai/quota — perhitungan kuota persentase & reset 1 hari", () => {
     assert.equal(afterReset.resetAt, null);
   });
 
+  it("mereset kuota parsial (belum 0%) kembali ke 100% setelah melewati siklus 1 hari dari periodStartedAt", () => {
+    const periodStartIso = "2026-11-07T22:01:00.000Z";
+    const nowIsoStillValid = "2026-11-08T20:00:00.000Z"; // belum 24 jam
+    const nowIsoExpired = "2026-11-09T14:00:00.000Z"; // hampir 40 jam (> 24 jam)
+
+    // Skenario: resetAt bernilai null karena kuota belum habis (sisa 16.4%)
+    assert.equal(
+      shouldResetQuota(null, nowIsoStillValid, periodStartIso, 1),
+      false,
+    );
+    assert.equal(
+      shouldResetQuota(null, nowIsoExpired, periodStartIso, 1),
+      true,
+    );
+
+    // Sebelum reset (belum 24 jam)
+    const beforeExpiry = calculateQuotaStatus({
+      userId: "00000000-0000-4000-8000-000000000001",
+      tokensUsed: 167164,
+      periodStartedAt: periodStartIso,
+      resetAt: null,
+      tokenBudget: 200000,
+      resetDays: 1,
+      nowIso: nowIsoStillValid,
+    });
+    assert.equal(beforeExpiry.usedPercent, 83.58);
+    assert.equal(beforeExpiry.remainingPercent, 16.42);
+
+    // Setelah reset (setelah 24 jam berlalu dari periodStartedAt)
+    const afterExpiry = calculateQuotaStatus({
+      userId: "00000000-0000-4000-8000-000000000001",
+      tokensUsed: 167164,
+      periodStartedAt: periodStartIso,
+      resetAt: null,
+      tokenBudget: 200000,
+      resetDays: 1,
+      nowIso: nowIsoExpired,
+    });
+    assert.equal(afterExpiry.tokensUsed, 0);
+    assert.equal(afterExpiry.usedPercent, 0);
+    assert.equal(afterExpiry.remainingPercent, 100);
+    assert.equal(afterExpiry.isExhausted, false);
+    assert.equal(afterExpiry.periodStartedAt, nowIsoExpired);
+  });
+
   it("mendukung reset dan penambahan kuota manual oleh admin", () => {
     const partial = applyAdminQuotaAdjustment({
       currentTokensUsed: 24000,

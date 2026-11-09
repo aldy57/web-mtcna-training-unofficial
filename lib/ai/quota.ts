@@ -70,16 +70,35 @@ export interface AdminAdjustQuotaParams {
 export function shouldResetQuota(
   resetAtIso: string | null,
   nowIso: string = new Date().toISOString(),
+  periodStartedAtIso?: string | null,
+  resetDays: number = DEFAULT_AI_QUOTA_RESET_DAYS,
 ): boolean {
-  if (!resetAtIso) {
-    return false;
-  }
-  const resetTimestamp = Date.parse(resetAtIso);
   const nowTimestamp = Date.parse(nowIso);
-  if (Number.isNaN(resetTimestamp) || Number.isNaN(nowTimestamp)) {
+  if (Number.isNaN(nowTimestamp)) {
     return false;
   }
-  return nowTimestamp >= resetTimestamp;
+
+  // 1. Jika reset_at ditentukan (misal saat kuota habis), cek apakah sudah melewati jadwal reset_at
+  if (resetAtIso) {
+    const resetTimestamp = Date.parse(resetAtIso);
+    if (!Number.isNaN(resetTimestamp) && nowTimestamp >= resetTimestamp) {
+      return true;
+    }
+  }
+
+  // 2. Jika masa periode reset_days sudah terlewati sejak pemakaian pertama dimulai
+  if (periodStartedAtIso) {
+    const periodStartTimestamp = Date.parse(periodStartedAtIso);
+    if (!Number.isNaN(periodStartTimestamp)) {
+      const resetThresholdMs =
+        periodStartTimestamp + Math.max(1, resetDays) * MILLISECONDS_PER_DAY;
+      if (nowTimestamp >= resetThresholdMs) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 export function calculatePercentUsed(
@@ -114,7 +133,12 @@ export function calculateQuotaStatus(
     }
   }
 
-  const isResetDue = shouldResetQuota(effectiveResetAt, nowIso);
+  const isResetDue = shouldResetQuota(
+    effectiveResetAt,
+    nowIso,
+    params.periodStartedAt,
+    safeResetDays,
+  );
 
   const effectiveTokens = isResetDue
     ? 0
@@ -155,7 +179,12 @@ export function applyTokenUsageToQuota(
   );
   const safeConsumed = Math.max(0, Math.round(params.tokensToConsume));
 
-  const isResetDue = shouldResetQuota(params.resetAt, nowIso);
+  const isResetDue = shouldResetQuota(
+    params.resetAt,
+    nowIso,
+    params.periodStartedAt,
+    safeResetDays,
+  );
   const baseTokens = isResetDue ? 0 : Math.max(0, params.currentTokensUsed);
   const periodStartedAt = isResetDue ? nowIso : params.periodStartedAt;
   const previousResetAt = isResetDue ? null : params.resetAt;
@@ -272,7 +301,14 @@ export async function getUserAiQuotaStatus(
       }
     }
 
-    if (shouldResetQuota(effectiveResetAt, nowIso)) {
+    if (
+      shouldResetQuota(
+        effectiveResetAt,
+        nowIso,
+        data.period_started_at,
+        quotaResetDays,
+      )
+    ) {
       await admin
         .from("ai_user_quotas")
         .update({

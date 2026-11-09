@@ -143,8 +143,8 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
         </div>
       ) : (
         <p className="text-xs text-muted">
-          Apabila kuota mencapai 0%, kuota akan direset otomatis kembali ke 100%
-          setelah 1 hari (24 jam).
+          Kuota token akan direset otomatis kembali ke 100% setiap siklus 1 hari
+          (24 jam) atau setelah masa reset tercapai.
         </p>
       )}
     </Card>
