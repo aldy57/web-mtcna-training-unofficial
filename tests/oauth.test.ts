@@ -40,6 +40,13 @@ function resolveOAuthErrorMessage(
   return "Kode otentikasi Google tidak ditemukan.";
 }
 
+function shouldForwardCodeToCallback(
+  pathname: string,
+  code: string | null | undefined,
+): boolean {
+  return Boolean(code && pathname !== "/auth/callback");
+}
+
 describe("OAuth — Logika Keamanan dan Penanganan Akun Google", () => {
   describe("Pencegahan Open Redirect (resolveSafeRedirect)", () => {
     it("menerima path lokal yang valid", () => {
@@ -118,6 +125,25 @@ describe("OAuth — Logika Keamanan dan Penanganan Akun Google", () => {
         isLocalEnv: false,
       });
       assert.equal(origin, "https://subdomain.domain.com");
+    });
+  });
+
+  describe("Pengalihan Otomatis Auth Code (shouldForwardCodeToCallback)", () => {
+    it("mendeteksi bahwa /login?code=... harus diteruskan ke /auth/callback", () => {
+      assert.equal(shouldForwardCodeToCallback("/login", "oauth_code_123"), true);
+      assert.equal(shouldForwardCodeToCallback("/", "oauth_code_123"), true);
+    });
+
+    it("tidak mengalihkan bila sudah berada di /auth/callback", () => {
+      assert.equal(
+        shouldForwardCodeToCallback("/auth/callback", "oauth_code_123"),
+        false,
+      );
+    });
+
+    it("tidak mengalihkan bila parameter code tidak ada", () => {
+      assert.equal(shouldForwardCodeToCallback("/login", null), false);
+      assert.equal(shouldForwardCodeToCallback("/login", undefined), false);
     });
   });
 });

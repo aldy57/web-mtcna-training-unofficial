@@ -26,6 +26,17 @@ function isAuthRoute(pathname: string): boolean {
 export async function updateSupabaseSession(
   request: NextRequest,
 ): Promise<NextResponse> {
+  const code = request.nextUrl.searchParams.get("code");
+  const { pathname } = request.nextUrl;
+
+  // Tangani kasus saat Supabase mengembalikan auth code ke /login (misal karena Site URL diatur ke /login)
+  // Otomatis alihkan kode tersebut ke route handler /auth/callback agar sesi berhasil ditukar dan disimpan
+  if (code && pathname !== "/auth/callback") {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = "/auth/callback";
+    return NextResponse.redirect(callbackUrl);
+  }
+
   if (!hasSupabasePublicEnv()) {
     return NextResponse.next({ request });
   }
@@ -53,8 +64,6 @@ export async function updateSupabaseSession(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
 
   if (!user && isProtectedPath(pathname)) {
     const loginUrl = request.nextUrl.clone();
