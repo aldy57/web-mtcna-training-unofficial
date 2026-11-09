@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { AiQuotaPanel } from "@/components/admin/AiQuotaPanel";
 import { getAdminAiData } from "@/lib/admin-repo";
 import { requireRole } from "@/lib/auth";
+import { getAppBranding } from "@/lib/branding-repo";
 
 export const metadata: Metadata = {
   title: "Layanan & Kuota AI · Panel Admin",
@@ -11,7 +12,10 @@ export const metadata: Metadata = {
 
 async function AiManagementContent() {
   await requireRole("admin");
-  const aiData = await getAdminAiData();
+  const [aiData, branding] = await Promise.all([
+    getAdminAiData(),
+    getAppBranding(),
+  ]);
 
   return (
     <div className="w-full space-y-6">
@@ -42,6 +46,7 @@ async function AiManagementContent() {
         initialQuotas={aiData.participantQuotas}
         cachedExplanationCount={aiData.cachedExplanationCount}
         usageLogs={aiData.usageLogs}
+        appName={branding.appName}
       />
     </div>
   );

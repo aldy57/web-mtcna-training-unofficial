@@ -4,12 +4,15 @@ import { ChatAiView } from "@/components/ai/ChatAiView";
 import { getEffectiveActiveAiModels } from "@/lib/ai/dynamic-settings";
 import { getUserAiQuotaStatus } from "@/lib/ai/quota";
 import { getCurrentUser } from "@/lib/auth";
+import { getAppBranding } from "@/lib/branding-repo";
 
-export const metadata: Metadata = {
-  title: "Chat AI · Tutor Cerdas Jaringan & MTCNA",
-  description:
-    "Tutor cerdas untuk fundamental jaringan komputer, cara kerja internet, dan konfigurasi MikroTik RouterOS MTCNA.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const branding = await getAppBranding();
+  return {
+    title: `${branding.appName} AI · Tutor Cerdas Jaringan & MTCNA`,
+    description: `Tutor cerdas ${branding.appName} untuk fundamental jaringan komputer, cara kerja internet, dan konfigurasi MikroTik RouterOS MTCNA.`,
+  };
+}
 
 interface ChatAiPageProps {
   searchParams: Promise<{ c?: string }>;
@@ -20,9 +23,10 @@ async function ChatAiContent({
 }: {
   searchParamsPromise: Promise<{ c?: string }>;
 }) {
-  const [user, searchParams] = await Promise.all([
+  const [user, searchParams, branding] = await Promise.all([
     getCurrentUser(),
     searchParamsPromise,
+    getAppBranding(),
   ]);
   const conversationKey = searchParams?.c || "new";
 
@@ -39,6 +43,7 @@ async function ChatAiContent({
         userRole={user.role}
         userName={user.fullName || user.email || "Peserta"}
         activeModels={activeModels}
+        appName={branding.appName}
       />
     </div>
   );

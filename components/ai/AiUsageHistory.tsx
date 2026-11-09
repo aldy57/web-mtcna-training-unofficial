@@ -11,13 +11,14 @@ import type { AiUsageLogEntry } from "@/lib/types";
 
 export interface AiUsageHistoryProps {
   logs: readonly AiUsageLogEntry[];
+  appName?: string;
 }
 
 const PAGE_SIZE = 10;
 
-function getLogFeatureLabel(entry: AiUsageLogEntry): string {
+function getLogFeatureLabel(entry: AiUsageLogEntry, appName = "MIRA"): string {
   if (!entry.attemptId && !entry.questionId) {
-    return "MIRA AI";
+    return `${appName} AI`;
   }
   return AI_FEATURE_LABELS[entry.feature] ?? entry.feature;
 }
@@ -32,7 +33,7 @@ function getLogContextLabel(entry: AiUsageLogEntry): string {
   return "Chat AI";
 }
 
-export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
+export function AiUsageHistory({ logs, appName = "MIRA" }: AiUsageHistoryProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -99,7 +100,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
               >
                 <div className="space-y-1 min-w-0 flex-1">
                   <p className="font-semibold text-foreground text-xs leading-snug">
-                    {getLogFeatureLabel(entry)}
+                    {getLogFeatureLabel(entry, appName)}
                   </p>
                   <div className="flex items-center gap-1.5 text-muted text-[11px]">
                     <span className="truncate max-w-[120px]">
@@ -143,7 +144,7 @@ export function AiUsageHistory({ logs }: AiUsageHistoryProps) {
                       {formatAppDateTime(entry.createdAt)}
                     </td>
                     <td className="py-3 px-4 font-medium text-foreground">
-                      {getLogFeatureLabel(entry)}
+                      {getLogFeatureLabel(entry, appName)}
                     </td>
                     <td className="py-3 px-4 text-xs text-muted">
                       {getLogContextLabel(entry)}

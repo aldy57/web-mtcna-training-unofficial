@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
@@ -8,11 +7,12 @@ import { createPortal } from "react-dom";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { Badge } from "@/components/ui/Badge";
 import { useSidebar } from "@/components/ui/SidebarContext";
-import type { UserProfile } from "@/lib/types";
+import type { AppBrandingSettings, UserProfile } from "@/lib/types";
 import { UI_STRINGS } from "@/lib/ui-strings";
 
 export interface AppSidebarProps {
   user: UserProfile;
+  branding?: AppBrandingSettings;
 }
 
 interface NavLinkItem {
@@ -219,7 +219,7 @@ function SettingsIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar({ user, branding }: AppSidebarProps) {
   const pathname = usePathname();
   const { isMobileOpen, closeMobile } = useSidebar();
   const isClient = useSyncExternalStore(
@@ -227,6 +227,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
     () => true,
     () => false,
   );
+
+  const appDisplayName = branding?.appName?.trim() || UI_STRINGS.brand;
+  const chatAiLabel = `${appDisplayName} AI`;
 
   const navLinks: NavLinkItem[] = [];
 
@@ -258,7 +261,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       },
       {
         href: "/chat-ai",
-        label: UI_STRINGS.nav.chatAi,
+        label: chatAiLabel,
         badge: "NEW",
         icon: SparklesIcon,
         isActive: (path) => path.startsWith("/chat-ai"),
@@ -304,7 +307,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       },
       {
         href: "/chat-ai",
-        label: "Chat AI",
+        label: chatAiLabel,
         badge: "NEW",
         icon: SparklesIcon,
         isActive: (path) => path.startsWith("/chat-ai"),
@@ -453,13 +456,16 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   href="/"
                   onClick={closeMobile}
                   className="flex items-center shrink-0 transition-opacity hover:opacity-85"
-                  aria-label="MIRA - Beranda"
+                  aria-label={`${appDisplayName} - Beranda`}
                 >
-                  <Image
-                    src="/mira-logo.svg"
-                    alt="MIRA - MikroTik Intelligence Review & Assessment"
-                    width={106}
-                    height={38}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={
+                      branding?.logoWithTextUrl ||
+                      branding?.logoUrl ||
+                      "/mira-logo.svg"
+                    }
+                    alt={branding?.appName || appDisplayName}
                     className="h-8 w-auto object-contain"
                   />
                 </Link>

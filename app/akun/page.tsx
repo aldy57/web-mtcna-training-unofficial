@@ -8,6 +8,7 @@ import {
   getUserAiUsageHistory,
 } from "@/lib/ai/quota";
 import { getCurrentUser } from "@/lib/auth";
+import { getAppBranding } from "@/lib/branding-repo";
 
 export const metadata: Metadata = {
   title: "Pengaturan Akun",
@@ -20,16 +21,17 @@ async function AccountSettingsContent() {
     return <AccountSettingsForms user={user} />;
   }
 
-  const [quota, usageLogs] = await Promise.all([
+  const [quota, usageLogs, branding] = await Promise.all([
     getUserAiQuotaStatus(user.id),
     getUserAiUsageHistory(user.id, 100),
+    getAppBranding(),
   ]);
 
   return (
     <div className="space-y-6">
       <AccountSettingsForms user={user} />
-      <AiQuotaBar quota={quota} />
-      <AiUsageHistory logs={usageLogs} />
+      <AiQuotaBar quota={quota} appName={branding.appName} />
+      <AiUsageHistory logs={usageLogs} appName={branding.appName} />
     </div>
   );
 }

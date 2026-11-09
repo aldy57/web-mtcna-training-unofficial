@@ -42,6 +42,7 @@ import {
   requireUserForAction,
 } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAppBranding } from "@/lib/branding-repo";
 import type { ActionResult, AiQuotaStatus, Language } from "@/lib/types";
 import { UI_STRINGS } from "@/lib/ui-strings";
 
@@ -491,11 +492,18 @@ export async function sendChatAiMessageAction(
   }
 
   try {
-    const messages = buildTutorChatMessages({
-      history: parsed.data.history,
-      userMessage: parsed.data.message,
-      complexity: parsed.data.complexity,
-    });
+    const branding = await getAppBranding();
+    const messages = buildTutorChatMessages(
+      {
+        history: parsed.data.history,
+        userMessage: parsed.data.message,
+        complexity: parsed.data.complexity,
+      },
+      {
+        appName: branding.appName,
+        appFullName: branding.appFullName,
+      },
+    );
 
     const effectiveSettings = await fetchDynamicAiSettings();
     const activeModels = getActiveAiModels(effectiveSettings);

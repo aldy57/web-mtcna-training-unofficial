@@ -8,6 +8,7 @@ import { UI_STRINGS } from "@/lib/ui-strings";
 export interface AiQuotaBarProps {
   quota: AiQuotaStatus;
   compact?: boolean;
+  appName?: string;
 }
 
 function formatResetDateTime(iso: string | null): string {
@@ -17,7 +18,11 @@ function formatResetDateTime(iso: string | null): string {
   return formatAppDateTime(iso);
 }
 
-export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
+export function AiQuotaBar({
+  quota,
+  compact = false,
+  appName = "MIRA",
+}: AiQuotaBarProps) {
   const remainingPct = Math.max(0, Math.min(100, quota.remainingPercent));
   const usedPct = Math.max(0, Math.min(100, quota.usedPercent));
 
@@ -87,7 +92,7 @@ export function AiQuotaBar({ quota, compact = false }: AiQuotaBarProps) {
             Token AI
           </h2>
           <p className="text-xs text-muted">
-            Digunakan untuk fitur Tanya AI, MIRA AI, Jelaskan Jawaban Saya, dan
+            Digunakan untuk fitur Tanya AI, {appName} AI, Jelaskan Jawaban Saya, dan
             Rekomendasi Belajar pasca-tryout.
           </p>
         </div>

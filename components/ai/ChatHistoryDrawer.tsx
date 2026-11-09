@@ -16,6 +16,7 @@ export interface ChatHistoryDrawerProps {
   onNewChat: () => void;
   onRenameConversation: (id: string, newTitle: string) => Promise<void>;
   onDeleteConversation: (id: string) => Promise<void>;
+  appName?: string;
 }
 
 export type ChatHistoryModalProps = ChatHistoryDrawerProps;
@@ -123,6 +124,7 @@ export function ChatHistoryDrawer({
   onNewChat,
   onRenameConversation,
   onDeleteConversation,
+  appName = "MIRA",
 }: ChatHistoryDrawerProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -192,7 +194,7 @@ export function ChatHistoryDrawer({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Popup Riwayat Obrolan MIRA AI"
+      aria-label={`Popup Riwayat Obrolan ${appName} AI`}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
     >
       {/* Backdrop */}

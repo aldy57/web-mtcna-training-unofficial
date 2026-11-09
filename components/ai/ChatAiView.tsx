@@ -34,6 +34,7 @@ export interface ChatAiViewProps {
   userRole: Role;
   userName: string;
   activeModels?: AiCustomModel[];
+  appName?: string;
 }
 
 interface ChatMessage {
@@ -231,6 +232,7 @@ interface GeminiModelModeDropdownProps {
   dropDirection?: "up" | "down";
   align?: "left" | "right";
   buttonClassName?: string;
+  appName?: string;
 }
 
 function GeminiModelModeDropdown({
@@ -243,6 +245,7 @@ function GeminiModelModeDropdown({
   dropDirection = "up",
   align = "right",
   buttonClassName,
+  appName = "MIRA",
 }: GeminiModelModeDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
@@ -317,7 +320,7 @@ function GeminiModelModeDropdown({
           {hasMultipleModels ? (
             <>
               <span className="text-foreground font-semibold truncate">
-                {currentModel?.name || "MIRA"}
+                {currentModel?.name || appName}
               </span>
               <span className="text-neutral-500 dark:text-neutral-400 font-normal shrink-0">
                 {currentMode.label}
@@ -713,6 +716,7 @@ export function ChatAiView({
   userRole,
   userName,
   activeModels = [],
+  appName = "MIRA",
 }: ChatAiViewProps) {
   const searchParams = useSearchParams();
   const defaultModelId =
@@ -1029,6 +1033,7 @@ export function ChatAiView({
               disabled={isPending}
               dropDirection="down"
               align="right"
+              appName={appName}
               buttonClassName="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs text-foreground hover:border-accent/40 hover:bg-neutral-50 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
             />
           </div>
@@ -1045,6 +1050,7 @@ export function ChatAiView({
         onNewChat={handleNewChat}
         onRenameConversation={handleRenameConversation}
         onDeleteConversation={handleDeleteConversation}
+        appName={appName}
       />
 
       {/* Area Pesan Percakapan */}
@@ -1060,7 +1066,7 @@ export function ChatAiView({
                 Halo, {userName || "Peserta"}!
               </h2>
               <p className="text-xs sm:text-sm text-muted leading-relaxed">
-                Saya adalah MIRA AI, asisten tutor cerdas untuk materi fundamental jaringan komputer, cara kerja internet, serta konfigurasi MikroTik RouterOS &amp; silabus MTCNA. Silakan tanyakan konsep dasar maupun praktik jaringan!
+                Saya adalah {appName} AI, asisten tutor cerdas untuk materi fundamental jaringan komputer, cara kerja internet, serta konfigurasi MikroTik RouterOS &amp; silabus MTCNA. Silakan tanyakan konsep dasar maupun praktik jaringan!
               </p>
             </div>
           </div>
@@ -1084,7 +1090,7 @@ export function ChatAiView({
                       <div className="flex items-center justify-between gap-3 mb-1.5 pb-1 border-b border-border/60">
                         <span className="text-[11px] font-semibold text-accent flex items-center gap-1">
                           <SparklesHeaderIcon className="h-3 w-3" />
-                          MIRA AI
+                          {appName} AI
                         </span>
                         <button
                           type="button"
@@ -1147,7 +1153,7 @@ export function ChatAiView({
                     <div className="h-2 w-2 bg-accent rounded-full animate-bounce [animation-delay:-0.15s]" />
                     <div className="h-2 w-2 bg-accent rounded-full animate-bounce" />
                   </div>
-                  <span>MIRA AI sedang menyusun jawaban...</span>
+                  <span>{appName} AI sedang menyusun jawaban...</span>
                 </div>
               </div>
             )}
@@ -1254,6 +1260,7 @@ export function ChatAiView({
               disabled={isPending}
               dropDirection="up"
               align="right"
+              appName={appName}
               buttonClassName="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-neutral-100/90 hover:bg-neutral-200/80 px-3 py-1.5 text-xs text-foreground transition-all cursor-pointer disabled:opacity-50"
             />
           </div>
@@ -1339,7 +1346,7 @@ export function ChatAiView({
           </div>
 
           <p className="text-center text-[10px] sm:text-[11px] text-muted/75 leading-tight pt-0.5">
-            MIRA AI adalah generative AI yang dapat membuat kesalahan.
+            {appName} AI adalah generative AI yang dapat membuat kesalahan.
           </p>
         </div>
       </div>

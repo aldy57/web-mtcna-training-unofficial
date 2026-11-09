@@ -11,13 +11,14 @@ import type { AiUsageLogEntry } from "@/lib/types";
 
 export interface AdminAiUsageHistoryProps {
   logs: readonly AiUsageLogEntry[];
+  appName?: string;
 }
 
 const PAGE_SIZE = 10;
 
-function getLogFeatureLabel(entry: AiUsageLogEntry): string {
+function getLogFeatureLabel(entry: AiUsageLogEntry, appName = "MIRA"): string {
   if (!entry.attemptId && !entry.questionId) {
-    return "MIRA AI";
+    return `${appName} AI`;
   }
   return AI_FEATURE_LABELS[entry.feature] ?? entry.feature;
 }
@@ -32,7 +33,10 @@ function getLogContextLabel(entry: AiUsageLogEntry): string {
   return "Chat AI";
 }
 
-export function AdminAiUsageHistory({ logs }: AdminAiUsageHistoryProps) {
+export function AdminAiUsageHistory({
+  logs,
+  appName = "MIRA",
+}: AdminAiUsageHistoryProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,14 +50,14 @@ export function AdminAiUsageHistory({ logs }: AdminAiUsageHistoryProps) {
       const matchName = item.userName?.toLowerCase().includes(q) ?? false;
       const matchEmail = item.userEmail?.toLowerCase().includes(q) ?? false;
       const matchFeature =
-        getLogFeatureLabel(item).toLowerCase().includes(q) ||
+        getLogFeatureLabel(item, appName).toLowerCase().includes(q) ||
         item.feature.toLowerCase().includes(q);
       const matchContext =
         getLogContextLabel(item).toLowerCase().includes(q) ||
         (item.questionId?.toLowerCase().includes(q) ?? false);
       return matchName || matchEmail || matchFeature || matchContext;
     });
-  }, [logs, searchQuery]);
+  }, [logs, searchQuery, appName]);
 
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
@@ -163,7 +167,7 @@ export function AdminAiUsageHistory({ logs }: AdminAiUsageHistoryProps) {
                     </div>
                     <div className="flex items-center gap-1.5 text-muted text-[11px]">
                       <span className="font-medium text-foreground">
-                        {getLogFeatureLabel(entry)}
+                        {getLogFeatureLabel(entry, appName)}
                       </span>
                       <span>•</span>
                       <span className="truncate max-w-[100px]">
@@ -218,7 +222,7 @@ export function AdminAiUsageHistory({ logs }: AdminAiUsageHistoryProps) {
                         )}
                       </td>
                       <td className="py-3 px-3 font-medium text-foreground">
-                        {getLogFeatureLabel(entry)}
+                        {getLogFeatureLabel(entry, appName)}
                       </td>
                       <td className="py-3 px-3 text-muted">
                         {getLogContextLabel(entry)}

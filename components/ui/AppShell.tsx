@@ -44,11 +44,14 @@ async function UserMobileToggle() {
 }
 
 async function UserSidebarWrapper() {
-  const user = await getOptionalUser();
+  const [user, branding] = await Promise.all([
+    getOptionalUser(),
+    getAppBranding(),
+  ]);
   if (!user) {
     return null;
   }
-  return <AppSidebar user={user} />;
+  return <AppSidebar user={user} branding={branding} />;
 }
 
 function NavigationFallback() {

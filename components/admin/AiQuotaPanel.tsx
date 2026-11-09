@@ -32,6 +32,7 @@ interface AiQuotaPanelProps {
   initialQuotas: Record<string, AiQuotaStatus>;
   cachedExplanationCount: number;
   usageLogs?: readonly AiUsageLogEntry[];
+  appName?: string;
 }
 
 const QUICK_ADD_PERCENT = 50;
@@ -85,6 +86,7 @@ export function AiQuotaPanel({
   initialQuotas,
   cachedExplanationCount,
   usageLogs = [],
+  appName = "MIRA",
 }: AiQuotaPanelProps) {
   const [globalStatus, setGlobalStatus] =
     useState<AiGlobalQuotaStatus>(initialGlobalStatus);
@@ -294,7 +296,7 @@ export function AiQuotaPanel({
             </div>
             <p className="text-[11px] text-muted">
               {globalStatus.isEnabled
-                ? "MIRA AI dapat diakses oleh pengguna"
+                ? `${appName} AI dapat diakses oleh pengguna`
                 : "Fitur AI dinonaktifkan sementara"}
             </p>
           </div>
@@ -498,7 +500,7 @@ export function AiQuotaPanel({
       </Card>
 
       {/* Kartu Riwayat Penggunaan Token Seluruh Pengguna */}
-      <AdminAiUsageHistory logs={usageLogs} />
+      <AdminAiUsageHistory logs={usageLogs} appName={appName} />
     </div>
   );
 }

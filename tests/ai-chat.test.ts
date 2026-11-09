@@ -127,4 +127,19 @@ describe("lib/ai — MIRA AI (Tutor Cerdas)", () => {
     });
     assert.ok(highMsg[0]?.content.includes("HIGH (MENDALAM & KOMPREHENSIF"));
   });
+
+  it("mendukung nama aplikasi dinamis pada system prompt tutor", () => {
+    const customPrompt = buildTutorChatMessages(
+      {
+        history: [],
+        userMessage: "Halo tutor",
+      },
+      {
+        appName: "NetLearn",
+        appFullName: "Network Learning Platform",
+      },
+    );
+    assert.ok(customPrompt[0]?.content.includes("NetLearn AI"));
+    assert.ok(customPrompt[0]?.content.includes("Network Learning Platform"));
+  });
 });
