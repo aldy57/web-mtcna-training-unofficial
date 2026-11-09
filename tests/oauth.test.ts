@@ -16,6 +16,20 @@ function resolveGoogleUserFullName(
   return fullName || name || "";
 }
 
+function resolveAppOrigin(params: {
+  requestUrl: string;
+  forwardedHost?: string | null;
+  forwardedProto?: string | null;
+  isLocalEnv?: boolean;
+}): string {
+  const url = new URL(params.requestUrl);
+  if (params.isLocalEnv || !params.forwardedHost) {
+    return url.origin;
+  }
+  const proto = params.forwardedProto || "https";
+  return `${proto}://${params.forwardedHost}`;
+}
+
 function resolveOAuthErrorMessage(
   errorParam: string | null | undefined,
   descriptionParam: string | null | undefined,
@@ -75,6 +89,35 @@ describe("OAuth — Logika Keamanan dan Penanganan Akun Google", () => {
     it("menangani kasus kode otentikasi hilang", () => {
       const msg = resolveOAuthErrorMessage(null, null);
       assert.equal(msg, "Kode otentikasi Google tidak ditemukan.");
+    });
+  });
+
+  describe("Resolusi Host & Origin Production (resolveAppOrigin)", () => {
+    it("menggunakan origin lokal saat pada environment development", () => {
+      const origin = resolveAppOrigin({
+        requestUrl: "http://localhost:3000/auth/callback?code=abc",
+        isLocalEnv: true,
+      });
+      assert.equal(origin, "http://localhost:3000");
+    });
+
+    it("mengutamakan x-forwarded-host dan x-forwarded-proto saat di production / Vercel", () => {
+      const origin = resolveAppOrigin({
+        requestUrl: "http://localhost:3000/auth/callback?code=abc",
+        forwardedHost: "mtcna-training.vercel.app",
+        forwardedProto: "https",
+        isLocalEnv: false,
+      });
+      assert.equal(origin, "https://mtcna-training.vercel.app");
+    });
+
+    it("fallback ke https jika forwardedProto tidak didefinisikan", () => {
+      const origin = resolveAppOrigin({
+        requestUrl: "http://127.0.0.1:3000/auth/callback",
+        forwardedHost: "subdomain.domain.com",
+        isLocalEnv: false,
+      });
+      assert.equal(origin, "https://subdomain.domain.com");
     });
   });
 });
